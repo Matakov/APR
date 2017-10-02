@@ -1,6 +1,6 @@
 # APR
 Analiziranje i projektiranje racunalom
-Laboratirijske vježbe (domaće zadać1e)
+Laboratorijske vježbe (domaće zadaće)
 
 Computer Aided Analysis and Design
-Lab assignment (homework)
+Lab assignments (homeworks)
