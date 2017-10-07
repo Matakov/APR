@@ -1,0 +1,640 @@
+#include<iostream>
+#include<iomanip>
+#include<string>
+#include<fstream>
+#include<vector>
+#include<sstream>
+#include<exception>
+
+class Matrica{
+    private:
+	int row,column;
+	double** arrayPointer;
+	std::vector<std::vector<double>> array;
+
+    public:
+	//class constructors
+	Matrica()
+	{
+	row=0;
+	column=0;
+	arrayPointer=nullptr;
+	} 	
+	Matrica(int l, int k): row(l),column(k)
+	{
+		/*
+		arrayPointer = new double*[row];
+		if(row)
+		{
+			arrayPointer[0] = new double[row*column];
+			for (int i=1;1<row;++i)
+				arrayPointer[i] = arrayPointer[0] + i*column;
+		}
+		*/
+		arrayPointer = new double*[row];
+		for(int i=0;i<row;++i)
+		{
+			arrayPointer[i]= new double[column];
+		}
+	}
+	Matrica(std::string filename)
+	{
+		std::fstream myfile(filename);
+		//myfile.open(filename);
+		//int k=0;
+		//int l=0;
+		std::vector<double> vec;
+		std::string line;
+		double variable;
+		if(myfile.is_open())
+			{
+			while(!myfile.eof())
+				{
+				vec.clear();
+				std::getline(myfile, line);
+				std::istringstream iss(line);
+				while (iss >> variable)
+				{
+					//std::cout << variable << std::endl;
+					vec.push_back(variable);
+				}
+				if(!vec.empty()) array.push_back(vec);
+			}			
+		}
+		//number of rows is determined by the number of rows in a file
+		row = array.size();
+		//number of columns is determind by the nuber of columns in a row
+		column = array[0].size();
+
+		//add to arrayPointer
+		arrayPointer = new double*[row];
+		for(int i=0;i<row;++i)
+		{
+			arrayPointer[i]= new double[column];
+		}
+		for(int i=0;i<row;++i)
+		{
+			for(int j=0;j<column;++j)
+			{
+				arrayPointer[i][j]=array[i][j];
+			}
+		}		
+		
+	}
+	//class destructor
+	~Matrica(void)
+	{
+		if(arrayPointer){
+		for(int i=0;i<row;i++)
+		{
+			delete []arrayPointer[i];
+		}
+		delete []arrayPointer;
+		}
+		std::cout<<"Object has been deleted"<<std::endl;
+	}
+	//function to display array
+	void printMatrix()
+	{
+		/*
+		//std::cout<<array.size()<<std::endl;
+		for(auto const& line: array)
+		{
+			//std::cout<<line.size()<<std::endl;
+			for(auto const& elem: line)
+			{
+				std::cout.width(6);
+				std::cout<< elem << " ";
+			}
+			std::cout<<std::endl;
+		}
+		*/
+		for(int i=0;i<row;i++)
+		{
+			for(int j=0;j<column;j++)
+			{
+				std::cout.width(6);
+				std::cout<< arrayPointer[i][j] << " ";
+			}
+			std::cout<<std::endl;
+		}
+	}
+	//get number of rows
+	int getRow() const {return row;}
+	//set number od rows
+	bool setRow(int r)
+	{
+		//if 
+		if(r != row)
+		try
+		{	
+			//need to allocate new space
+			double** newArrayPointer = new double*[r];
+			for(int i=0;i<r;++i)
+			{
+				newArrayPointer[i]= new double[column];
+			}
+			//need to copy elements from old array to new
+			for(int i=0;i<r;i++)
+			{
+				for(int j=0;j<column;j++)
+				{
+					if(i<row)
+					{
+						newArrayPointer[i][j]=this->arrayPointer[i][j];
+					}
+					else
+					{
+						newArrayPointer[i][j]=0;
+					}
+					
+				}
+			}
+			//print array
+			/*
+			for(int i=0;i<std::max(row,r);i++)
+			{
+				for(int j=0;j<column;j++)
+				{
+					std::cout.width(5);
+					std::cout<<newArrayPointer[i][j];
+				}
+				std::cout<<std::endl;
+			}
+			*/
+			this->row = r;
+			delete []this->arrayPointer;
+			this->arrayPointer= newArrayPointer;
+			return true;
+		}
+		catch(int e)
+		{
+			return false;
+		}
+	}
+	//get number of columns
+	int getColumn() const {return column;}
+	//set number of columns
+	bool setColumn(int c)
+	{
+		try
+		{	
+			//need to allocate new space
+			double** newArrayPointer = new double*[this->row];
+			for(int i=0;i<row;++i)
+			{
+				newArrayPointer[i]= new double[c];
+			}
+			//need to copy elements from old array to new
+			for(int i=0;i<this->row;i++)
+			{
+				for(int j=0;j<c;j++)
+				{
+					if(j<column)
+					{
+						newArrayPointer[i][j]=this->arrayPointer[i][j];
+					}
+					else
+					{
+						newArrayPointer[i][j]=0;
+					}
+					
+				}
+			}
+			//print array
+			/*
+			for(int i=0;i<std::max(row,r);i++)
+			{
+				for(int j=0;j<column;j++)
+				{
+					std::cout.width(5);
+					std::cout<<newArrayPointer[i][j];
+				}
+				std::cout<<std::endl;
+			}
+			*/
+			this->column = c;
+			delete []this->arrayPointer;
+			this->arrayPointer= newArrayPointer;
+			return true;
+		}
+		catch(std::exception& e)
+		{
+			std::cout<<e.what()<<std::endl;
+			return false;
+		}
+	}
+	//get element
+	double getElement(int i,int j){return arrayPointer[i][j];}
+	//set element
+	bool setElement(int i,int j, double elem)
+	{
+		if(i >= row || j >= column)
+		{
+			std::cout<<"Matrix indexes are not corrent"<<std::endl;
+			return false;
+		}
+		try
+		{
+			arrayPointer[i][j]=elem;
+			return true;
+		}
+		catch(std::exception& e)
+		{
+			std::cout<<e.what()<<std::endl;
+			return false;		
+		}
+	}
+	//print to file
+	bool printToFile(std::string filename)
+	{
+		std::ofstream myfile(filename);
+		if(myfile.is_open())
+		{
+			for(int i=0;i<row;i++)
+			{
+				for(int j=0;j<column;j++)
+				{
+					myfile<<arrayPointer[i][j]<<" ";
+				}
+				myfile<<std::endl;
+			}
+			myfile.close();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+	//adding operators
+	Matrica& operator+=(const Matrica& B)
+	{	
+		if((this->getRow() != B.getRow()) || (this->getColumn() != B.getColumn()))
+		{
+			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
+			exit(1);
+		}
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				//std::cout<<this->arrayPointer[i][j]<<" "<<B.arrayPointer[i][j]<<std::endl;
+				this->arrayPointer[i][j]= this->arrayPointer[i][j] + B.arrayPointer[i][j];
+				
+			}		
+		}
+		return *this;
+	}
+	
+	//subtraction operators
+	Matrica& operator-=(const Matrica& B)
+	{	
+		if((this->getRow() != B.getRow()) || (this->getColumn() != B.getColumn()))
+		{
+			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
+			exit(1);
+		}
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				//std::cout<<this->arrayPointer[i][j]<<" "<<B.arrayPointer[i][j]<<std::endl;
+				this->arrayPointer[i][j]= this->arrayPointer[i][j] - B.arrayPointer[i][j];
+				
+			}		
+		}
+		return *this;
+	}
+	//copy array for assigning operator
+	double** copyArray()
+	{
+		double** newArrayPointer = new double*[this->row];
+		for(int i=0;i<this->row;++i)
+		{
+			newArrayPointer[i]= new double[this->column];
+		}
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				newArrayPointer[i][j]=this->arrayPointer[i][j];
+			}
+		}
+		return newArrayPointer;
+	}
+	//assigning operator
+	Matrica& operator=(Matrica B)
+	{	
+		if(arrayPointer) delete[] this->arrayPointer;
+		this->row=B.getRow();
+		this->column=B.getColumn();
+		//this->arrayPointer=B.copyArray();
+		//std::swap(*this,B);
+		double** arrayPointer = new double*[row];
+		for(int i=0;i<row;++i)
+		{
+			this->arrayPointer[i]= new double[column];
+		}
+		for(int i=0;i<row;i++)
+		{
+			for(int j=0;j<column;j++)
+			{
+				this->arrayPointer[i][j]=B.arrayPointer[i][j];
+			}
+		}
+		return *this;
+	}
+	//adding operators
+	Matrica operator+(const Matrica& B)
+	{	
+		if((this->getRow() != B.getRow()) || (this->getColumn() != B.getColumn()))
+		{
+			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
+			exit(1);
+		}
+		Matrica A(this->getRow(),this->getColumn());
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				//std::cout<<this->arrayPointer[i][j]<<" "<<B.arrayPointer[i][j]<<std::endl;
+				A.arrayPointer[i][j]=this->arrayPointer[i][j]+B.arrayPointer[i][j];
+				//std::cout<<A.arrayPointer[i][j]<<std::endl;
+			}		
+		}
+		return A;
+	}
+	//subtraction operators
+	Matrica operator-(const Matrica& B)
+	{	
+		if((this->getRow() != B.getRow()) || (this->getColumn() != B.getColumn()))
+		{
+			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
+			exit(1);
+		}
+		Matrica A(this->getRow(),this->getColumn());
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				//std::cout<<this->arrayPointer[i][j]<<" "<<B.arrayPointer[i][j]<<std::endl;
+				A.arrayPointer[i][j]=this->arrayPointer[i][j]-B.arrayPointer[i][j];
+				//std::cout<<A.arrayPointer[i][j]<<std::endl;
+			}		
+		}
+		return A;
+	}
+	//multiply scalar
+	Matrica& operator*=(const double b)
+	{	
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				//std::cout<<this->arrayPointer[i][j]<<" "<<B.arrayPointer[i][j]<<std::endl;
+				this->arrayPointer[i][j]= this->arrayPointer[i][j] * b;
+				
+			}		
+		}
+		return *this;
+	}
+	double multiplyVectors(const Matrica&B, int k, int l)
+	{
+		double score=0;
+		for(int i=0;i<this->getColumn();i++)
+		{
+			score+=this->arrayPointer[k][i]*B.arrayPointer[i][l];	
+		}
+		return score;
+	}
+	//multiplying operators
+	Matrica operator*(const Matrica& B)
+	{	
+		if(this->getColumn() != B.getRow())
+		{
+			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
+			exit(1);
+		}
+		std::cout<<"Pass"<<std::endl;
+		std::cout<<this->getRow()<<" "<<B.getColumn()<<std::endl;
+		Matrica A(this->getRow(),B.getColumn());
+			
+		for(int i=0;i<this->getRow();i++)
+		{
+			for(int j=0;j<B.getColumn();j++)
+			{
+				double score=0;
+				for(int k=0;k<this->getColumn();k++)
+				{
+					//std::cout<<this->arrayPointer[i][k]<<" "<<B.arrayPointer[k][j]<<std::endl;
+					score+=this->arrayPointer[i][k]*B.arrayPointer[k][j];	
+				}
+				A.arrayPointer[i][j]=score;
+			}
+		}			
+		return A;
+		
+	}
+	//transpose operators
+	Matrica transpose()
+	{	
+		Matrica A(this->column,this->row);
+		//std::cout<<this->row<<" "<<this->column<<std::endl;
+		//std::cout<<A.getRow()<<" "<<A.getColumn()<<std::endl;
+		
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				A.arrayPointer[j][i]=this->arrayPointer[i][j];
+			}		
+		}
+		
+		return A;
+	
+	}
+	//transpose self
+	void transposeSelf()
+	{	
+		Matrica A(this->column,this->row);
+		//std::cout<<this->row<<" "<<this->column<<std::endl;
+		//std::cout<<A.getRow()<<" "<<A.getColumn()<<std::endl;
+		
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				A.arrayPointer[j][i]=this->arrayPointer[i][j];
+			}		
+		}
+		
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				this->arrayPointer[i][j]=A.arrayPointer[i][j];
+			}		
+		}
+		
+	
+	}
+	//comparing (==) operator
+	bool operator==(const Matrica& B)
+	{
+		for(int i=0;i<this->row;i++)
+		{
+			for(int j=0;j<this->column;j++)
+			{
+				if(this->arrayPointer[i][j]!=B.arrayPointer[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	//get column vector
+	Matrica getColumnVector(int column)
+	{
+		Matrica A(1,this->row);
+		for(int i=0;i<this->row;i++)
+		{
+			A.arrayPointer[0][i]=this->arrayPointer[i][column];
+		}
+		return A;
+	}
+	//get row vector
+	Matrica getRowVector(int row)
+	{
+		Matrica A(1,this->column);
+		for(int i=0;i<this->column;i++)
+		{
+			A.arrayPointer[0][i]=this->arrayPointer[row][i];
+		}
+		return A;
+	}
+	//LU decomposition
+	void LUdekompozicija()
+	{
+		for(int i=0;i<this->getRow()-1;i++)
+		{
+			for(int j=i+1;j<this->getRow();j++)
+			{
+				this->arrayPointer[j][i]=this->arrayPointer[j][i]/this->arrayPointer[i][i];
+				for(int k=i+1;k<this->getRow();k++)
+				{
+					this->arrayPointer[j][k]-=this->arrayPointer[j][i]*this->arrayPointer[i][k];
+				}
+			}
+		}
+	}
+	//supstitucija unaprijed
+	Matrica supstitucijaUnaprijed(const Matrica& b)
+	{
+		Matrica sup(this->getRow(),this->getRow());
+		for(int i=0;i<this->getRow();i++)
+		{
+			for(int j=0;j<this->getRow();j++)
+			{
+				if(i>j)
+				{
+					sup.arrayPointer[i][j]=this->arrayPointer[i][j];
+				}
+				else if(i==j)
+				{
+					sup.arrayPointer[i][j]=1;
+				}
+				else
+				{
+					sup.arrayPointer[i][j]=0;
+				}
+			}
+		}
+		Matrica y(this->getRow(),1);
+		for(int i=0;i<this->getRow();i++)
+		{
+			y.arrayPointer[i][0]=b.arrayPointer[i][0];
+		}
+		for(int i=1;i<this->getRow();i++)
+		{
+			for(int j=0;j<i;j++)
+			{
+				y.arrayPointer[i][0]-=(sup.arrayPointer[i][j]*y.arrayPointer[j][0]);
+//				std::cout<<i<<" "<<j<<" "<<y.arrayPointer[i][0]<<" "<<sup.arrayPointer[i][j]<<" "<<y.arrayPointer[i][0]<<std::endl;
+			}
+		}
+		return y;
+	}
+	//supstitucija unazad
+	Matrica supstitucijaUnazad(const Matrica& y)
+	{
+		Matrica sup(this->getRow(),this->getRow());
+		for(int i=0;i<this->getRow();i++)
+		{
+			for(int j=0;j<this->getRow();j++)
+			{
+				if(i<=j)
+				{
+					sup.arrayPointer[i][j]=this->arrayPointer[i][j];
+				}
+				else
+				{
+					sup.arrayPointer[i][j]=0;
+				}
+			}
+		}
+		Matrica x(this->getRow(),1);
+		for(int i=0;i<this->getRow();i++)
+		{
+			x.arrayPointer[i][0]=y.arrayPointer[i][0];
+		}
+		for(int i=this->getRow()-1;i>=0;i--)
+		{
+			for(int j=this->getRow()-1;j>i;j--)
+			{
+				x.arrayPointer[i][0]-=(sup.arrayPointer[i][j]*x.arrayPointer[j][0]);
+			}
+			x.arrayPointer[i][0]/=this->arrayPointer[i][i];
+			sup.arrayPointer[i][i]/=sup.arrayPointer[i][i];
+		}
+		return x;
+	}
+	
+
+};
+
+
+
+
+
+int main()
+{
+	Matrica A("B.txt");
+	Matrica B("A.txt");
+	Matrica C("C.txt");
+	//Matrica B("A.txt");
+	//Matrica C=A;
+	//A.printMatrix();
+	//A*=2;
+	std::cout<<A.getRow()<<" "<<A.getColumn()<<std::endl;
+	A.printMatrix();
+	std::cout<<B.getRow()<<" "<<B.getColumn()<<std::endl;
+	B.printMatrix();
+	//C.printMatrix();
+	//Matrica C=A*B;
+	//C.printMatrix();
+	B.LUdekompozicija();
+	std::cout<<"Matrica:"<<std::endl;
+	B.printMatrix();
+	std::cout<<"Vektor b:"<<std::endl;
+	C.printMatrix();
+	Matrica y=B.supstitucijaUnaprijed(C);
+	y.printMatrix();
+	Matrica x=B.supstitucijaUnazad(y);
+	x.printMatrix();
+	return 0;	
+}
+
