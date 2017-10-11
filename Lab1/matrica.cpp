@@ -117,7 +117,7 @@ class Matrica{
 		}
 		delete []arrayPointer;
 		}
-		std::cout<<"Object has been deleted"<<std::endl;
+		//std::cout<<"Object has been deleted"<<std::endl;
 	}
 	//function to display array
 	void printMatrix()
@@ -796,109 +796,164 @@ int main()
 	x.printMatrix();
 	*/
 	//ZADATAK 1
+	std::cout<<"Zadatak 1: "<<std::endl;	
 	Matrica A("1.txt");
 	Matrica B(A);
+	std::cout<<"Matrica A: "<<std::endl;
 	A.printMatrix();
+	std::cout<<"Matrica B: "<<std::endl;
 	B.printMatrix();
+	std::cout<<"Jednakost matrica A i B: "<<std::endl;
 	std::cout<<(A==B)<<std::endl;
 	B.divideScalar(15015);
 	B.multiplyScalar(15015);
+	std::cout<<"Jednakost matrica A i B: "<<std::endl;
 	std::cout<<(A==B)<<std::endl;
 	
 	
 	//ZADATAK 2
+	std::cout<<std::endl;
+	std::cout<<"Zadatak 2: "<<std::endl;
 	Matrica _2a("2a.txt");
 	Matrica _2b("2b.txt");
 	//LU	
 	_2a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_2a.printMatrix();
 	Matrica _2ya=_2a.supstitucijaUnaprijed(_2b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_2ya.printMatrix();
 	Matrica _2xa=_2a.supstitucijaUnazad(_2ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_2xa.printMatrix();
 	//LUP
-	Matrica _2P=_2a.LUPdekompozicija();
+	Matrica _2a2("2a.txt");
+	Matrica _2P=_2a2.LUPdekompozicija();
+	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
 	_2a.printMatrix();
+	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_2P.printMatrix();
-	Matrica _2yb=_2a.supstitucijaUnaprijed(_2P*_2b);
+	Matrica _2yb=_2a2.supstitucijaUnaprijed(_2P*_2b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_2yb.printMatrix();
-	Matrica _2xb=B.supstitucijaUnazad(_2yb);
+	Matrica _2xb=_2a2.supstitucijaUnazad(_2yb);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_2xb.printMatrix();
 	
 	//ZADATAK 3
+	std::cout<<std::endl;
+	std::cout<<"Zadatak 3: "<<std::endl;
 	Matrica _3a("3a.txt");
 	Matrica _3b("slob.txt");
 	//LU	
 	_3a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_3a.printMatrix();
 	Matrica _3ya=_3a.supstitucijaUnaprijed(_3b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_3ya.printMatrix();
 	Matrica _3xa=_3a.supstitucijaUnazad(_3ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_3xa.printMatrix();
 	//LUP
-	Matrica _3P=_3a.LUPdekompozicija();
+	Matrica _3a2("3a.txt");
+	Matrica _3P=_3a2.LUPdekompozicija();
+	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
 	_3a.printMatrix();
+	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_3P.printMatrix();
-	Matrica _3yb=_3a.supstitucijaUnaprijed(_3P*_3b);
+	Matrica _3yb=_3a2.supstitucijaUnaprijed(_3P*_3b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_3yb.printMatrix();
-	Matrica _3xb=B.supstitucijaUnazad(_3yb);
+	Matrica _3xb=_3a2.supstitucijaUnazad(_3yb);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_3xb.printMatrix();
 	
 	//ZADATAK 4
+	std::cout<<std::endl;
+	std::cout<<"Zadatak 4: "<<std::endl;
 	Matrica _4a("4a.txt");
 	Matrica _4b("4b.txt");
 	//LU	
 	_4a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_4a.printMatrix();
 	Matrica _4ya=_4a.supstitucijaUnaprijed(_4b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_4ya.printMatrix();
 	Matrica _4xa=_4a.supstitucijaUnazad(_4ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_4xa.printMatrix();
 	//LUP
-	Matrica _4P=_4a.LUPdekompozicija();
+	Matrica _4a2("4a.txt");
+	Matrica _4P=_4a2.LUPdekompozicija();
+	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
 	_4a.printMatrix();
+	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_4P.printMatrix();
-	Matrica _4yb=_4a.supstitucijaUnaprijed(_4P*_4b);
+	Matrica _4yb=_4a2.supstitucijaUnaprijed(_4P*_4b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_4yb.printMatrix();
-	Matrica _4xb=B.supstitucijaUnazad(_4yb);
+	Matrica _4xb=_4a2.supstitucijaUnazad(_4yb);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_4xb.printMatrix();
 
 	//ZADATAK 5
+	std::cout<<std::endl;
+	std::cout<<"Zadatak 5: "<<std::endl;
 	Matrica _5a("5a.txt");
 	Matrica _5b("5b.txt");
 	//LU	
 	_5a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_5a.printMatrix();
 	Matrica _5ya=_5a.supstitucijaUnaprijed(_5b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_5ya.printMatrix();
 	Matrica _5xa=_5a.supstitucijaUnazad(_5ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_5xa.printMatrix();
 	//LUP
-	Matrica _5P=_5a.LUPdekompozicija();
-	_5a.printMatrix();
+	Matrica _5a2("5a.txt");
+	Matrica _5P=_5a2.LUPdekompozicija();
+	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
+	_5a2.printMatrix();
+	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_5P.printMatrix();
-	Matrica _5yb=_5a.supstitucijaUnaprijed(_5P*_5b);
+	Matrica _5yb=_5a2.supstitucijaUnaprijed(_5P*_5b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_5yb.printMatrix();
-	Matrica _5xb=B.supstitucijaUnazad(_5yb);
+	Matrica _5xb=_5a2.supstitucijaUnazad(_5yb);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_5xb.printMatrix();
 
 	//ZADATAK 6
+	std::cout<<std::endl;
+	std::cout<<"Zadatak 6: "<<std::endl;
 	Matrica _6a("6a.txt");
 	Matrica _6b("6b.txt");
 	//LU	
 	_6a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_6a.printMatrix();
 	Matrica _6ya=_6a.supstitucijaUnaprijed(_6b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_6ya.printMatrix();
 	Matrica _6xa=_6a.supstitucijaUnazad(_6ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_6xa.printMatrix();
-	//LUP
-	Matrica _6P=_6a.LUPdekompozicija();
+	//LUP	
+	Matrica _6a2("6a.txt");
+	Matrica _6P=_6a2.LUPdekompozicija();
+	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
 	_6a.printMatrix();
+	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_6P.printMatrix();
-	Matrica _6yb=_6a.supstitucijaUnaprijed(_6P*_6b);
+	Matrica _6yb=_6a2.supstitucijaUnaprijed(_6P*_6b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_6yb.printMatrix();
-	Matrica _6xb=B.supstitucijaUnazad(_6yb);
+	Matrica _6xb=_6a2.supstitucijaUnazad(_6yb);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_6xb.printMatrix();
 
 	return 0;	
