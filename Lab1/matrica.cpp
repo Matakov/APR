@@ -46,6 +46,23 @@ class Matrica{
 			}
 		}
 	}
+	Matrica(const Matrica& B)
+	{
+		row=B.getRow();
+		column=B.getColumn();
+		arrayPointer = new double*[row];
+		for(int i=0;i<row;i++)
+		{
+			arrayPointer[i]= new double[column];
+		}
+		for(int i=0;i<row;i++)
+		{
+			for(int j=0;j<column;j++)
+			{
+				arrayPointer[i][j]= B.arrayPointer[i][j];
+			}
+		}
+	}
 	Matrica(std::string filename)
 	{
 		std::fstream myfile(filename);
@@ -695,8 +712,8 @@ class Matrica{
 		for(int i=0;i<this->getRow();i++)
 		{
 			this->permutirajRed(jedinicna,i);
-			this->printMatrix();
-			jedinicna.printMatrix();
+			//this->printMatrix();
+			//jedinicna.printMatrix();
 			for(int j=i+1;j<this->getColumn();j++)
 			{
 				this->arrayPointer[j][i]=this->arrayPointer[j][i]/this->arrayPointer[i][i];
@@ -708,6 +725,32 @@ class Matrica{
 		}
 		return jedinicna;
 	}
+	//Multiply matrix with scalar
+	Matrica multiplyScalar(int b)
+	{
+		Matrica A(this->getRow(),this->getColumn());
+		for(int i=0;i<this->getRow();i++)
+		{
+			for(int j=0;j<this->getColumn();j++)
+			{
+				A.arrayPointer[i][j]=this->arrayPointer[i][j]*b;
+			}
+		}
+		return A;
+	}
+	//Divide matrix with scalar
+	Matrica divideScalar(int b)
+	{
+		Matrica A(this->getRow(),this->getColumn());
+		for(int i=0;i<this->getRow();i++)
+		{
+			for(int j=0;j<this->getColumn();j++)
+			{
+				A.arrayPointer[i][j]=this->arrayPointer[i][j]/b;
+			}
+		}
+		return A;
+	}
 };
 
 
@@ -716,6 +759,7 @@ class Matrica{
 
 int main()
 {
+	/*
 	Matrica A("B.txt");
 	Matrica B("A.txt");
 	Matrica C("C.txt");
@@ -740,12 +784,123 @@ int main()
 	//Matrica x=B.supstitucijaUnazad(y);
 	//x.printMatrix();
 	//A.printMatrix();
-	Matrica D=A.JedinicnaMatrica();
+	Matrica D=B.JedinicnaMatrica();
 	//A.permutirajRed(D,0);
 	//D.printMatrix();
-	Matrica P=A.LUPdekompozicija();
-	A.printMatrix();
+	Matrica P=B.LUPdekompozicija();
+	B.printMatrix();
 	P.printMatrix();
+	Matrica y=B.supstitucijaUnaprijed(P*C);
+	y.printMatrix();
+	Matrica x=B.supstitucijaUnazad(y);
+	x.printMatrix();
+	*/
+	//ZADATAK 1
+	Matrica A("1.txt");
+	Matrica B(A);
+	A.printMatrix();
+	B.printMatrix();
+	std::cout<<(A==B)<<std::endl;
+	B.divideScalar(15015);
+	B.multiplyScalar(15015);
+	std::cout<<(A==B)<<std::endl;
+	
+	
+	//ZADATAK 2
+	Matrica _2a("2a.txt");
+	Matrica _2b("2b.txt");
+	//LU	
+	_2a.LUdekompozicija();
+	_2a.printMatrix();
+	Matrica _2ya=_2a.supstitucijaUnaprijed(_2b);
+	_2ya.printMatrix();
+	Matrica _2xa=_2a.supstitucijaUnazad(_2ya);
+	_2xa.printMatrix();
+	//LUP
+	Matrica _2P=_2a.LUPdekompozicija();
+	_2a.printMatrix();
+	_2P.printMatrix();
+	Matrica _2yb=_2a.supstitucijaUnaprijed(_2P*_2b);
+	_2yb.printMatrix();
+	Matrica _2xb=B.supstitucijaUnazad(_2yb);
+	_2xb.printMatrix();
+	
+	//ZADATAK 3
+	Matrica _3a("3a.txt");
+	Matrica _3b("slob.txt");
+	//LU	
+	_3a.LUdekompozicija();
+	_3a.printMatrix();
+	Matrica _3ya=_3a.supstitucijaUnaprijed(_3b);
+	_3ya.printMatrix();
+	Matrica _3xa=_3a.supstitucijaUnazad(_3ya);
+	_3xa.printMatrix();
+	//LUP
+	Matrica _3P=_3a.LUPdekompozicija();
+	_3a.printMatrix();
+	_3P.printMatrix();
+	Matrica _3yb=_3a.supstitucijaUnaprijed(_3P*_3b);
+	_3yb.printMatrix();
+	Matrica _3xb=B.supstitucijaUnazad(_3yb);
+	_3xb.printMatrix();
+	
+	//ZADATAK 4
+	Matrica _4a("4a.txt");
+	Matrica _4b("4b.txt");
+	//LU	
+	_4a.LUdekompozicija();
+	_4a.printMatrix();
+	Matrica _4ya=_4a.supstitucijaUnaprijed(_4b);
+	_4ya.printMatrix();
+	Matrica _4xa=_4a.supstitucijaUnazad(_4ya);
+	_4xa.printMatrix();
+	//LUP
+	Matrica _4P=_4a.LUPdekompozicija();
+	_4a.printMatrix();
+	_4P.printMatrix();
+	Matrica _4yb=_4a.supstitucijaUnaprijed(_4P*_4b);
+	_4yb.printMatrix();
+	Matrica _4xb=B.supstitucijaUnazad(_4yb);
+	_4xb.printMatrix();
+
+	//ZADATAK 5
+	Matrica _5a("5a.txt");
+	Matrica _5b("5b.txt");
+	//LU	
+	_5a.LUdekompozicija();
+	_5a.printMatrix();
+	Matrica _5ya=_5a.supstitucijaUnaprijed(_5b);
+	_5ya.printMatrix();
+	Matrica _5xa=_5a.supstitucijaUnazad(_5ya);
+	_5xa.printMatrix();
+	//LUP
+	Matrica _5P=_5a.LUPdekompozicija();
+	_5a.printMatrix();
+	_5P.printMatrix();
+	Matrica _5yb=_5a.supstitucijaUnaprijed(_5P*_5b);
+	_5yb.printMatrix();
+	Matrica _5xb=B.supstitucijaUnazad(_5yb);
+	_5xb.printMatrix();
+
+	//ZADATAK 6
+	Matrica _6a("6a.txt");
+	Matrica _6b("6b.txt");
+	//LU	
+	_6a.LUdekompozicija();
+	_6a.printMatrix();
+	Matrica _6ya=_6a.supstitucijaUnaprijed(_6b);
+	_6ya.printMatrix();
+	Matrica _6xa=_6a.supstitucijaUnazad(_6ya);
+	_6xa.printMatrix();
+	//LUP
+	Matrica _6P=_6a.LUPdekompozicija();
+	_6a.printMatrix();
+	_6P.printMatrix();
+	Matrica _6yb=_6a.supstitucijaUnaprijed(_6P*_6b);
+	_6yb.printMatrix();
+	Matrica _6xb=B.supstitucijaUnazad(_6yb);
+	_6xb.printMatrix();
+
 	return 0;	
 }
 
