@@ -443,8 +443,8 @@ class Matrica{
 			std::cout<<"Matrix dimensions are not the same!"<<std::endl;
 			exit(1);
 		}
-		std::cout<<"Pass"<<std::endl;
-		std::cout<<this->getRow()<<" "<<B.getColumn()<<std::endl;
+		//std::cout<<"Pass"<<std::endl;
+		//std::cout<<this->getRow()<<" "<<B.getColumn()<<std::endl;
 		Matrica A(this->getRow(),B.getColumn());
 			
 		for(int i=0;i<this->getRow();i++)
