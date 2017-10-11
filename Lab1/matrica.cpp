@@ -5,6 +5,8 @@
 #include<vector>
 #include<sstream>
 #include<exception>
+#include<cmath>
+#include <limits>
 
 class Matrica{
     private:
@@ -32,9 +34,16 @@ class Matrica{
 		}
 		*/
 		arrayPointer = new double*[row];
-		for(int i=0;i<row;++i)
+		for(int i=0;i<row;i++)
 		{
 			arrayPointer[i]= new double[column];
+		}
+		for(int i=0;i<row;i++)
+		{
+			for(int j=0;j<column;j++)
+			{
+				arrayPointer[i][j]= 0;
+			}
 		}
 	}
 	Matrica(std::string filename)
@@ -531,6 +540,7 @@ class Matrica{
 			}
 		}
 	}
+	
 	//supstitucija unaprijed
 	Matrica supstitucijaUnaprijed(const Matrica& b)
 	{
@@ -603,7 +613,101 @@ class Matrica{
 		return x;
 	}
 	
-
+	//napravi jedinicnu matricu
+	Matrica JedinicnaMatrica()
+	{
+		Matrica jed(this->getRow(),this->getColumn());
+		for(int i=0;i<jed.getRow();i++)
+		{
+			for(int j=0;j<jed.getColumn();j++)
+			{
+				//std::cout<<i<<" "<<j<<std::endl;
+				if(i==j)
+				{
+					jed.arrayPointer[i][j]=1;
+				}
+			}
+		}
+		return jed;
+	}
+	//permutiraj red
+	void permutirajRed(Matrica& jedinicna,int pivot)
+	{
+		double maxVal=std::numeric_limits<double>::min();
+		int pos=0;
+		int col=pivot;
+		//Matrica jedinicna = this->JedinicnaMatrica();
+		//pronadji pivot element
+		for(int i=pivot;i<this->getRow();i++)
+		{
+			if(std::abs(this->arrayPointer[i][col])>maxVal)
+			{
+				maxVal=std::abs(this->arrayPointer[i][col]);
+				pos=i;
+			}
+		}
+		//std::cout<<pos<<" "<<maxVal<<std::endl;
+		//permutiraj red
+		double* help = this->arrayPointer[pos];
+		double* helpRow = new double[this->getColumn()];
+		for (int i=0;i<this->getColumn();i++)
+		{
+			helpRow[i]=*(help+i);
+		}
+		for (int i=0;i<this->getColumn();i++)
+		{
+			this->arrayPointer[pos][i]=this->arrayPointer[pivot][i];
+		}
+		for (int i=0;i<this->getColumn();i++)
+		{
+			this->arrayPointer[pivot][i]=helpRow[i];
+		}
+		//std::cout<<*(help+2)<<std::endl;
+		//std::cout<<help<<std::endl;
+		/*
+		this->arrayPointer[pos]=this->arrayPointer[pivot];
+		this->arrayPointer[pivot]=help;
+		help = jedinicna.arrayPointer[pos];
+		jedinicna.arrayPointer[pos]=jedinicna.arrayPointer[pivot];
+		jedinicna.arrayPointer[pivot]=help;
+		#*/
+		help = jedinicna.arrayPointer[pos];
+		for (int i=0;i<this->getColumn();i++)
+		{
+			helpRow[i]=*(help+i);
+		}
+		for (int i=0;i<this->getColumn();i++)
+		{
+			jedinicna.arrayPointer[pos][i]=jedinicna.arrayPointer[pivot][i];
+		}
+		for (int i=0;i<this->getColumn();i++)
+		{
+			jedinicna.arrayPointer[pivot][i]=helpRow[i];
+		}
+		
+		//this->printMatrix();
+		//return jedinicna;
+	}
+	//LUP dekompozicija matrice
+	Matrica LUPdekompozicija()
+	{
+		Matrica jedinicna = this->JedinicnaMatrica();
+		for(int i=0;i<this->getRow();i++)
+		{
+			this->permutirajRed(jedinicna,i);
+			this->printMatrix();
+			jedinicna.printMatrix();
+			for(int j=i+1;j<this->getColumn();j++)
+			{
+				this->arrayPointer[j][i]=this->arrayPointer[j][i]/this->arrayPointer[i][i];
+				for(int k=i+1;k<this->getRow();k++)
+				{
+					this->arrayPointer[j][k]-=this->arrayPointer[j][i]*this->arrayPointer[i][k];
+				}
+			}
+		}
+		return jedinicna;
+	}
 };
 
 
@@ -619,22 +723,29 @@ int main()
 	//Matrica C=A;
 	//A.printMatrix();
 	//A*=2;
-	std::cout<<A.getRow()<<" "<<A.getColumn()<<std::endl;
-	A.printMatrix();
-	std::cout<<B.getRow()<<" "<<B.getColumn()<<std::endl;
-	B.printMatrix();
+	//std::cout<<A.getRow()<<" "<<A.getColumn()<<std::endl;
+	//A.printMatrix();
+	//std::cout<<B.getRow()<<" "<<B.getColumn()<<std::endl;
+	//B.printMatrix();
 	//C.printMatrix();
 	//Matrica C=A*B;
 	//C.printMatrix();
-	B.LUdekompozicija();
-	std::cout<<"Matrica:"<<std::endl;
-	B.printMatrix();
-	std::cout<<"Vektor b:"<<std::endl;
-	C.printMatrix();
-	Matrica y=B.supstitucijaUnaprijed(C);
-	y.printMatrix();
-	Matrica x=B.supstitucijaUnazad(y);
-	x.printMatrix();
+	//B.LUdekompozicija();
+	//std::cout<<"Matrica:"<<std::endl;
+	//B.printMatrix();
+	//std::cout<<"Vektor b:"<<std::endl;
+	//C.printMatrix();
+	//Matrica y=B.supstitucijaUnaprijed(C);
+	//y.printMatrix();
+	//Matrica x=B.supstitucijaUnazad(y);
+	//x.printMatrix();
+	//A.printMatrix();
+	Matrica D=A.JedinicnaMatrica();
+	//A.permutirajRed(D,0);
+	//D.printMatrix();
+	Matrica P=A.LUPdekompozicija();
+	A.printMatrix();
+	P.printMatrix();
 	return 0;	
 }
 
