@@ -830,7 +830,7 @@ int main()
 	Matrica _2a2("2a.txt");
 	Matrica _2P=_2a2.LUPdekompozicija();
 	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
-	_2a.printMatrix();
+	_2a2.printMatrix();
 	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_2P.printMatrix();
 	Matrica _2yb=_2a2.supstitucijaUnaprijed(_2P*_2b);
@@ -859,7 +859,7 @@ int main()
 	Matrica _3a2("3a.txt");
 	Matrica _3P=_3a2.LUPdekompozicija();
 	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
-	_3a.printMatrix();
+	_3a2.printMatrix();
 	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_3P.printMatrix();
 	Matrica _3yb=_3a2.supstitucijaUnaprijed(_3P*_3b);
@@ -888,7 +888,7 @@ int main()
 	Matrica _4a2("4a.txt");
 	Matrica _4P=_4a2.LUPdekompozicija();
 	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
-	_4a.printMatrix();
+	_4a2.printMatrix();
 	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_4P.printMatrix();
 	Matrica _4yb=_4a2.supstitucijaUnaprijed(_4P*_4b);
@@ -946,7 +946,7 @@ int main()
 	Matrica _6a2("6a.txt");
 	Matrica _6P=_6a2.LUPdekompozicija();
 	std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
-	_6a.printMatrix();
+	_6a2.printMatrix();
 	std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 	_6P.printMatrix();
 	Matrica _6yb=_6a2.supstitucijaUnaprijed(_6P*_6b);
