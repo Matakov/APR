@@ -70,39 +70,7 @@ ulazne velicine:
 
 double Zlatni_rez(double a,double b,double e, std::function<double (double)> f)
 {	
-	double c = b - k * (b - a);
-	double d = a + k * (b - a);
-	double fc = f(c);
-	double fd = f(d);
-	while((b - a) > e)
-	{
-		if(fc < fd) {
-			b = d;
-			d = c;
-			c = b - k * (b - a);
-			fd = fc;
-			fc = f(c);
-		}
-		else
-		{
-			a = c;
-			c = d;
-			d = a + k * (b - a);
-			fc = fd;
-			fd = f(d);
-		}
-	}
-	return (a + b)/2; // ili nove vrijednosti a i b
-}
-
-
-//Zlatni rez sa zadanom pocetnom tockom
-
-double Zlatni_rez(double t,double e, std::function<double (double)> f)
-{	
-	double a,b;
-	//izracunaj prvo unimodalni interval
-	unimodalni(h,t,a,b,f);
+	double k = 0.5*(sqrt(5)-1);
 	double c = b - k * (b - a);
 	double d = a + k * (b - a);
 	double fc = f(c);
@@ -129,7 +97,52 @@ double Zlatni_rez(double t,double e, std::function<double (double)> f)
 }
 */
 
-auto func3 =[](double a) -> double {return pow((a-3),2);};
+//Zlatni rez sa zadanom pocetnom tockom
+
+double Zlatni_rez(double h, double t,double e, std::function<double (double)> f)
+{	
+	double a,b;
+	double k = 0.5*(sqrt(5)-1);
+	//izracunaj prvo unimodalni interval
+	unimodalni(h,t,a,b,f);
+	double c = b - k * (b - a);
+	double d = a + k * (b - a);
+	double fc = f(c);
+	double fd = f(d);
+	while((b - a) > e)
+	{
+		if(fc < fd) {
+			b = d;
+			d = c;
+			c = b - k * (b - a);
+			fd = fc;
+			fc = f(c);
+		}
+		else
+		{
+			a = c;
+			c = d;
+			d = a + k * (b - a);
+			fc = fd;
+			fd = f(d);
+		}
+	}
+	return (a + b)/2; // ili nove vrijednosti a i b
+}
+//*/
+
+//Rosenbrockova 'banana' funkcija
+auto func1 =[](double a, double b) -> double {return 100*pow(b-pow(a,2),2)+pow((1-a),2);};
+
+auto func2 =[](double a, double b) -> double {return pow(a-4,2)+ 4*pow(b-2);};
+
+auto func3 =[](double a, double b) -> double {return pow((a-b),2);};
+
+//Jakobovićeva funkcija
+auto func4 =[](double a, double b) -> double {return abs((a-b)*(a+b))+sqrt(pow(a,2)+pow(b,2));};
+
+//Schaffer's function
+auto func5 =[](std::vector<double> container) -> double {return 0.5+pow(sin(sqrt()),2);};
 
 void myfunction (std::string i) {  // function:
   std::cout << ' ' << i <<std::endl;
@@ -173,5 +186,6 @@ int main(int argc, char* argv[]){
 	double i,j,h=1;
 	unimodalni(h,tocka,i,j,func3);
 	std::cout<<i<<" "<<j<<std::endl;
+	std::cout<<Zlatni_rez(h,tocka,preciznost,func3)<<std::endl;
 	return 0;
 }
