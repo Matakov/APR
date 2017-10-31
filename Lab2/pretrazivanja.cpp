@@ -32,6 +32,10 @@ class AbstractFunction
 		virtual ~AbstractFunction(){}
 		//virtual void info() = 0;
 		int getNumbers(){return numberOfCalls;}
+		virtual void restartCount()=0;
+		virtual double function(std::vector<double> lista){};
+		virtual double function(double a, double b){};
+		virtual double function(double a){};
 		
 };
 
@@ -90,8 +94,11 @@ class function2: public AbstractFunction
 
 class function3: public AbstractFunction 
 {
+	private:
+		double b;
 	public:
 		function3():AbstractFunction(){}
+		function3(double input):b(input),AbstractFunction(){}
 		double function(std::vector<double> lista)
 		{
 			increase();
@@ -102,6 +109,12 @@ class function3: public AbstractFunction
 				sum +=pow((lista[i]-i),2);
 			}
 			return sum;
+		}
+		//jednodimenzijska funkcija sa pomakom
+		double function(double a)
+		{
+			increase();
+			return pow(a-b,2);
 		}
 		void restartCount()
 		{
@@ -158,23 +171,6 @@ class function6: public AbstractFunction
 		}
 };
 
-//Rosenbrockova 'banana' funkcija
-//auto func1 =[](double a, double b) -> double {return 100*pow(b-pow(a,2),2)+pow((1-a),2);};
-
-//auto func2 =[](double a, double b) -> double {return pow(a-4,2)+ 4*pow(b-2,2);};
-
-//auto func3 =[](double a) -> double {return pow((a),2);};
-//auto func3 =[](std::vector<double> container) -> double {double sum=0; for (auto it = container.begin(); it != container.end(); it++) {sum += pow((*it),2);}return sum;};
-//auto func3 =[](std::vector<double> container,std::vector<double> container2) -> double {double sum=0; for (int i=0 ; i<container.size();i++) {sum += pow((container[i]-container2[i]),2);}return sum;};
-
-//Jakobovićeva funkcija
-//auto func4 =[](double a, double b) -> double {return abs((a-b)*(a+b))+sqrt(pow(a,2)+pow(b,2));};
-
-//Schaffer's function
-//auto func6 =[](std::vector<double> container) -> double {return 0.5+pow(sin(sqrt()),2);};
-
-
-
 
 /*
 Postupak trazenja unimodalnog intervala
@@ -187,16 +183,16 @@ Ulazne velicine:
 Izlazne vrijednosti:
 - unimodalni interval [l, r]
 */
-void unimodalni(double h, double tocka, double& l, double &r, std::function<double (double)> f)
+void unimodalni(double h, double tocka, double& l, double &r, AbstractFunction& Class)
 {
 	l = tocka - h, r = tocka + h; 
 	double m = tocka;
 	double fl, fm, fr;
 	int step = 1;
 
-	fm = f(tocka);
-	fl = f(l);
-	fr = f(r);
+	fm = Class.function(tocka);
+	fl = Class.function(l);
+	fr = Class.function(r);
 
 	if(fm < fr && fm < fl)	return;
 	else if(fm > fr)
@@ -205,7 +201,7 @@ void unimodalni(double h, double tocka, double& l, double &r, std::function<doub
 			m = r;
 			fm = fr;
 			r = tocka + h * (step *= 2);
-			fr = f(r);
+			fr = Class.function(r);
 		} while(fm > fr);
 	else 
 		do
@@ -213,7 +209,7 @@ void unimodalni(double h, double tocka, double& l, double &r, std::function<doub
 			m = l;
 			fm = fl;
 			l = tocka - h * (step *= 2);
-			fl = f(l);
+			fl = Class.function(l);
 		} while(fm > fl);
 }
 
@@ -224,8 +220,25 @@ ulazne velicine:
 - a, b: pocetne granice unimodalnog intervala
 - e: preciznost
 
-double Zlatni_rez(double a,double b,double e, std::function<double (double)> f)
+- t: pocetna tocka
+- h: korak
+
+- point: da li je dan unimodalni ili pocetna tocka
+*/
+/*
+double Zlatni_rez(bool point,double h, double t,double e, std::function<double (double)> f)
 {	
+	double a,b;
+	if(point)
+	{
+		//izracunaj prvo unimodalni interval
+		unimodalni(h,t,a,b,f);
+	}
+	else
+	{
+		a = h;
+		b = t;
+	}
 	double k = 0.5*(sqrt(5)-1);
 	double c = b - k * (b - a);
 	double d = a + k * (b - a);
@@ -254,7 +267,7 @@ double Zlatni_rez(double a,double b,double e, std::function<double (double)> f)
 */
 
 //Zlatni rez sa zadanom pocetnom tockom
-
+/*
 double Zlatni_rez(double h, double t,double e, std::function<double (double)> f)
 {	
 	double a,b;
@@ -285,7 +298,7 @@ double Zlatni_rez(double h, double t,double e, std::function<double (double)> f)
 	}
 	return (a + b)/2; // ili nove vrijednosti a i b
 }
-//*/
+*/
 
 
 void myfunction (std::string i) {  // function:
@@ -334,18 +347,8 @@ int main(int argc, char* argv[]){
 	}
 	std::cout<<preciznost<<" "<<tocka<<" "<<a<<" "<<b<<std::endl;
 	//std::cout<<func3(tocka)<<std::endl;
-	double i,j,h=1;
-	std::vector<double>s;
-	s.push_back(2);
-	s.push_back(2);
-	std::vector<double>v;
-	v.push_back(1);
-	v.push_back(1);
-	std::cout<<func3(s,v)<<std::endl;
-	//unimodalni(h,tocka,i,j,func2);
-	//std::cout<<i<<" "<<j<<std::endl;
-	//std::cout<<Zlatni_rez(h,tocka,preciznost,func2)<<std::endl;
 	*/
+	/*
 	function1 func1;
 	double ide = func1.function(1,2);
 	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
@@ -396,5 +399,19 @@ int main(int argc, char* argv[]){
 	std::cout<<ide<<" "<<func6.getNumbers()<<std::endl;
 	func6.restartCount();
 	std::cout<<func6.getNumbers()<<std::endl;
+	*/
+
+	std::vector<double>v;
+	v.push_back(2);
+	v.push_back(2);
+
+	function3 func3(3);
+	double ide = func3.function(3);
+	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
+	
+	double i,j,h=1;
+	unimodalni(h,10,i,j,func3);
+	std::cout<<i<<" "<<j<<std::endl;
+	//std::cout<<Zlatni_rez(h,tocka,preciznost,func3)<<std::endl;
 	return 0;
 }
