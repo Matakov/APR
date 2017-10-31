@@ -20,53 +20,6 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return tokens;
 }
 
-class AbstractFunction 
-{
-	protected:
-		int numberOfCalls = 0;
-		AbstractFunction(){};
-		void restartCounting(){numberOfCalls=0;}
-		void increase(){numberOfCalls++;}
-	public:
-		virtual ~AbstractFunction(){}
-		//virtual void info() = 0;
-		int getNumbers(){return numberOfCalls;}
-		
-};
-
-class function1: public AbstractFunction 
-{
-	public:
-		function1():AbstractFunction(){}
-		double function(double a, double b)
-		{
-			increase();
-			return 100*pow(b-pow(a,2),2)+pow((1-a),2);
-		}
-		void restartCount()
-		{
-			restartCounting();
-		}
-};
-
-//Rosenbrockova 'banana' funkcija
-//auto func1 =[](double a, double b) -> double {return 100*pow(b-pow(a,2),2)+pow((1-a),2);};
-
-//auto func2 =[](double a, double b) -> double {return pow(a-4,2)+ 4*pow(b-2,2);};
-
-//auto func3 =[](double a) -> double {return pow((a),2);};
-//auto func3 =[](std::vector<double> container) -> double {double sum=0; for (auto it = container.begin(); it != container.end(); it++) {sum += pow((*it),2);}return sum;};
-//auto func3 =[](std::vector<double> container,std::vector<double> container2) -> double {double sum=0; for (int i=0 ; i<container.size();i++) {sum += pow((container[i]-container2[i]),2);}return sum;};
-
-//Jakobovićeva funkcija
-//auto func4 =[](double a, double b) -> double {return abs((a-b)*(a+b))+sqrt(pow(a,2)+pow(b,2));};
-
-//Schaffer's function
-//auto func6 =[](std::vector<double> container) -> double {return 0.5+pow(sin(sqrt()),2);};
-
-
-
-
 /*
 Postupak trazenja unimodalnog intervala
 
@@ -178,6 +131,20 @@ double Zlatni_rez(double h, double t,double e, std::function<double (double)> f)
 }
 //*/
 
+//Rosenbrockova 'banana' funkcija
+auto func1 =[](double a, double b) -> double {return 100*pow(b-pow(a,2),2)+pow((1-a),2);};
+
+auto func2 =[](double a, double b) -> double {return pow(a-4,2)+ 4*pow(b-2,2);};
+
+//auto func3 =[](double a) -> double {return pow((a),2);};
+//auto func3 =[](std::vector<double> container) -> double {double sum=0; for (auto it = container.begin(); it != container.end(); it++) {sum += pow((*it),2);}return sum;};
+auto func3 =[](std::vector<double> container,std::vector<double> container2) -> double {double sum=0; for (int i=0 ; i<container.size();i++) {sum += pow((container[i]-container2[i]),2);}return sum;};
+
+//Jakobovićeva funkcija
+auto func4 =[](double a, double b) -> double {return abs((a-b)*(a+b))+sqrt(pow(a,2)+pow(b,2));};
+
+//Schaffer's function
+//auto func6 =[](std::vector<double> container) -> double {return 0.5+pow(sin(sqrt()),2);};
 
 void myfunction (std::string i) {  // function:
   std::cout << ' ' << i <<std::endl;
@@ -188,7 +155,6 @@ void myfunction (std::string i) {  // function:
 
 
 int main(int argc, char* argv[]){
-	/*
 	std::ifstream myfile;
 	myfile.open(argv[1]);
 	std::string line;
@@ -236,13 +202,5 @@ int main(int argc, char* argv[]){
 	//unimodalni(h,tocka,i,j,func2);
 	//std::cout<<i<<" "<<j<<std::endl;
 	//std::cout<<Zlatni_rez(h,tocka,preciznost,func2)<<std::endl;
-	*/
-	function1 func1;
-	double ide = func1.function(1,2);
-	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
-	ide = func1.function(1,3);
-	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
-	func1.restartCount();
-	std::cout<<func1.getNumbers()<<std::endl;
 	return 0;
 }
