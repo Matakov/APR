@@ -3,9 +3,9 @@
 #include<sstream>
 #include<functional>
 #include<fstream>
-#include <algorithm>
-#include <vector>
-#include <stdlib.h>
+#include<algorithm>
+#include<vector>
+#include<stdlib.h>
 #include<math.h>
 /*
 String splitting function
@@ -20,6 +20,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return tokens;
 }
 
+//Abstraktna klasa koja broji koliko je puta pozvana koja funkcija
 class AbstractFunction 
 {
 	protected:
@@ -34,6 +35,7 @@ class AbstractFunction
 		
 };
 
+//Rosenbrockova 'banana' funkcija
 class function1: public AbstractFunction 
 {
 	public:
@@ -42,6 +44,113 @@ class function1: public AbstractFunction
 		{
 			increase();
 			return 100*pow(b-pow(a,2),2)+pow((1-a),2);
+		}
+		double function(std::vector<double> lista)
+		{	
+			if (lista.size()>2)
+			{
+				std::cout<<"Input vectors are not good!"<<std::endl;
+				throw(std::invalid_argument( "Input vectors are not good!" ));
+							
+			}
+			increase();
+			return 100*pow(lista[1]-pow(lista[0],2),2)+pow((1-lista[0]),2);
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+class function2: public AbstractFunction 
+{
+	public:
+		function2():AbstractFunction(){}
+		double function(double a, double b)
+		{
+			increase();
+			return pow(a-4,2)+ 4*pow(b-2,2);
+		}
+		double function(std::vector<double> lista)
+		{	
+			if (lista.size()>2)
+			{
+				std::cout<<"Input vectors are not good!"<<std::endl;
+				throw(std::invalid_argument( "Input vectors are not good!" ));
+							
+			}
+			increase();
+			return pow(lista[0]-4,2)+ 4*pow(lista[1]-2,2);
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+class function3: public AbstractFunction 
+{
+	public:
+		function3():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{
+			increase();
+			int numDim = lista.size();
+			double sum = 0;
+			for(int i=0;i<numDim;i++)
+			{
+				sum +=pow((lista[i]-i),2);
+			}
+			return sum;
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+//Jakobovićeva funkcija
+class function4: public AbstractFunction 
+{
+	public:
+		function4():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{	
+			if (lista.size()>2)
+			{
+				std::cout<<"Input vectors are not good!"<<std::endl;
+				throw(std::invalid_argument( "Input vectors are not good!" ));
+							
+			}
+			increase();
+			return abs((lista[0]-lista[1])*(lista[0]+lista[1]))+sqrt(pow(lista[0],2)+pow(lista[1],2));
+		}
+		double function(double a, double b)
+		{	
+			increase();
+			return abs((a-b)*(a+b))+sqrt(pow(a,2)+pow(b,2));
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+//Schaffer's function
+class function6: public AbstractFunction 
+{
+	public:
+		function6():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{
+			increase();
+			int numDim = lista.size();
+			double sum = 0;
+			for(int i=0;i<numDim;i++)
+			{
+				sum +=pow((lista[i]),2);
+			}
+			return 0.5+(pow(sqrt(sum),2)-0.5)/pow((1+0.001*sum),2);
 		}
 		void restartCount()
 		{
@@ -244,5 +353,48 @@ int main(int argc, char* argv[]){
 	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
 	func1.restartCount();
 	std::cout<<func1.getNumbers()<<std::endl;
+
+	function2 func2;
+	ide = func2.function(1,2);
+	std::cout<<ide<<" "<<func2.getNumbers()<<std::endl;
+	ide = func2.function(1,3);
+	std::cout<<ide<<" "<<func2.getNumbers()<<std::endl;
+	func2.restartCount();
+	std::cout<<func2.getNumbers()<<std::endl;
+
+	std::vector<double>v;
+	v.push_back(2);
+	v.push_back(2);
+
+	function3 func3;
+	ide = func3.function(v);
+	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
+	//v.push_back(3);
+	ide = func3.function(v);
+	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
+	func3.restartCount();
+	std::cout<<func3.getNumbers()<<std::endl;
+
+	function4 func4;
+	ide = func4.function(v);
+	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
+	ide = func4.function(v);
+	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
+	std::cout<<func4.getNumbers()<<std::endl;
+	ide = func4.function(2,2);
+	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
+	ide = func4.function(2,2);
+	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
+	func4.restartCount();
+	std::cout<<func4.getNumbers()<<std::endl;
+
+	function6 func6;
+	ide = func6.function(v);
+	std::cout<<ide<<" "<<func6.getNumbers()<<std::endl;
+	v.push_back(3);
+	ide = func6.function(v);
+	std::cout<<ide<<" "<<func6.getNumbers()<<std::endl;
+	func6.restartCount();
+	std::cout<<func6.getNumbers()<<std::endl;
 	return 0;
 }
