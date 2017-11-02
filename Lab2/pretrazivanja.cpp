@@ -7,6 +7,7 @@
 #include<vector>
 #include<stdlib.h>
 #include<math.h>
+
 /*
 String splitting function
 */
@@ -225,14 +226,14 @@ ulazne velicine:
 
 - point: da li je dan unimodalni ili pocetna tocka
 */
-/*
-double Zlatni_rez(bool point,double h, double t,double e, std::function<double (double)> f)
+
+double Zlatni_rez(bool point,double h, double t,double e, AbstractFunction& Class)
 {	
 	double a,b;
 	if(point)
 	{
 		//izracunaj prvo unimodalni interval
-		unimodalni(h,t,a,b,f);
+		unimodalni(h,t,a,b,Class);
 	}
 	else
 	{
@@ -242,8 +243,8 @@ double Zlatni_rez(bool point,double h, double t,double e, std::function<double (
 	double k = 0.5*(sqrt(5)-1);
 	double c = b - k * (b - a);
 	double d = a + k * (b - a);
-	double fc = f(c);
-	double fd = f(d);
+	double fc = Class.function(c);
+	double fd = Class.function(d);
 	while((b - a) > e)
 	{
 		if(fc < fd) {
@@ -251,7 +252,7 @@ double Zlatni_rez(bool point,double h, double t,double e, std::function<double (
 			d = c;
 			c = b - k * (b - a);
 			fd = fc;
-			fc = f(c);
+			fc = Class.function(c);
 		}
 		else
 		{
@@ -259,46 +260,120 @@ double Zlatni_rez(bool point,double h, double t,double e, std::function<double (
 			c = d;
 			d = a + k * (b - a);
 			fc = fd;
-			fd = f(d);
+			fd = Class.function(d);
 		}
 	}
 	return (a + b)/2; // ili nove vrijednosti a i b
 }
-*/
 
-//Zlatni rez sa zadanom pocetnom tockom
 /*
-double Zlatni_rez(double h, double t,double e, std::function<double (double)> f)
-{	
-	double a,b;
-	double k = 0.5*(sqrt(5)-1);
-	//izracunaj prvo unimodalni interval
-	unimodalni(h,t,a,b,f);
-	double c = b - k * (b - a);
-	double d = a + k * (b - a);
-	double fc = f(c);
-	double fd = f(d);
-	while((b - a) > e)
+Nelder-Mead simpleks algoritam
+Ulazne velicine: X0, alfa, beta, gama, epsilon
+*/
+std::vector<double> NelderMead(std::vector<double> x0, double alfa, double beta, double gama, double epsilon )
+{
+	do
 	{
-		if(fc < fd) {
-			b = d;
-			d = c;
-			c = b - k * (b - a);
-			fd = fc;
-			fc = f(c);
+
+	}
+	while();
+}
+
+//function for subtracting vectors
+void subtractSame(std::vector<double>& a,std::vector<double> b)
+{
+	for(int i=0;i<a.size();i++)
+	{
+		a[i]-=b[i];	
+	}
+}
+
+std::vector<double> subtract(std::vector<double> a,std::vector<double> b)
+{
+	std::vector<double> c;
+	for(int i=0;i<a.size();i++)
+	{
+		c[i]=a[i]-b[i];	
+	}
+}
+
+//function for multiplying vectors with a constant
+auto multiply =[](std::vector<double> container,double cons) -> std::vector<double> {for (int i=0 ; i<container.size();i++) {container[i]=cons*container[i];}return container;};
+
+//function for dividing vectors with a constant
+auto divide =[](std::vector<double> container,double cons) -> std::vector<double> {for (int i=0 ; i<container.size();i++) {container[i]=container[i]/cons;}return container;};
+
+//function for summation of vectors
+void addSame(std::vector<double>& a,std::vector<double> b)
+{
+	for(int i=0;i<a.size();i++)
+	{
+		a[i]+=b[i];	
+	}
+}
+
+std::vector<double> add(std::vector<double> a,std::vector<double> b)
+{
+	std::vector<double> c;
+	for(int i=0;i<a.size();i++)
+	{
+		c[i]=a[i]+b[i];	
+	}
+}
+
+//Explore function for Hooks-Jeeves algorithm
+std::vector<double> explore(std::vector<double> xP, std::vector<double> Dx,AbstractFunction& Class)
+{
+	std::vector<double> x=xP;
+	double P,N;
+	for(int i=0;i<x.size();i++)
+	{
+		P = Class.function(x);
+		x[i] = x[i]+Dx[i];
+		N = Class.function(x);
+		if(N>P)
+		{
+			x[i]=x[i]-2*Dx[i];
+			N = Class.function(x);
+			if(N>P)
+			{
+				x[i]=x[i] + Dx[i];
+			}
+		}	
+	}
+	return x;
+}
+
+/*
+Algoritam Hooke-Jeeves postupka
+x0 - pocetna tocka
+xB - bazna tocka 
+xP - pocetna tocka pretrazivanja
+xN - tocka dobivena pretrazivanjem
+*/
+std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> precision,std::vector<double> Dx,AbstractFunction& Class)
+{
+	std::vector<double> xB=x0;
+	std::vector<double> xP=x0;
+	std::vector<double> xN;
+	do
+	{
+		xN = explore(xP,Dx,Class);
+		if(Class.function(xN)<Class.function(xP))
+		{
+			xN = multiply(xN,2);
+			xP = subtract(xN,xB);
+			xB=xN;
 		}
 		else
 		{
-			a = c;
-			c = d;
-			d = a + k * (b - a);
-			fc = fd;
-			fd = f(d);
+			Dx = divide(Dx,2);
+			xP = xB;		
 		}
-	}
-	return (a + b)/2; // ili nove vrijednosti a i b
+	}while();
+	return xB;
+
 }
-*/
 
 
 void myfunction (std::string i) {  // function:
@@ -310,7 +385,6 @@ void myfunction (std::string i) {  // function:
 
 
 int main(int argc, char* argv[]){
-	/*
 	std::ifstream myfile;
 	myfile.open(argv[1]);
 	std::string line;
@@ -335,6 +409,7 @@ int main(int argc, char* argv[]){
 			{
 				tocka=atof(container[2].c_str());			
 			}
+
 			if (container[0] == "Početni" && container[1] == "interval:")
 			{
 				a=atof(container[2].c_str());
@@ -347,7 +422,7 @@ int main(int argc, char* argv[]){
 	}
 	std::cout<<preciznost<<" "<<tocka<<" "<<a<<" "<<b<<std::endl;
 	//std::cout<<func3(tocka)<<std::endl;
-	*/
+	
 	/*
 	function1 func1;
 	double ide = func1.function(1,2);
@@ -412,6 +487,6 @@ int main(int argc, char* argv[]){
 	double i,j,h=1;
 	unimodalni(h,10,i,j,func3);
 	std::cout<<i<<" "<<j<<std::endl;
-	//std::cout<<Zlatni_rez(h,tocka,preciznost,func3)<<std::endl;
+	std::cout<<Zlatni_rez(true,h,tocka,preciznost,func3)<<std::endl;
 	return 0;
 }
