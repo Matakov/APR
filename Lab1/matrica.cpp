@@ -7,6 +7,7 @@
 #include<exception>
 #include<cmath>
 #include <limits>
+extern bool x = false;
 
 class Matrica{
     private:
@@ -549,6 +550,13 @@ class Matrica{
 		{
 			for(int j=i+1;j<this->getRow();j++)
 			{
+				if(this->arrayPointer[i][i]==0 || fabs(this->arrayPointer[i][i])<1e-7)
+				{
+					std::cout<<"Dijelis sa nulom, nema rijesenja."<<std::endl;
+					x=true;
+					//std::exit(0);
+					break;
+				}
 				this->arrayPointer[j][i]=this->arrayPointer[j][i]/this->arrayPointer[i][i];
 				for(int k=i+1;k<this->getRow();k++)
 				{
@@ -805,8 +813,8 @@ int main()
 	B.printMatrix();
 	std::cout<<"Jednakost matrica A i B: "<<std::endl;
 	std::cout<<(A==B)<<std::endl;
-	B.divideScalar(15015);
-	B.multiplyScalar(15015);
+	B.divideScalar(15015.7777777);
+	B.multiplyScalar(15015.7777777);
 	std::cout<<"Jednakost matrica A i B: "<<std::endl;
 	std::cout<<(A==B)<<std::endl;
 	
@@ -820,12 +828,15 @@ int main()
 	_2a.LUdekompozicija();
 	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_2a.printMatrix();
+	if(!x){
 	Matrica _2ya=_2a.supstitucijaUnaprijed(_2b);
 	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_2ya.printMatrix();
 	Matrica _2xa=_2a.supstitucijaUnazad(_2ya);
 	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_2xa.printMatrix();
+	x=false;
+	}
 	//LUP
 	Matrica _2a2("2a.txt");
 	Matrica _2P=_2a2.LUPdekompozicija();
@@ -907,12 +918,14 @@ int main()
 	_5a.LUdekompozicija();
 	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
 	_5a.printMatrix();
+	if(!x){
 	Matrica _5ya=_5a.supstitucijaUnaprijed(_5b);
 	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
 	_5ya.printMatrix();
 	Matrica _5xa=_5a.supstitucijaUnazad(_5ya);
 	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_5xa.printMatrix();
+	}
 	//LUP
 	Matrica _5a2("5a.txt");
 	Matrica _5P=_5a2.LUPdekompozicija();
@@ -955,6 +968,23 @@ int main()
 	Matrica _6xb=_6a2.supstitucijaUnazad(_6yb);
 	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
 	_6xb.printMatrix();
+
+
+
+	std::cout<<"Zadatak 7: "<<std::endl;
+	Matrica _7a("7a.txt");
+	Matrica _7b("7b.txt");
+	//LU	
+	_7a.LUdekompozicija();
+	std::cout<<"Matrica A nakon LU dekompozicije: "<<std::endl;
+	_7a.printMatrix();
+	Matrica _7ya=_7a.supstitucijaUnaprijed(_7b);
+	std::cout<<"Y vektor nakon supstitucije unaprijed: "<<std::endl;
+	_7ya.printMatrix();
+	Matrica _7xa=_7a.supstitucijaUnazad(_7ya);
+	std::cout<<"X vektor nakon supstitucije unazad: "<<std::endl;
+	_7xa.printMatrix();
+
 
 	return 0;	
 }
