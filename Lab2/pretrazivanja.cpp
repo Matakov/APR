@@ -659,19 +659,21 @@ xB - bazna tocka
 xP - pocetna tocka pretrazivanja
 xN - tocka dobivena pretrazivanjem
 */
-/*
+
 std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> precision,std::vector<double> Dx,AbstractFunction& Class)
 {
 	std::vector<double> xB=x0;
 	std::vector<double> xP=x0;
-	std::vector<double> xN;
+	std::vector<double> xN,temp,tempX;
+	tempX=divide(precision,2);
+	bool check = true;
 	do
 	{
 		xN = explore(xP,Dx,Class);
-		if(Class.function(xN)<Class.function(xP))
+		if(Class.function(xN)<Class.function(xB))
 		{
-			xN = multiply(xN,2);
-			xP = subtract(xN,xB);
+			temp = multiply(xN,2);
+			xP = subtract(temp,xB);
 			xB=xN;
 		}
 		else
@@ -679,11 +681,12 @@ std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> prec
 			Dx = divide(Dx,2);
 			xP = xB;		
 		}
-	}while();
+		check = compareVectors(Dx,tempX);
+	}while(check);
 	return xB;
 
 }
-*/
+
 
 void myfunction (std::string i) {  // function:
   std::cout << ' ' << i <<std::endl;
