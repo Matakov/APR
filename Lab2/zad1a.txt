@@ -1,0 +1,4 @@
+Preciznost: 0.000001
+Početna točka: 10
+Minimum funkcije: 3
+Početni interval: -2 5

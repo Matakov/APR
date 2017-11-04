@@ -97,9 +97,12 @@ class function3: public AbstractFunction
 {
 	private:
 		double b;
+		std::vector<double> bList;
 	public:
 		function3():AbstractFunction(){}
 		function3(double input):b(input),AbstractFunction(){}
+		function3(std::vector<double> input):bList(input),AbstractFunction(){}
+		/*
 		double function(std::vector<double> lista)
 		{
 			increase();
@@ -108,6 +111,18 @@ class function3: public AbstractFunction
 			for(int i=0;i<numDim;i++)
 			{
 				sum +=pow((lista[i]-i),2);
+			}
+			return sum;
+		}
+		*/
+		double function(std::vector<double> lista)
+		{
+			increase();
+			int numDim = lista.size();
+			double sum = 0;
+			for(int i=0;i<numDim;i++)
+			{
+				sum +=pow((lista[i]-bList[i]),2);
 			}
 			return sum;
 		}
@@ -280,17 +295,27 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 	{
 		if(i!=dim) tocka[i]=0;
 	}
+	std::cout<<"Ulazni multi-vektor: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" "<<std::endl;
 	std::vector<double> vl(tocka.size(),0.0);
 	std::vector<double> vr(tocka.size(),0.0);
 	vl[dim] = tocka[dim] - h, vr[dim] = tocka[dim] + h; 
 	std::vector<double> m = tocka;
+	std::cout<<"multi-vektor vl: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor vr: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor m: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
 	double fl, fm, fr;
 	int step = 1;
 
 	fm = Class.function(tocka);
 	fl = Class.function(vl);
 	fr = Class.function(vr);
-
+	
+	std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
+	std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 	if(fm < fr && fm < fl)
 	{
 	l = vl[dim];
@@ -298,6 +323,7 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 	return;
 	}
 	else if(fm > fr)
+	{
 		do
 		{	vl = m;
 			m = vr;
@@ -305,14 +331,23 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 			vr[dim] = tocka[dim] + h * (step *= 2);
 			fr = Class.function(vr);
 		} while(fm > fr);
-	else 
+		l = vl[dim];
+		r = vr[dim];
+	}
+	else
+	{
 		do
 		{	vr = m;
 			m = vl;
 			fm = fl;
 			vl[dim] = tocka[dim] - h * (step *= 2);
 			fl = Class.function(vl);
+			std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
+			std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 		} while(fm > fl);
+		l = vl[dim];
+		r = vr[dim];
+	}
 }
 
 
@@ -376,6 +411,7 @@ double Zlatni_rezMulti(bool point,double h, std::vector<double> t,double e, Abst
 	{
 		//izracunaj prvo unimodalni interval
 		unimodalniMulti(h,t,a,b,Class,dim);
+		std::cout<<a<<" "<<b<<std::endl;
 	}
 	else
 	{
@@ -701,7 +737,9 @@ int main(int argc, char* argv[]){
 	myfile.open(argv[1]);
 	std::string line;
 	double preciznost;
-	double tocka,a,b;
+	std::vector<double> tocka;
+	std::vector<double> minimumFunkcije;
+	double a,b;
 	//std::cout<<argc<<std::endl;
 	if(argc<2)
 	{
@@ -719,9 +757,12 @@ int main(int argc, char* argv[]){
 			}
 			if (container[0] == "Početna" && container[1] == "točka:")
 			{
-				tocka=atof(container[2].c_str());			
+				for(int i=2;i<container.size();i++) tocka.push_back(atof(container[i].c_str()));			
 			}
-
+			if (container[0] == "Minimum" && container[1] == "funkcije:")
+			{
+				for(int i=2;i<container.size();i++) minimumFunkcije.push_back(atof(container[i].c_str()));			
+			}
 			if (container[0] == "Početni" && container[1] == "interval:")
 			{
 				a=atof(container[2].c_str());
@@ -732,7 +773,10 @@ int main(int argc, char* argv[]){
 			
 		}
 	}
-	std::cout<<preciznost<<" "<<tocka<<" "<<a<<" "<<b<<std::endl;
+	std::cout<<preciznost<<" ";
+	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" ";
+	for(int i=0;i<minimumFunkcije.size();i++) std::cout<<minimumFunkcije[i]<<" ";
+	std::cout<<a<<" "<<b<<std::endl;
 	//std::cout<<func3(tocka)<<std::endl;
 	
 	/*
@@ -792,13 +836,14 @@ int main(int argc, char* argv[]){
 	v.push_back(2);
 	v.push_back(2);
 
-	function3 func3(3);
-	double ide = func3.function(3);
-	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
+	//function3 func3(3);
+	//double ide = func3.function(3);
+	//std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
 	
 	double i,j,h=1;
-	unimodalni(h,10,i,j,func3);
-	std::cout<<i<<" "<<j<<std::endl;
-	std::cout<<Zlatni_rez(true,h,tocka,preciznost,func3)<<std::endl;
+	//unimodalni(h,10,i,j,func3);
+	//std::cout<<i<<" "<<j<<std::endl;
+	function3 func3(minimumFunkcije);
+	std::cout<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
 	return 0;
 }
