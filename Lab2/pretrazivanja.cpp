@@ -195,23 +195,29 @@ void subtractSame(std::vector<double>& a,std::vector<double> b)
 		a[i]-=b[i];	
 	}
 }
-std::vector<double> absoluteValue(std::vector<double> a)
+void absoluteValue(std::vector<double>& a)
 {
-	std::vector<double> c;
+	for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
 	for(int i=0;i<a.size();i++)
 	{
-		c[i]=abs(a[i]);	
+		a[i]=abs(a[i]);	
 	}
-	return c;
+	for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
+	return;
 }
 
 std::vector<double> subtract(std::vector<double> a,std::vector<double> b)
 {
 	std::vector<double> c;
+	//std::cout<<"Vektori :";
+	//for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
+	//for(int i=0;i<b.size();i++) std::cout<<b[i]<<" ";
 	for(int i=0;i<a.size();i++)
 	{
-		c[i]=a[i]-b[i];	
+		c.push_back(a[i]-b[i]);	
 	}
+	//for(int i=0;i<c.size();i++) std::cout<<c[i]<<" ";
+	//std::cout<<std::endl;
 	return c;
 }
 
@@ -237,13 +243,6 @@ std::vector<double> add(std::vector<double> a,std::vector<double> b)
 	{
 		c[i]=a[i]+b[i];	
 	}
-}
-
-double sumSquareElements(std::vector<double> a)
-{
-	double sum=0;
-	for(int i=0;i<a.size();i++) sum+=pow(a[i],2);
-	return sum;
 }
 
 
@@ -404,7 +403,7 @@ double Zlatni_rez(bool point,double h, double t,double e, AbstractFunction& Clas
 }
 
 //ZLATNI REZ ZA VISE DIMENZIJA
-double Zlatni_rezMulti(bool point,double h, std::vector<double> t,double e, AbstractFunction& Class, int dim)
+double Zlatni_rezMulti(bool point,double h, std::vector<double> t,std::vector<double> e, AbstractFunction& Class, int dim)
 {	
 	double a,b;
 	if(point)
@@ -427,7 +426,7 @@ double Zlatni_rezMulti(bool point,double h, std::vector<double> t,double e, Abst
 	vd[dim]=d;
 	double fc = Class.function(vc);
 	double fd = Class.function(vd);
-	while((b - a) > e)
+	while((b - a) > e[dim])
 	{
 		if(fc < fd) {
 			b = vd[dim];
@@ -463,23 +462,25 @@ Pretraživanje po koordinatnim osima
 */
 std::vector<double> KoordiantneOsi(std::vector<double> x0, std::vector<double> eps,AbstractFunction& Class)
 {
-	std::vector<double> x = x0;
+	std::vector<double> x(x0);
 	std::vector<double> ref,xS;
 	double temp;
-	double e;
-	bool check;
+	bool check=false;
 	do{
 		xS = x;
 		for(int i=0;i<x.size();i++)
 		{
-			e=eps[i];
-			temp=Zlatni_rezMulti(true,1,x,e,Class,i);
+			std::cout<<i<<std::endl;
+			temp=Zlatni_rezMulti(true,1,x,eps,Class,i);
 			x[i]=temp;
+			//for(int i=0;i<x.size();i++) std::cout<<x[i]<<std::endl;
+			//for(int i=0;i<xS.size();i++) std::cout<<xS[i]<<std::endl;
 		}
 		ref = subtract(x,xS);
-		ref = absoluteValue(ref);
+		//for(int i=0;i<ref.size();i++) std::cout<<ref[i]<<std::endl;
+		absoluteValue(ref);
 		check = compareVectors(ref,eps);
-	}while(check);
+	}while(!check);
 	return x;
 }
 
@@ -487,15 +488,38 @@ std::vector<double> KoordiantneOsi(std::vector<double> x0, std::vector<double> e
 //izracunaj ulazni skup tocki simpleksa
 std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 {
-	std::vector<std::vector<double>> array;
+	std::vector<double> ref(x0.size(),0.0);
+	std::vector<std::vector<double>> array(x0.size()+1,ref);
 	double a1 = t*(sqrt(x0.size()+1)+x0.size()-1)/(x0.size()*sqrt(2));
 	double a2 = t*(sqrt(x0.size()+1)-1)/(x0.size()*sqrt(2));
+	std::cout<<"a1: "<<a1<<"\na2: "<<a2<<std::endl;
+	std::vector<double> temp(x0.size(),a2);
+	std::vector<double> temp2 = temp;
+	//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
+	//std::cout<<"<-That was prototype"<<std::endl;
 	for(int i=0;i<=x0.size();i++)
 	{
-		std::vector<double> temp(x0.size(),a2);
-		if(i<x0.size())	temp[i]=a1;
-		array.push_back(temp);
+		//std::cout<<i<<" ";
+		temp2 = temp;
+		if(i<x0.size())	temp2[i]=a1;
+		//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
+		//std::cout<<std::endl;
+		array[i]=temp2;
 	}
+	
+	std::cout<<"Veličina polja: "<<array.size()<<std::endl;
+	for(int i=0;i<array.size();i++)
+	{
+		std::cout<<i<<" ";
+		temp2 = array[i];
+		for(int j=0;j<temp2.size();j++)
+		{
+			//std::cout<<j<<" ";
+			std::cout<<temp2[j]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	
 	return array;
 }
 
@@ -619,11 +643,13 @@ std::vector<double> kriterijZaustavljanja(std::vector<std::vector<double>> array
 
 /*
 Nelder-Mead simpleks algoritam
-Ulazne velicine: X0, alfa, beta, gama, epsilon
+Ulazne velicine: X0,razmak, alfa, beta, gama, epsilon,funkcija
 */
 std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, std::vector<double> epsilon, AbstractFunction& Class)
 {
-	std::vector<std::vector<double>> array = tockeSimpleksa(x0,razmak);
+	std::vector<std::vector<double>> array;
+	array=tockeSimpleksa(x0,razmak);
+	std::cout<<"Velicina polja: "<<array.size()<<std::endl;
 	std::vector<double> xc,xr,xk,xe,krit;
 	int h,l;
 	bool checkVar = true;
@@ -661,7 +687,8 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 		krit = kriterijZaustavljanja(array,xc);
 		checkStop = compareVectors(krit,epsilon);
 	}
-	while(checkStop);
+	while(!checkStop);
+	return array[l];
 }
 
 
@@ -702,7 +729,7 @@ std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> prec
 	std::vector<double> xP=x0;
 	std::vector<double> xN,temp,tempX;
 	tempX=divide(precision,2);
-	bool check = true;
+	bool check = false;
 	do
 	{
 		xN = explore(xP,Dx,Class);
@@ -718,7 +745,7 @@ std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> prec
 			xP = xB;		
 		}
 		check = compareVectors(Dx,tempX);
-	}while(check);
+	}while(!check);
 	return xB;
 
 }
@@ -736,10 +763,8 @@ int main(int argc, char* argv[]){
 	std::ifstream myfile;
 	myfile.open(argv[1]);
 	std::string line;
-	double preciznost;
-	std::vector<double> tocka;
-	std::vector<double> minimumFunkcije;
-	double a,b;
+	std::vector<double> tocka,minimumFunkcije,preciznost,pomaciFunkcije;
+	double leftPoint,rightPoint;
 	//std::cout<<argc<<std::endl;
 	if(argc<2)
 	{
@@ -753,7 +778,8 @@ int main(int argc, char* argv[]){
 			std::vector<std::string> container = split(line,' ');
 			if (container[0] == "Preciznost:")
 			{
-				preciznost=atof(container[1].c_str());			
+				for(int i=1;i<container.size();i++) preciznost.push_back(atof(container[i].c_str()));
+				//preciznost=atof(container[1].c_str());			
 			}
 			if (container[0] == "Početna" && container[1] == "točka:")
 			{
@@ -763,20 +789,24 @@ int main(int argc, char* argv[]){
 			{
 				for(int i=2;i<container.size();i++) minimumFunkcije.push_back(atof(container[i].c_str()));			
 			}
+			if (container[0] == "Pomaci" && container[1] == "funkcije:")
+			{
+				for(int i=2;i<container.size();i++) pomaciFunkcije.push_back(atof(container[i].c_str()));			
+			}
 			if (container[0] == "Početni" && container[1] == "interval:")
 			{
-				a=atof(container[2].c_str());
-				b=atof(container[3].c_str());			
+				leftPoint=atof(container[2].c_str());
+				rightPoint=atof(container[3].c_str());			
 			}
 			//std::cout<<container[2]<<std::endl;
 			//std::for_each (container.begin(), container.end(), myfunction);
 			
 		}
 	}
-	std::cout<<preciznost<<" ";
+	for(int i=0;i<tocka.size();i++) std::cout<<preciznost[i]<<" ";
 	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" ";
 	for(int i=0;i<minimumFunkcije.size();i++) std::cout<<minimumFunkcije[i]<<" ";
-	std::cout<<a<<" "<<b<<std::endl;
+	std::cout<<leftPoint<<" "<<rightPoint<<std::endl;
 	//std::cout<<func3(tocka)<<std::endl;
 	
 	/*
@@ -832,18 +862,48 @@ int main(int argc, char* argv[]){
 	std::cout<<func6.getNumbers()<<std::endl;
 	*/
 
-	std::vector<double>v;
-	v.push_back(2);
-	v.push_back(2);
-
-	//function3 func3(3);
-	//double ide = func3.function(3);
-	//std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
-	
 	double i,j,h=1;
-	//unimodalni(h,10,i,j,func3);
-	//std::cout<<i<<" "<<j<<std::endl;
 	function3 func3(minimumFunkcije);
-	std::cout<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
+	std::vector<double> temp_result;
+	
+	/*
+	//Zlatni rez
+	std::cout<<"Minimum funkcije je: "<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
+	std::cout<<"Broj poziva funkcije u Zlatnom rezu je: "<<func3.getNumbers()<<std::endl;
+	//resetiraj brojac	
+	func3.restartCount();
+	//Koordinatne osi	
+	temp_result=KoordiantneOsi(tocka,preciznost,func3);
+	std::cout<<"Minimum funkcije je: ";
+	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+	std::cout<<std::endl;
+	std::cout<<"Broj poziva funkcije u Koordinanim osima je: "<<func3.getNumbers()<<std::endl;
+	//resetiraj brojac	
+	func3.restartCount();
+	*/
+	double alfa=1;
+	double beta=0.5;
+	double gamma=2;	
+	//Nelder Mead
+	//std::cout<<"Nelder-Mead: "<<std::endl;	
+	//temp_result=NelderMead(tocka,1,alfa,beta,gamma,preciznost,func3);
+	//std::cout<<"Minimum funkcije je: ";
+	//for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+	//std::cout<<std::endl;
+	//std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
+	//resetiraj brojac
+	//func3.restartCount();
+
+	//Hook Jeeves
+	std::cout<<"Hook-Jeeves: "<<std::endl;	
+	temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
+	std::cout<<"Minimum funkcije je: ";
+	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+	std::cout<<std::endl;
+	std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
+	//resetiraj brojac
+	func3.restartCount();
 	return 0;
+
+	
 }
