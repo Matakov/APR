@@ -7,7 +7,6 @@
 #include<vector>
 #include<stdlib.h>
 #include<math.h>
-#include <map>
 
 /*
 String splitting function
@@ -295,18 +294,18 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 	{
 		if(i!=dim) tocka[i]=0;
 	}
-	//std::cout<<"Ulazni multi-vektor: ";
+	std::cout<<"Ulazni multi-vektor: ";
 	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" "<<std::endl;
 	std::vector<double> vl(tocka.size(),0.0);
 	std::vector<double> vr(tocka.size(),0.0);
 	vl[dim] = tocka[dim] - h, vr[dim] = tocka[dim] + h; 
 	std::vector<double> m = tocka;
-	//std::cout<<"multi-vektor vl: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
-	//std::cout<<"multi-vektor vr: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
-	//std::cout<<"multi-vektor m: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor vl: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor vr: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor m: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
 	double fl, fm, fr;
 	int step = 1;
 
@@ -314,8 +313,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 	fl = Class.function(vl);
 	fr = Class.function(vr);
 	
-	//std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
-	//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
+	std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
+	std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 	if(fm < fr && fm < fl)
 	{
 	l = vl[dim];
@@ -550,22 +549,6 @@ void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c)
 	return;
 }
 
-
-double getValue(std::vector<double> input, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
-{
-	if(lookUpTable.count(input))
-	{
-		return lookUpTable[input];
-	}
-	else
-	{
-		lookUpTable[input]=Class.function(input);
-		return lookUpTable[input];
-	}
-}
-
-
-
 //vrati ulaz koji daje najvecu vrijednost
 std::vector<double> getMaximum(std::vector<std::vector<double>> array, AbstractFunction& Class)
 {
@@ -578,15 +561,12 @@ std::vector<double> getMaximum(std::vector<std::vector<double>> array, AbstractF
 }
 
 //vrati index najvece ulazne vrijednosti
-int getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+int getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class)
 {
 	int h=0;
-	double left,right;
 	for(int i=0;i<array.size();i++)
 	{
-		left = getValue(array[i],Class,lookUpTable);
-		right = getValue(array[h],Class,lookUpTable);
-		if(left>right) h = i;
+		if(Class.function(array[i])>Class.function(array[h])) h = i;
 	}
 	return h;
 }
@@ -603,15 +583,12 @@ std::vector<double> getMinimum(std::vector<std::vector<double>> array, AbstractF
 }
 
 //vrati index najmanje ulazne vrijednosti
-int getMinimumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+int getMinimumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class)
 {
 	int l=0;
-	double left,right;
 	for(int i=0;i<array.size();i++)
 	{
-		left = getValue(array[i],Class,lookUpTable);
-		right = getValue(array[l],Class,lookUpTable);
-		if(left<right) l = i;
+		if(Class.function(array[i])<Class.function(array[l])) l = i;
 	}
 	return l;
 }
@@ -664,7 +641,7 @@ void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
 	}
 }
 
-bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class)
 {
 	/*
 	for(int i=0;i<array.size()-1;i++)
@@ -677,13 +654,11 @@ bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<d
 	}
 	return;
 	*/
-	double fxc = getValue(xc,Class,lookUpTable);
+	double fxc = Class.function(xc);
 	double sum=0;
-	double temp;
 	for(int i=0;i<array.size();i++)
 	{
-		temp = getValue(array[i],Class,lookUpTable);
-		sum += pow((temp-fxc),2);
+		sum += pow((Class.function(array[i])-fxc),2);
 	}
 	sum/=array.size();
 	sum=sqrt(sum);
@@ -700,7 +675,6 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 	std::vector<std::vector<double>> array;
 	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xk(x0.size(),0.0),xe(x0.size(),0.0);
 	int h,l;
-	std::map<std::vector<double>, double> lookUpTable;
 	bool checkVar = true;
 	bool checkStop = false;
 	
@@ -726,8 +700,8 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 	
 	do
 	{
-		h = getMaximumIndex(array,Class,lookUpTable);
-		l = getMinimumIndex(array,Class,lookUpTable);
+		h = getMaximumIndex(array,Class);
+		l = getMinimumIndex(array,Class);
 		//std::cout<<"Maks index: "<<h<<" Min index "<<l<<std::endl;	
 		getCentroid(array,xc);
 		//std::cout<<"Velicina centroida: "<<xc.size()<<std::endl;
@@ -742,14 +716,11 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 		
 		//std::cout<<"Vrijednost refleksije: "<<Class.function(xr)<<std::endl;
 		//std::cout<<"Vrijednost najmanje: "<<Class.function(array[l])<<std::endl;
-		
-		//if(Class.function(xr) < Class.function(array[l]))
-		if(getValue(xr,Class,lookUpTable) < getValue(array[l],Class,lookUpTable))
+		if(Class.function(xr) < Class.function(array[l]))
 		{
 			//std::cout<<"I am in if!"<<std::endl;
 			ekspanzija(xc,array[h],gamma,alfa,xe);
-			//if(Class.function(xe)<Class.function(array[l])) array[h] = xe;
-			if(getValue(xe,Class,lookUpTable)<getValue(array[l],Class,lookUpTable)) array[h] = xe;
+			if(Class.function(xe)<Class.function(array[l])) array[h] = xe;
 			else array[h] = xr;
 		}
 		else
@@ -760,17 +731,14 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 			{
 				if(j!=h)
 				{
-					//if(Class.function(xr) <= Class.function(array[j])) checkVar=false;
-					if(getValue(xr,Class,lookUpTable) <= getValue(array[j],Class,lookUpTable)) checkVar=false;
+					if(Class.function(xr) <= Class.function(array[j])) checkVar=false;
 				}
 			}
 			if(checkVar)
 			{
-				//if(Class.function(xr) < Class.function(array[h])) array[h]=xr;
-				if(getValue(xr,Class,lookUpTable) < getValue(array[h],Class,lookUpTable)) array[h]=xr;
+				if(Class.function(xr) < Class.function(array[h])) array[h]=xr;
 				kontrakcija(xc,array[h],beta,xk);
-				//if(Class.function(xk) < Class.function(array[h])) array[h]=xk;
-				if(getValue(xk,Class,lookUpTable) < getValue(array[h],Class,lookUpTable)) array[h]=xk;
+				if(Class.function(xk) < Class.function(array[h])) array[h]=xk;
 				else pomakiPremaL(array,l);
 				
 			}
@@ -778,29 +746,29 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 		}
 		
 		//kriterijZaustavljanja(array,xc,krit);
-		checkStop = kriterijZaustavljanja(array,xc,epsilon,Class,lookUpTable);;//compareVectors(krit,epsilon);
+		checkStop = kriterijZaustavljanja(array,xc,epsilon,Class);;//compareVectors(krit,epsilon);
 	}
 	while(!checkStop);
 	return array[l];
 	
-	//return x0;
+	return x0;
 }
 
 
 //Explore function for Hooks-Jeeves algorithm
-std::vector<double> explore(std::vector<double> xP, std::vector<double> Dx,AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+std::vector<double> explore(std::vector<double> xP, std::vector<double> Dx,AbstractFunction& Class)
 {
 	std::vector<double> x=xP;
 	double P,N;
 	for(int i=0;i<x.size();i++)
 	{
-		P = getValue(x,Class,lookUpTable);//Class.function(x);
+		P = Class.function(x);
 		x[i] = x[i]+Dx[i];
-		N = getValue(x,Class,lookUpTable);//Class.function(x);
+		N = Class.function(x);
 		if(N>P)
 		{
 			x[i]=x[i]-2*Dx[i];
-			N = getValue(x,Class,lookUpTable);//Class.function(x);
+			N = Class.function(x);
 			if(N>P)
 			{
 				x[i]=x[i] + Dx[i];
@@ -823,14 +791,12 @@ std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> prec
 	std::vector<double> xB=x0;
 	std::vector<double> xP=x0;
 	std::vector<double> xN,temp,tempX;
-	std::map<std::vector<double>, double> lookUpTable;
 	tempX=divide(precision,2);
 	bool check = false;
 	do
 	{
-		xN = explore(xP,Dx,Class,lookUpTable);
-		//if(Class.function(xN)<Class.function(xB))
-		if(getValue(xN,Class,lookUpTable)<getValue(xB,Class,lookUpTable))
+		xN = explore(xP,Dx,Class);
+		if(Class.function(xN)<Class.function(xB))
 		{
 			temp = multiply(xN,2);
 			xP = subtract(temp,xB);
@@ -987,7 +953,7 @@ int main(int argc, char* argv[]){
 	//resetiraj brojac
 	func3.restartCount();
 	
-	
+	/*
 	//Hook Jeeves
 	std::cout<<"Hook-Jeeves: "<<std::endl;	
 	temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
@@ -997,7 +963,7 @@ int main(int argc, char* argv[]){
 	std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
 	//resetiraj brojac
 	func3.restartCount();
-	
+	*/
 	return 0;
 
 	
