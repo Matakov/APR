@@ -492,21 +492,24 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 	std::vector<std::vector<double>> array(x0.size()+1,ref);
 	double a1 = t*(sqrt(x0.size()+1)+x0.size()-1)/(x0.size()*sqrt(2));
 	double a2 = t*(sqrt(x0.size()+1)-1)/(x0.size()*sqrt(2));
-	std::cout<<"a1: "<<a1<<"\na2: "<<a2<<std::endl;
+	//std::cout<<"a1: "<<a1<<"\na2: "<<a2<<std::endl;
 	std::vector<double> temp(x0.size(),a2);
 	std::vector<double> temp2 = temp;
 	//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
 	//std::cout<<"<-That was prototype"<<std::endl;
-	for(int i=0;i<=x0.size();i++)
+	for(int i=0;i<x0.size();i++)
 	{
 		//std::cout<<i<<" ";
 		temp2 = temp;
-		if(i<x0.size())	temp2[i]=a1;
+		temp2[i]=a1;
 		//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
 		//std::cout<<std::endl;
-		array[i]=temp2;
+		addSame(array[i],temp2);
+		addSame(array[i],x0);
 	}
+	array[array.size()-1]=x0;
 	
+	/*
 	std::cout<<"Veličina polja: "<<array.size()<<std::endl;
 	for(int i=0;i<array.size();i++)
 	{
@@ -519,22 +522,31 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 		}
 		std::cout<<std::endl;
 	}
-	
+	*/
 	return array;
 }
 
 //izracunaj i vrati centroid skupa vrijednosti
-std::vector<double> getCentroid(std::vector<std::vector<double>> array)
+void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c)
 {
-	std::vector<double> c(array.size()-1,0.0);
-	for(int i=0;i<(array.size()-1);i++)
+	//std::cout<<"Racunanje centroida"<<std::endl;
+	std::vector<double> temp;
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	for(int j=0;j<c.size();j++) c[j]=0;
+	for(int i=0;i<array.size();i++)
 	{
-		for(int j=0;j<array.size();j++)
-		{
-			c[i]+=array[j][i];
-		}
-		c[i]/=(array.size()-1);
+		temp=array[i];
+		addSame(c,temp);
 	}
+	//std::cout<<"Array size: "<<array.size()<<std::endl;
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	for(int j=0;j<c.size();j++) c[j]/=array.size();
+	
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	return;
 }
 
 //vrati ulaz koji daje najvecu vrijednost
@@ -582,44 +594,46 @@ int getMinimumIndex(std::vector<std::vector<double>> array, AbstractFunction& Cl
 }
 
 //izracunaj refleksivnu tocku
-std::vector<double> refleksija(std::vector<double> xc, std::vector<double> xh,double alfa)
+void refleksija(std::vector<double> xc, std::vector<double> xh,double alfa,std::vector<double>& xr)
 {
-	std::vector<double> xr;
+	//for(int i=0;i<xc.size();i++) std::cout<<xc[i]<<" ";
+	//std::cout<<std::endl;
+	//for(int i=0;i<xh.size();i++) std::cout<<xh[i]<<" ";
+	//std::cout<<std::endl;
+
 	for(int i=0;i<xc.size();i++)
 	{
 		xr[i]=(1+alfa)*xc[i]-alfa*xh[i];
 	}
-	return xr;
+	return;
 }
 
 //izracunaj ekspazivnu tocku
-std::vector<double> ekspanzija(std::vector<double> xc, std::vector<double> xh,double gamma,double alfa)
+void ekspanzija(std::vector<double> xc, std::vector<double> xh,double gamma,double alfa,std::vector<double>& xe)
 {
-	std::vector<double> xr=refleksija(xc,xh,alfa);
-	std::vector<double> xe;
+	std::vector<double> xr(xc.size(),0.0);
+	refleksija(xc,xh,alfa,xr);
 	for(int i=0;i<xc.size();i++)
 	{
 		xe[i]=(1-gamma)*xc[i]+gamma*xr[i];
 	}
-	return xe;
+	return;
 }
 
 //izracunaj kontrakcijsku tocku
-std::vector<double> kontrakcija(std::vector<double> xc, std::vector<double> xh,double beta)
+void kontrakcija(std::vector<double> xc, std::vector<double> xh,double beta,std::vector<double>& xk)
 {
-	std::vector<double> xk;
 	for(int i=0;i<xc.size();i++)
 	{
 		xk[i]=(1-beta)*xc[i]+beta*xh[i];
 	}
-	return xk;
+	return;
 }
 
 void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
 {
 	for(int i=0;i<array.size();i++)
 	{
-		if(i==l) continue;
 		for(int j=0;j<array[i].size();j++)
 		{
 			array[i][j] = 0.5 * (array[i][j]+array[l][j]);
@@ -627,9 +641,9 @@ void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
 	}
 }
 
-std::vector<double> kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc)
+bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class)
 {
-	std::vector<double> exitVector;
+	/*
 	for(int i=0;i<array.size()-1;i++)
 	{
 		for(int j=0;j<array.size();j++)
@@ -638,45 +652,92 @@ std::vector<double> kriterijZaustavljanja(std::vector<std::vector<double>> array
 		}
 		exitVector[i]=sqrt(exitVector[i]/array.size());
 	}
-	return exitVector;	
+	return;
+	*/
+	double fxc = Class.function(xc);
+	double sum=0;
+	for(int i=0;i<array.size();i++)
+	{
+		sum += pow((Class.function(array[i])-fxc),2);
+	}
+	sum/=array.size();
+	sum=sqrt(sum);
+	if(sum<eps) return true;
+	else return false;
 }
 
 /*
 Nelder-Mead simpleks algoritam
 Ulazne velicine: X0,razmak, alfa, beta, gama, epsilon,funkcija
 */
-std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, std::vector<double> epsilon, AbstractFunction& Class)
+std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, double epsilon, AbstractFunction& Class)
 {
 	std::vector<std::vector<double>> array;
-	array=tockeSimpleksa(x0,razmak);
-	std::cout<<"Velicina polja: "<<array.size()<<std::endl;
-	std::vector<double> xc,xr,xk,xe,krit;
+	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xk(x0.size(),0.0),xe(x0.size(),0.0);
 	int h,l;
 	bool checkVar = true;
 	bool checkStop = false;
+	
+	//Izracunaj pocetne tocke simpleksa
+	array=tockeSimpleksa(x0,razmak);
+	
+	/*
+	std::cout<<"Velicina polja: "<<array.size()<<std::endl;
+	std::vector<double> temp2;
+	for(int i=0;i<array.size();i++)
+	{
+		std::cout<<i<<" ";
+		temp2 = array[i];
+		for(int j=0;j<temp2.size();j++)
+		{
+			//std::cout<<j<<" ";
+			std::cout<<temp2[j]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	*/	
+	
+	
 	do
 	{
 		h = getMaximumIndex(array,Class);
-		l = getMinimumIndex(array,Class);	
-		xc = getCentroid(array);
-		xr = refleksija(xc,array[h],alfa);
+		l = getMinimumIndex(array,Class);
+		//std::cout<<"Maks index: "<<h<<" Min index "<<l<<std::endl;	
+		getCentroid(array,xc);
+		//std::cout<<"Velicina centroida: "<<xc.size()<<std::endl;
+		
+		refleksija(xc,array[h],alfa,xr);
+		//std::cout<<"Centroid: "<<std::endl;
+		//for(int i=0;i<xc.size();i++) std::cout<<xc[i]<<" ";
+		//std::cout<<std::endl;
+		//std::cout<<"Refleksija: "<<std::endl;
+		//for(int i=0;i<xc.size();i++) std::cout<<xr[i]<<" ";
+		//std::cout<<std::endl;
+		
+		//std::cout<<"Vrijednost refleksije: "<<Class.function(xr)<<std::endl;
+		//std::cout<<"Vrijednost najmanje: "<<Class.function(array[l])<<std::endl;
 		if(Class.function(xr) < Class.function(array[l]))
 		{
-			xe = ekspanzija(xc,array[h],gamma,alfa);
+			//std::cout<<"I am in if!"<<std::endl;
+			ekspanzija(xc,array[h],gamma,alfa,xe);
 			if(Class.function(xe)<Class.function(array[l])) array[h] = xe;
 			else array[h] = xr;
 		}
 		else
 		{
+			checkVar=true;
+			//std::cout<<"I am in else!"<<std::endl;
 			for(int j=0;j<array.size();j++)
 			{
-				if(j==h) continue;
-				if(Class.function(xr) <= Class.function(array[j])) checkVar=false;
+				if(j!=h)
+				{
+					if(Class.function(xr) <= Class.function(array[j])) checkVar=false;
+				}
 			}
 			if(checkVar)
 			{
 				if(Class.function(xr) < Class.function(array[h])) array[h]=xr;
-				xk = kontrakcija(xc,array[h],beta);
+				kontrakcija(xc,array[h],beta,xk);
 				if(Class.function(xk) < Class.function(array[h])) array[h]=xk;
 				else pomakiPremaL(array,l);
 				
@@ -684,11 +745,13 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 			else array[h] = xr;
 		}
 		
-		krit = kriterijZaustavljanja(array,xc);
-		checkStop = compareVectors(krit,epsilon);
+		//kriterijZaustavljanja(array,xc,krit);
+		checkStop = kriterijZaustavljanja(array,xc,epsilon,Class);;//compareVectors(krit,epsilon);
 	}
 	while(!checkStop);
 	return array[l];
+	
+	return x0;
 }
 
 
@@ -754,10 +817,6 @@ std::vector<double> HookeJeeves(std::vector<double> x0, std::vector<double> prec
 void myfunction (std::string i) {  // function:
   std::cout << ' ' << i <<std::endl;
 }
-
-
-
-
 
 int main(int argc, char* argv[]){
 	std::ifstream myfile;
@@ -885,15 +944,16 @@ int main(int argc, char* argv[]){
 	double beta=0.5;
 	double gamma=2;	
 	//Nelder Mead
-	//std::cout<<"Nelder-Mead: "<<std::endl;	
-	//temp_result=NelderMead(tocka,1,alfa,beta,gamma,preciznost,func3);
-	//std::cout<<"Minimum funkcije je: ";
-	//for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-	//std::cout<<std::endl;
-	//std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
+	std::cout<<"Nelder-Mead: "<<std::endl;	
+	temp_result=NelderMead(tocka,20,alfa,beta,gamma,preciznost[0],func3);
+	std::cout<<"Minimum funkcije je: ";
+	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+	std::cout<<std::endl;
+	std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
 	//resetiraj brojac
-	//func3.restartCount();
-
+	func3.restartCount();
+	
+	/*
 	//Hook Jeeves
 	std::cout<<"Hook-Jeeves: "<<std::endl;	
 	temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
@@ -903,6 +963,7 @@ int main(int argc, char* argv[]){
 	std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
 	//resetiraj brojac
 	func3.restartCount();
+	*/
 	return 0;
 
 	
