@@ -530,7 +530,7 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 }
 
 //izracunaj i vrati centroid skupa vrijednosti
-void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c)
+void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c, double h)
 {
 	//std::cout<<"Racunanje centroida"<<std::endl;
 	std::vector<double> temp;
@@ -539,13 +539,16 @@ void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c)
 	for(int j=0;j<c.size();j++) c[j]=0;
 	for(int i=0;i<array.size();i++)
 	{
-		temp=array[i];
-		addSame(c,temp);
+		if(i!=h)
+		{
+			temp=array[i];
+			addSame(c,temp);
+		}
 	}
 	//std::cout<<"Array size: "<<array.size()<<std::endl;
 	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
 	//std::cout<<std::endl;
-	for(int j=0;j<c.size();j++) c[j]/=array.size();
+	for(int j=0;j<c.size();j++) c[j]/=(array.size()-1);
 	
 	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
 	//std::cout<<std::endl;
@@ -731,7 +734,7 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 		h = getMaximumIndex(array,Class,lookUpTable);
 		l = getMinimumIndex(array,Class,lookUpTable);
 		//std::cout<<"Maks index: "<<h<<" Min index "<<l<<std::endl;	
-		getCentroid(array,xc);
+		getCentroid(array,xc,h);
 		//std::cout<<"Velicina centroida: "<<xc.size()<<std::endl;
 		
 		refleksija(xc,array[h],alfa,xr);
