@@ -8,6 +8,8 @@
 #include<stdlib.h>
 #include<math.h>
 #include <map>
+#include <time.h>
+
 
 /*
 String splitting function
@@ -198,12 +200,12 @@ void subtractSame(std::vector<double>& a,std::vector<double> b)
 }
 void absoluteValue(std::vector<double>& a)
 {
-	for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
+	//for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
 	for(int i=0;i<a.size();i++)
 	{
 		a[i]=abs(a[i]);	
 	}
-	for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
+	//for(int i=0;i<a.size();i++) std::cout<<a[i]<<" ";
 	return;
 }
 
@@ -296,7 +298,7 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 		if(i!=dim) tocka[i]=0;
 	}
 	//std::cout<<"Ulazni multi-vektor: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" "<<std::endl;
+	//for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" "<<std::endl;
 	std::vector<double> vl(tocka.size(),0.0);
 	std::vector<double> vr(tocka.size(),0.0);
 	vl[dim] = tocka[dim] - h, vr[dim] = tocka[dim] + h; 
@@ -342,8 +344,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 			fm = fl;
 			vl[dim] = tocka[dim] - h * (step *= 2);
 			fl = Class.function(vl);
-			std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
-			std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
+			//std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
+			//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 		} while(fm > fl);
 		l = vl[dim];
 		r = vr[dim];
@@ -411,7 +413,7 @@ double Zlatni_rezMulti(bool point,double h, std::vector<double> t,std::vector<do
 	{
 		//izracunaj prvo unimodalni interval
 		unimodalniMulti(h,t,a,b,Class,dim);
-		std::cout<<a<<" "<<b<<std::endl;
+		//std::cout<<a<<" "<<b<<std::endl;
 	}
 	else
 	{
@@ -471,7 +473,7 @@ std::vector<double> KoordiantneOsi(std::vector<double> x0, std::vector<double> e
 		xS = x;
 		for(int i=0;i<x.size();i++)
 		{
-			std::cout<<i<<std::endl;
+			//std::cout<<i<<std::endl;
 			temp=Zlatni_rezMulti(true,1,x,eps,Class,i);
 			x[i]=temp;
 			//for(int i=0;i<x.size();i++) std::cout<<x[i]<<std::endl;
@@ -852,18 +854,11 @@ void myfunction (std::string i) {  // function:
   std::cout << ' ' << i <<std::endl;
 }
 
-int main(int argc, char* argv[]){
+void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance)
+{
 	std::ifstream myfile;
-	myfile.open(argv[1]);
 	std::string line;
-	std::vector<double> tocka,minimumFunkcije,preciznost,pomaciFunkcije;
-	double leftPoint,rightPoint;
-	//std::cout<<argc<<std::endl;
-	if(argc<2)
-	{
-		std::cout<<"Nisi zadao ulazni txt file!!\nPrekidam program."<<std::endl;
-		std::exit(0);
-	}
+	myfile.open(name);
 	if(myfile.is_open())
 	{
 		while(getline (myfile,line))
@@ -891,15 +886,35 @@ int main(int argc, char* argv[]){
 				leftPoint=atof(container[2].c_str());
 				rightPoint=atof(container[3].c_str());			
 			}
+			if (container[0] == "Razmak" && container[1] == "točaka:")
+			{
+				distance=atof(container[2].c_str());		
+			}
 			//std::cout<<container[2]<<std::endl;
 			//std::for_each (container.begin(), container.end(), myfunction);
 			
 		}
 	}
-	for(int i=0;i<tocka.size();i++) std::cout<<preciznost[i]<<" ";
-	for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" ";
-	for(int i=0;i<minimumFunkcije.size();i++) std::cout<<minimumFunkcije[i]<<" ";
-	std::cout<<leftPoint<<" "<<rightPoint<<std::endl;
+}
+int main(int argc, char* argv[]){
+	std::ifstream myfile;
+	std::string line;
+	std::vector<double> tocka,minimumFunkcije,preciznost,pomaciFunkcije;
+	double leftPoint,rightPoint,distance;
+	int zadatak;
+	//std::cout<<argc<<std::endl;
+	if(argc<3)
+	{
+		std::cout<<"Nisi zadao ulazni txt file!!\nPrekidam program."<<std::endl;
+		std::exit(0);
+	}
+	zadatak=atof(argv[2]);
+	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance);
+	
+	//for(int i=0;i<tocka.size();i++) std::cout<<preciznost[i]<<" ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" ";
+	//for(int i=0;i<minimumFunkcije.size();i++) std::cout<<minimumFunkcije[i]<<" ";
+	//std::cout<<leftPoint<<" "<<rightPoint<<std::endl;
 	//std::cout<<func3(tocka)<<std::endl;
 	
 	/*
@@ -954,50 +969,233 @@ int main(int argc, char* argv[]){
 	func6.restartCount();
 	std::cout<<func6.getNumbers()<<std::endl;
 	*/
-
-	double i,j,h=1;
-	function3 func3(minimumFunkcije);
-	std::vector<double> temp_result;
 	
-	/*
-	//Zlatni rez
-	std::cout<<"Minimum funkcije je: "<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
-	std::cout<<"Broj poziva funkcije u Zlatnom rezu je: "<<func3.getNumbers()<<std::endl;
-	//resetiraj brojac	
-	func3.restartCount();
-	//Koordinatne osi	
-	temp_result=KoordiantneOsi(tocka,preciznost,func3);
-	std::cout<<"Minimum funkcije je: ";
-	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-	std::cout<<std::endl;
-	std::cout<<"Broj poziva funkcije u Koordinanim osima je: "<<func3.getNumbers()<<std::endl;
-	//resetiraj brojac	
-	func3.restartCount();
-	*/
 	double alfa=1;
 	double beta=0.5;
 	double gamma=2;	
-	//Nelder Mead
-	std::cout<<"Nelder-Mead: "<<std::endl;	
-	temp_result=NelderMead(tocka,20,alfa,beta,gamma,preciznost[0],func3);
-	std::cout<<"Minimum funkcije je: ";
-	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-	std::cout<<std::endl;
-	std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
-	//resetiraj brojac
-	func3.restartCount();
+	
+	if(zadatak==1)
+	{
+		double i,j,h=1;
+		function3 func3(minimumFunkcije);
+		std::vector<double> temp_result;
+		std::cout<<"Zadatak 1"<<std::endl;
+		//Zlatni rez
+		std::cout<<"Minimum funkcije je: "<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
+		std::cout<<"Broj poziva funkcije u Zlatnom rezu je: "<<func3.getNumbers()<<std::endl;
+		//resetiraj brojac	
+		func3.restartCount();
+		//Koordinatne osi	
+		temp_result=KoordiantneOsi(tocka,preciznost,func3);
+		std::cout<<"Minimum funkcije je: ";
+		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije u Koordinanim osima je: "<<func3.getNumbers()<<std::endl;
+		//resetiraj brojac	
+		func3.restartCount();
+	
+		
+		//Nelder Mead
+		std::cout<<"Nelder-Mead: "<<std::endl;	
+		temp_result=NelderMead(tocka,distance,alfa,beta,gamma,preciznost[0],func3);
+		std::cout<<"Minimum funkcije je: ";
+		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
+		//resetiraj brojac
+		func3.restartCount();
 	
 	
-	//Hook Jeeves
-	std::cout<<"Hook-Jeeves: "<<std::endl;	
-	temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
-	std::cout<<"Minimum funkcije je: ";
-	for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-	std::cout<<std::endl;
-	std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
-	//resetiraj brojac
-	func3.restartCount();
+		//Hook Jeeves
+		std::cout<<"Hook-Jeeves: "<<std::endl;	
+		temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
+		std::cout<<"Minimum funkcije je: ";
+		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
+		//resetiraj brojac
+		func3.restartCount();
+	}
+	if(zadatak==2)
+	{
+		std::vector<std::vector<double>> rezultati;
+		std::vector<int> brojPoziva;
+		
+		function1 func1;
+		function2 func2;
+		function3 func3(minimumFunkcije);
+		function4 func4;
+		std::vector<double> tocka1,tocka2,tocka4,temp;
+		tocka1.push_back(-1.9);
+		tocka1.push_back(2);
+		tocka2.push_back(0.1);
+		tocka2.push_back(0.3);
+		tocka4.push_back(5.1);
+		tocka4.push_back(1.1);
 	
+		//funkcija 1
+		//Koordinatne osi
+		rezultati.push_back(KoordiantneOsi(tocka1,preciznost,func1));
+		brojPoziva.push_back(func1.getNumbers());
+		func1.restartCount();
+		std::cout<<"Koordinatne osi - 1"<<std::endl;
+	
+		//Nelder-Mead
+		rezultati.push_back(NelderMead(tocka1,distance,alfa,beta,gamma,preciznost[0],func1));
+		brojPoziva.push_back(func1.getNumbers());
+		func1.restartCount();
+
+		//Hook-Jeeves
+		rezultati.push_back(HookeJeeves(tocka1,preciznost,pomaciFunkcije,func1));
+		brojPoziva.push_back(func1.getNumbers());
+		func1.restartCount();
+
+		//funkcija 2
+		//Koordinatne osi
+		rezultati.push_back(KoordiantneOsi(tocka2,preciznost,func2));
+		brojPoziva.push_back(func2.getNumbers());
+		func2.restartCount();
+		std::cout<<"Koordinatne osi - 2"<<std::endl;
+
+		//Nelder-Mead
+		rezultati.push_back(NelderMead(tocka2,distance,alfa,beta,gamma,preciznost[0],func2));
+		brojPoziva.push_back(func2.getNumbers());
+		func2.restartCount();
+
+		//Hook-Jeeves
+		rezultati.push_back(HookeJeeves(tocka2,preciznost,pomaciFunkcije,func2));
+		brojPoziva.push_back(func2.getNumbers());
+		func2.restartCount();
+	
+		//funkcija 3
+		//Koordinatne osi
+		rezultati.push_back(KoordiantneOsi(tocka,preciznost,func3));
+		brojPoziva.push_back(func3.getNumbers());
+		func3.restartCount();
+		std::cout<<"Koordinatne osi - 3"<<std::endl;
+
+		//Nelder-Mead
+		rezultati.push_back(NelderMead(tocka,distance,alfa,beta,gamma,preciznost[0],func3));
+		brojPoziva.push_back(func3.getNumbers());
+		func3.restartCount();
+
+		//Hook-Jeeves
+		rezultati.push_back(HookeJeeves(tocka,preciznost,pomaciFunkcije,func3));
+		brojPoziva.push_back(func3.getNumbers());
+		func3.restartCount();
+
+		//funkcija 4
+		//Koordinatne osi
+		rezultati.push_back(KoordiantneOsi(tocka4,preciznost,func4));
+		brojPoziva.push_back(func4.getNumbers());
+		func4.restartCount();
+		std::cout<<"Koordinatne osi - 4"<<std::endl;
+	
+		//Nelder-Mead
+		rezultati.push_back(NelderMead(tocka4,distance,alfa,beta,gamma,preciznost[0],func4));
+		brojPoziva.push_back(func4.getNumbers());
+		func4.restartCount();
+
+		//Hook-Jeeves
+		rezultati.push_back(HookeJeeves(tocka4,preciznost,pomaciFunkcije,func4));
+		brojPoziva.push_back(func4.getNumbers());
+		func4.restartCount();
+	
+		std::cout<<"Tablica rezultata"<<std::endl;
+		std::cout<<"Nadjeni minimum/Broj poziva"<<std::endl;
+		std::cout<<"--------------------------------------------------------------------------"<<std::setw(5)<<std::endl;
+		for(int i=0;i<4;i++)
+		{
+			for(int j=0;j<3;j++)
+			{
+				//print Minimum
+				temp = rezultati[i*3+j];
+				for(int k=0;k<temp.size();k++) std::cout<<std::setw(12)<<temp[k]<<" ";
+				//print number of calls
+				std::cout<<brojPoziva[i*3+j];
+			}
+			std::cout<<std::endl;
+		}
+	}
+	if(zadatak==3)
+	{
+		function4 func4;
+		std::vector<double> tocka4,nelderMead,hookJeeves;
+		std::vector<int> brojPoziva;
+		tocka4.push_back(5);
+		tocka4.push_back(5);
+		
+		//Nelder-Mead
+		nelderMead=NelderMead(tocka4,distance,alfa,beta,gamma,preciznost[0],func4);
+		brojPoziva.push_back(func4.getNumbers());
+		func4.restartCount();
+
+		//Hook-Jeeves
+		hookJeeves=HookeJeeves(tocka4,preciznost,pomaciFunkcije,func4);
+		brojPoziva.push_back(func4.getNumbers());
+		func4.restartCount();
+		
+		std::cout<<"Tablica rezultata"<<std::endl;
+		std::cout<<"Nelder-Mead"<<std::endl;
+		for(int i=0;i<nelderMead.size();i++)std::cout<< nelderMead[i]<<" ";
+		std::cout<<brojPoziva[0];
+		std::cout<<std::endl;
+		std::cout<<"Hook-Jeeves"<<std::endl;
+		for(int i=0;i<hookJeeves.size();i++)std::cout<< hookJeeves[i]<<" ";
+		std::cout<<brojPoziva[1];
+		std::cout<<std::endl;
+		
+	}
+	if(zadatak==4)
+	{
+		function1 func1;
+		std::vector<double> tocka1,temp;
+		std::vector<std::vector<double>> rezultati;
+		std::vector<int> brojPoziva;
+		tocka1.push_back(0.5);
+		tocka1.push_back(0.5);
+		for(int t=0;t<20;t++)
+		{
+			rezultati.push_back(NelderMead(tocka1,t,alfa,beta,gamma,preciznost[0],func1));
+			brojPoziva.push_back(func1.getNumbers());
+			func1.restartCount();
+		}
+		std::cout<<"Tablica rezultata"<<std::endl;
+		std::cout<<"Nelder-Mead"<<std::endl;
+		std::cout<<"Udaljnost točaka: "<<std::setw(10)<<"Broj poziva"<<std::setw(15)<<"Minimum"<<std::endl;
+		for(int t=0;t<20;t++)
+		{
+			std::cout<<t+1<<std::setw(20);
+			std::cout<<brojPoziva[t]<<std::setw(20);
+			temp=rezultati[t];
+			for(int i=0;i<temp.size();i++) std::cout<<temp[i]<<" ";
+			std::cout<<std::endl; 			
+		}
+	}
+	if(zadatak==5)
+	{
+		srand (time(NULL));
+		function6 func6;
+		std::vector<double> tocka6,temp;
+		std::cout<<"Hook-Jeeves"<<std::endl;
+		std::cout<<"Početne točake: "<<std::setw(15)<<"Broj poziva"<<std::setw(15)<<"Minimum"<<std::endl;
+		for(int j=0;j<5;j++)
+		{
+			tocka6.clear();
+			tocka6.push_back(rand()%101-50); //raspon od -50 do 50
+			tocka6.push_back(rand()%101-50); //raspon od -50 do 50
+			//temp = HookeJeeves(tocka6,preciznost,pomaciFunkcije,func6);
+			temp = NelderMead(tocka6,10,alfa,beta,gamma,preciznost[0],func6);
+			for(int i=0;i<tocka6.size();i++) std::cout<<tocka6[i]<<" ";
+			std::cout<<" "<<std::setw(20);
+			std::cout<<func6.getNumbers()<<std::setw(20);		
+			for(int i=0;i<temp.size();i++) std::cout<<temp[i]<<" ";
+			std::cout<<std::endl;
+			func6.restartCount();
+			
+		}
+		
+	}
 	return 0;
 
 	
