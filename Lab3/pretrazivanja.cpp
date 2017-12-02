@@ -11,6 +11,7 @@
 #include <time.h>
 
 //----------------------------- LABOS 1 MATRICE
+extern bool x = false;
 
 class Matrica{
     private:
@@ -575,7 +576,7 @@ class Matrica{
 				if(this->arrayPointer[i][i]==0 || fabs(this->arrayPointer[i][i])<1e-7)
 				{
 					std::cout<<"Dijelis sa nulom, nema rijesenja."<<std::endl;
-					x=true;
+					//x=true;
 					//std::exit(0);
 					break;
 				}
@@ -589,7 +590,7 @@ class Matrica{
 	}
 	
 	//supstitucija unaprijed
-	void supstitucijaUnaprijed(const const Matrica& b, std::vector<double>& result)
+	void supstitucijaUnaprijed(const Matrica& b, std::vector<double>& result)
 	{
 		Matrica sup(this->getRow(),this->getRow());
 		for(int i=0;i<this->getRow();i++)
@@ -623,7 +624,7 @@ class Matrica{
 //				std::cout<<i<<" "<<j<<" "<<y.arrayPointer[i][0]<<" "<<sup.arrayPointer[i][j]<<" "<<y.arrayPointer[i][0]<<std::endl;
 			}
 		}
-		for(int i=0;i<b.size();i++) result[i]=y.arrayPointer[i][0];
+		for(int i=0;i<this->getRow();i++) result[i]=y.arrayPointer[i][0];
 		return;
 	}
 	//supstitucija unazad
@@ -1495,11 +1496,11 @@ void getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& C
 }
 
 //function to check the implicit values of a point
-bool checkImplicit(std::vector<AbstractFunction&> implicitList,std::vector<double> x0)
+bool checkImplicit(std::vector<AbstractFunction*> implicitList,std::vector<double> x0)
 {
 	for(int i=0;i<implicitList.size();i++)
 	{
-		if(implicitList[i].function(x0)<=0)
+		if(implicitList[i]->function(x0)<=0)
 		{
 			return false;
 		}
@@ -1560,18 +1561,21 @@ bool checkStopingCriteria(std::vector<double> xc, std::vector<double> xh, double
 	return false;
 }
 
-void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction&> implicitList,double alfa, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,double alfa, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
 	std::vector<std::vector<double>> array;
 	std::map<std::vector<double>, double> lookUpTable;
-	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0);
+	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xc_old;
+	int iter=0;
 	int h,h2;
 	//Calculate starting simplex
 	array=tockeSimpleksa(x0, explicitConditions, implicitList);
+	xc_old = x0;
 	do
 	{
 		getMaximumIndex(array,Class,lookUpTable,h,h2);	
 		getCentroid(array,xc,h);
+		
 		xh = array[h];
 		refleksija(xc,xh,alfa,xr);
 		//explicit conditions
@@ -1595,7 +1599,16 @@ void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 			}
 		}
 		array[h] = xr;
-		
+		if(getValue(xc_old,Class,lookUpTable)>getValue(xc_old,Class,lookUpTable))
+		{
+			iter++;
+			if(iter>=100)
+			{
+				std::cout<<"The solution is divegreting!"<<std::endl;
+				return;
+			}
+		}
+		xc_old=xc;
 		if(checkStopingCriteria(xc,array[h],eps)) break;
 	}
 	while(true);
