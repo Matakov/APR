@@ -955,6 +955,49 @@ class function6: public AbstractFunction
 		}
 };
 
+//transformed function class
+class transformed: public AbstractFunction
+{
+	protected:
+		std::vector<AbstractFunction*> container;
+		std::vector<AbstractFunction*> implicitFunc;
+		std::vector<AbstractFunction*> explicitFunc;
+		AbstractFunction& Class;
+	public:
+		transformed(AbstractFunction& Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc):
+		{
+			this->Class=Class;
+			this->implicitFunc=implicitFunc;
+			this->explicitFunc=explicitFunc;
+		}
+		double function(std::vector<double> lista, double r)
+		{
+			increase();
+			output = this->Class->function(lista);
+			for(int i=0;i<this->implicitFunc.size();i++)
+			{
+				if(this->implicitFunc[i]->function(lista)<=0)
+				{
+					output += 10e6;				
+				}
+				else
+				{
+					output += r*log(this->implicitFunc[i]->function(lista));
+				}
+			}
+			for(int i=0;i<this->explicitFunc.size();i++)
+			{
+				output += 1/r*pow(this->explicitFunc[i]->function(lista),2);
+			}
+			//output += 
+			return output;
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+}
+
 //function for subtracting vectors
 void subtractSame(std::vector<double>& a,std::vector<double> b)
 {
@@ -1604,7 +1647,7 @@ void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 			iter++;
 			if(iter>=100)
 			{
-				std::cout<<"The solution is divegreting!"<<std::endl;
+				std::cout<<"The solution is divering!"<<std::endl;
 				return;
 			}
 		}
@@ -1613,6 +1656,282 @@ void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 	}
 	while(true);
 	for(int i=0;i<xc.size();i++) result[i]=xc[i];
+}
+
+// ---------------------------------------------------------------------- LABOS 2 NELDER MEAD
+
+//izracunaj ulazni skup tocki simpleksa
+std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
+{
+	std::vector<double> ref(x0.size(),0.0);
+	std::vector<std::vector<double>> array(x0.size()+1,ref);
+	double a1 = t*(sqrt(x0.size()+1)+x0.size()-1)/(x0.size()*sqrt(2));
+	double a2 = t*(sqrt(x0.size()+1)-1)/(x0.size()*sqrt(2));
+	//std::cout<<"a1: "<<a1<<"\na2: "<<a2<<std::endl;
+	std::vector<double> temp(x0.size(),a2);
+	std::vector<double> temp2 = temp;
+	//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
+	//std::cout<<"<-That was prototype"<<std::endl;
+	for(int i=0;i<x0.size();i++)
+	{
+		//std::cout<<i<<" ";
+		temp2 = temp;
+		temp2[i]=a1;
+		//for(int j=0;j<temp2.size();j++) std::cout<<temp2[j]<<" ";
+		//std::cout<<std::endl;
+		addSame(array[i],temp2);
+		addSame(array[i],x0);
+	}
+	array[array.size()-1]=x0;
+	
+	/*
+	std::cout<<"Veličina polja: "<<array.size()<<std::endl;
+	for(int i=0;i<array.size();i++)
+	{
+		std::cout<<i<<" ";
+		temp2 = array[i];
+		for(int j=0;j<temp2.size();j++)
+		{
+			//std::cout<<j<<" ";
+			std::cout<<temp2[j]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	*/
+	return array;
+}
+
+//izracunaj i vrati centroid skupa vrijednosti
+void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c, double h)
+{
+	//std::cout<<"Racunanje centroida"<<std::endl;
+	std::vector<double> temp;
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	for(int j=0;j<c.size();j++) c[j]=0;
+	for(int i=0;i<array.size();i++)
+	{
+		if(i!=h)
+		{
+			temp=array[i];
+			addSame(c,temp);
+		}
+	}
+	//std::cout<<"Array size: "<<array.size()<<std::endl;
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	for(int j=0;j<c.size();j++) c[j]/=(array.size()-1);
+	
+	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
+	//std::cout<<std::endl;
+	return;
+}
+
+//vrati index najvece ulazne vrijednosti
+int getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+{
+	int h=0;
+	double left,right;
+	for(int i=0;i<array.size();i++)
+	{
+		left = getValue(array[i],Class,lookUpTable);
+		right = getValue(array[h],Class,lookUpTable);
+		if(left>right) h = i;
+	}
+	return h;
+}
+
+//vrati ulaz koji daje najmanju vrijednost
+std::vector<double> getMinimum(std::vector<std::vector<double>> array, AbstractFunction& Class)
+{
+	std::vector<double> l=array[0];
+	for(int i=0;i<array.size();i++)
+	{
+		if(Class.function(array[i])<Class.function(l)) l = array[i];
+	}
+	return l;
+}
+
+//vrati index najmanje ulazne vrijednosti
+int getMinimumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+{
+	int l=0;
+	double left,right;
+	for(int i=0;i<array.size();i++)
+	{
+		left = getValue(array[i],Class,lookUpTable);
+		right = getValue(array[l],Class,lookUpTable);
+		if(left<right) l = i;
+	}
+	return l;
+}
+
+//izracunaj ekspazivnu tocku
+void ekspanzija(std::vector<double> xc, std::vector<double> xh,double gamma,double alfa,std::vector<double>& xe)
+{
+	std::vector<double> xr(xc.size(),0.0);
+	refleksija(xc,xh,alfa,xr);
+	for(int i=0;i<xc.size();i++)
+	{
+		xe[i]=(1-gamma)*xc[i]+gamma*xr[i];
+	}
+	return;
+}
+
+//izracunaj kontrakcijsku tocku
+void kontrakcija(std::vector<double> xc, std::vector<double> xh,double beta,std::vector<double>& xk)
+{
+	for(int i=0;i<xc.size();i++)
+	{
+		xk[i]=(1-beta)*xc[i]+beta*xh[i];
+	}
+	return;
+}
+
+void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
+{
+	for(int i=0;i<array.size();i++)
+	{
+		for(int j=0;j<array[i].size();j++)
+		{
+			array[i][j] = 0.5 * (array[i][j]+array[l][j]);
+		}
+	}
+}
+
+bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
+{
+	/*
+	for(int i=0;i<array.size()-1;i++)
+	{
+		for(int j=0;j<array.size();j++)
+		{
+			exitVector[i]+=pow((array[j][i]-xc[i]),2);
+		}
+		exitVector[i]=sqrt(exitVector[i]/array.size());
+	}
+	return;
+	*/
+	double fxc = getValue(xc,Class,lookUpTable);
+	double sum=0;
+	double temp;
+	for(int i=0;i<array.size();i++)
+	{
+		temp = getValue(array[i],Class,lookUpTable);
+		sum += pow((temp-fxc),2);
+	}
+	sum/=array.size();
+	sum=sqrt(sum);
+	if(sum<eps) return true;
+	else return false;
+}
+
+/*
+Nelder-Mead simpleks algoritam
+Ulazne velicine: X0,razmak, alfa, beta, gama, epsilon,funkcija
+*/
+std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, double epsilon, AbstractFunction& Class)
+{
+	std::vector<std::vector<double>> array;
+	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xk(x0.size(),0.0),xe(x0.size(),0.0);
+	int h,l;
+	std::map<std::vector<double>, double> lookUpTable;
+	bool checkVar = true;
+	bool checkStop = false;
+	
+	//Izracunaj pocetne tocke simpleksa
+	array=tockeSimpleksa(x0,razmak);
+	
+	/*
+	std::cout<<"Velicina polja: "<<array.size()<<std::endl;
+	std::vector<double> temp2;
+	for(int i=0;i<array.size();i++)
+	{
+		std::cout<<i<<" ";
+		temp2 = array[i];
+		for(int j=0;j<temp2.size();j++)
+		{
+			//std::cout<<j<<" ";
+			std::cout<<temp2[j]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	*/	
+	
+	
+	do
+	{
+		h = getMaximumIndex(array,Class,lookUpTable);
+		l = getMinimumIndex(array,Class,lookUpTable);
+		//std::cout<<"Maks index: "<<h<<" Min index "<<l<<std::endl;	
+		getCentroid(array,xc,h);
+		//std::cout<<"Velicina centroida: "<<xc.size()<<std::endl;
+		
+		refleksija(xc,array[h],alfa,xr);
+		//std::cout<<"Centroid: "<<std::endl;
+		//for(int i=0;i<xc.size();i++) std::cout<<xc[i]<<" ";
+		//std::cout<<std::endl;
+		//std::cout<<"Refleksija: "<<std::endl;
+		//for(int i=0;i<xc.size();i++) std::cout<<xr[i]<<" ";
+		//std::cout<<std::endl;
+		
+		//std::cout<<"Vrijednost refleksije: "<<Class.function(xr)<<std::endl;
+		//std::cout<<"Vrijednost najmanje: "<<Class.function(array[l])<<std::endl;
+		
+		//if(Class.function(xr) < Class.function(array[l]))
+		if(getValue(xr,Class,lookUpTable) < getValue(array[l],Class,lookUpTable))
+		{
+			//std::cout<<"I am in if!"<<std::endl;
+			ekspanzija(xc,array[h],gamma,alfa,xe);
+			//if(Class.function(xe)<Class.function(array[l])) array[h] = xe;
+			if(getValue(xe,Class,lookUpTable)<getValue(array[l],Class,lookUpTable)) array[h] = xe;
+			else array[h] = xr;
+		}
+		else
+		{
+			checkVar=true;
+			//std::cout<<"I am in else!"<<std::endl;
+			for(int j=0;j<array.size();j++)
+			{
+				if(j!=h)
+				{
+					//if(Class.function(xr) <= Class.function(array[j])) checkVar=false;
+					if(getValue(xr,Class,lookUpTable) <= getValue(array[j],Class,lookUpTable)) checkVar=false;
+				}
+			}
+			if(checkVar)
+			{
+				//if(Class.function(xr) < Class.function(array[h])) array[h]=xr;
+				if(getValue(xr,Class,lookUpTable) < getValue(array[h],Class,lookUpTable)) array[h]=xr;
+				kontrakcija(xc,array[h],beta,xk);
+				//if(Class.function(xk) < Class.function(array[h])) array[h]=xk;
+				if(getValue(xk,Class,lookUpTable) < getValue(array[h],Class,lookUpTable)) array[h]=xk;
+				else pomakiPremaL(array,l);
+				
+			}
+			else array[h] = xr;
+		}
+		
+		//kriterijZaustavljanja(array,xc,krit);
+		checkStop = kriterijZaustavljanja(array,xc,epsilon,Class,lookUpTable);;//compareVectors(krit,epsilon);
+	}
+	while(!checkStop);
+	return array[l];
+	
+	//return x0;
+}
+
+// ---------------------------------------------------------------------------------
+
+
+
+void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,std::vector<AbstractFunction*> explicitList,double alfa,double beta, double gamma,double pomak, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+{
+
+	transformed theFunction(Class,implicitList,explicitList);
+	std::vector<double> temp = NelderMead(x0,pomak,alfa,beta,gamma,eps,theFunction);
+	for(int i=0;i<x0.size();i++) result[i]=temp[i];
+	return;
 }
 
 void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance)
