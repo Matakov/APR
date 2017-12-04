@@ -1241,8 +1241,8 @@ double derivePartially(AbstractFunction& Class, std::vector<double> x0, int coor
 
 	//for(int i=0;i<x0.size();i++) std::cout<<x0[i]<<" ";
 	//std::cout<<std::endl;
-	std::cout<<"Coord: "<<coord<<std::endl;
-	std::cout<<"Delta: "<<delta<<std::endl;
+	//std::cout<<"Coord: "<<coord<<std::endl;
+	//std::cout<<"Delta: "<<delta<<std::endl;
 	for(int i=0;i<x0.size();i++)
 	{
 		//std::cout<<i<<" "<<x0[i]<<std::endl;
@@ -1267,11 +1267,11 @@ double derivePartially(AbstractFunction& Class, std::vector<double> x0, int coor
 				x2.push_back(x0[i]);
 			}
 	}
-	for(int i=0;i<x0.size();i++) std::cout<<x1[i]<<" "<<x2[i]<<std::endl;
+	//for(int i=0;i<x0.size();i++) std::cout<<x1[i]<<" "<<x2[i]<<std::endl;
 	double y1 = Class.function(x1);
 	double y2 = Class.function(x2);
-	std::cout<<y1<<" "<<y2<<std::endl;
-	std::cout<<(y2 - y1) / (2*delta)<<std::endl;
+	//std::cout<<y1<<" "<<y2<<std::endl;
+	//std::cout<<(y2 - y1) / (2*delta)<<std::endl;
 	return (y2 - y1) / (2*delta);
 }
 
@@ -1280,30 +1280,36 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, int 
 {
 	std::vector<double> x1(x0); //= x0 - delta;
 	std::vector<double> x2(x0); //= x0 + delta;
+	//std::cout<<"Delta: "<<delta<<std::endl;
+	//std::cout<<"firstDer: "<<firstDer<<std::endl;
+	//std::cout<<"secondDer: "<<secondDer<<std::endl;
 
-	for(int i=0;i<x0.size();i++){
-	if (i==secondDer)
-		{
-		x1[i]=x0[i] - delta;
-		}
-	else
-		{
-		x1[i]=x0[i];
-		}
+	for(int i=0;i<x0.size();i++)
+	{
+		if (i==secondDer)
+			{
+			x1[i]=x0[i] - delta;
+			}
+		else
+			{
+			x1[i]=x0[i];
+			}
 	}	
-	for(int i=0;i<x0.size();i++){
-	if (i==secondDer)
+	for(int i=0;i<x0.size();i++)
+	{
+		if (i==secondDer)
 		{
-		x2[i]=x0[i] + delta;
+			x2[i]=x0[i] + delta;
 		}
-	else
+		else
 		{
-		x2[i]=x0[i];
+			x2[i]=x0[i];
 		}
 	}
 	
 	double y1 = derivePartially(Class,x1,firstDer,delta);
 	double y2 = derivePartially(Class,x2,firstDer,delta);
+	//std::cout<<y1<<" "<<y2<<std::endl;
 	return (y2 - y1) / (2*delta);	
 
 }
@@ -1315,6 +1321,7 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 	std::vector<double> partialDerivations(x0.size(),0.0),x_new(x0),x_old(x0);
 	double lambda;
 	double sumDerivations = 0;
+	double sumGrad=0;
 	int iter=0;
 	do {
 		for (int i=0;i<x0.size();i++)
@@ -1339,7 +1346,7 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 			std::cout<<"Lambda: ";
 			for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
 			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]+lambda*partialDerivations[i];
-			}
+		}
 		else
 		{
 			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]-partialDerivations[i];
@@ -1355,6 +1362,13 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 				return;
 			}
 		}
+		for(int i=0;i<x0.size();i++) sumGrad +=partialDerivations[i];
+		if(sumGrad<delta)
+		{
+			result=x_new;
+			return;
+		}
+		/*
 		for(int i=0;i<x0.size();i++)
 		{
 			if(partialDerivations[i]<delta)
@@ -1363,6 +1377,7 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 				return;
 			}
 		}
+		*/
 		if(abs(Class.function(x_old)-Class.function(x_new))<delta)
 		{
 			result=x_new;
@@ -1372,21 +1387,25 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 	}
 	while(true);
 }
-/*
+
 //NEWTON-RAPHSON METHOD
-void newtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
-	std::vector<double> partialDerivations,x_old,x,dx,temp_res;
+	std::vector<double> partialDerivations(x0.size(),0.0),x_old(x0),x(x0),dx(x0),temp_res(x0),dx_n(x0);
 	std::vector<std::vector<double>> hessianMatrix,temp;
+	for(int i=0;i<x0.size();i++) hessianMatrix.push_back(partialDerivations);
+	double sumDerivations=0;
+	double sumDx = 0;	
 	bool cond=false;
-	double norm;
+	double norm,lambda;
 	for(int i=0;i<x0.size();i++) x[i]=x0[i];
+	int iter=0;
 	do
 	{
 		//Calculate G(x);
 		for (int i=0;i<x0.size();i++)
 		{
-			partialDerivations[i]=derivePartially(Class, x_old, delta, i);
+			partialDerivations[i]=derivePartially(Class, x, i, delta);
 			sumDerivations+=partialDerivations[i];
 		}
 		//normalize vectors
@@ -1394,23 +1413,30 @@ void newtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 		{
 			partialDerivations[i]/=sumDerivations;
 		}
+		//std::cout<<"Normalized vectors: ";
+		//for(int i=0;i<x0.size();i++) std::cout<<partialDerivations[i]<<" ";
+		//std::cout<<"\n";
 		//Calculate J(x); Hessian matrix
 		for (int i=0;i<x0.size();i++)
 		{
 			for(int j=0;j<x0.size();j++)
 			{
-				hessianMatrix[i][j]=secondOrderPartials(Class,x0,delta,i,j);
+				hessianMatrix[i][j]=secondOrderPartials(Class,x,i,j,delta);
 			}
 		}
-		//resolve J*dx = -G;
 
+		
+		//resolve J*dx = -G;
 		//transform vector of vectors into a matrix
 		Matrica J(hessianMatrix);
+		std::cout<<"Hessian matrix:"<<std::endl;
+		J.printMatrix();
+		
 		temp.clear();
-		temp.push.back(partialDerivations);
+		temp.push_back(partialDerivations);
 		Matrica G(temp);
-		//G.transposeSelf();
-	
+		Matrica GT=G.transpose();
+		//GT.printMatrix();
 		//Decompose to L and U
 		Matrica _4P=J.LUPdekompozicija();
 		//std::cout<<"Matrica A nakon LUP dekompozicije: "<<std::endl;
@@ -1418,25 +1444,50 @@ void newtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 		//std::cout<<"Jedinična matrica nakon LUP dekompozicije: "<<std::endl;	
 		//_4P.printMatrix();
 		temp_res.clear();
-		J.supstitucijaUnaprijed(_4P*G,temp_res);
+		J.supstitucijaUnaprijed(_4P*GT,temp_res);
 		J.supstitucijaUnazad(temp_res,dx);
-
-		//x += dx
-		for(int i=0;i<x.size();i++)x[i]+=dx[i];
-
+		x_old=x;
+		//x -= dx
+		if(mode==1)
+		{
+			for (int i=0;i<x0.size();i++) sumDx+=dx[i];
+			for (int i=0;i<x0.size();i++)
+			{
+				dx_n[i]=dx[i]/sumDx;
+			}
+			lambda = Zlatni_rezMulti(1,x,delta,Class,dx);
+			//std::cout<<"Lambda: ";
+			//for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
+			for(int i=0;i<x0.size();i++) x[i]=x[i]+lambda*dx[i];
+		}
+		else
+		{
+			for(int i=0;i<x.size();i++)x[i]-=dx[i];
+		}
 		norm=0;
 		for(int i=0;i<x.size();i++)
 		{
 			norm+=dx[i]*dx[i];	
 		}
 		norm = sqrt(norm);
-		if(norm<epm) break;
+		if(norm<eps) break;
+		if(Class.function(x)>Class.function(x_old))
+		{
+			iter++;
+			if(iter>=100)
+			{
+				std::cout<<"Divergira!"<<std::endl;
+				result=x;
+				return;			
+			}		
+		}
 	}
 	while(true);
 	for(int i=0;i<x.size();i++) result[i]=x[i];
 	return;
 }
 
+/*
 //function for summation of vectors
 void addSame(std::vector<double>& a,std::vector<double> b)
 {
@@ -1989,7 +2040,7 @@ int main(int argc, char* argv[]){
 	{
 		function3 func3;
 		std::vector<double> rezultat;
-		std::cout<<func3.function(tocka)<<std::endl;
+		//std::cout<<func3.function(tocka)<<std::endl;
 		gradientDescent(func3, tocka, rezultat,preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat.size();k++) std::cout<<std::setw(5)<<rezultat[k]<<" ";
@@ -2000,7 +2051,44 @@ int main(int argc, char* argv[]){
 	}
 	if(zadatak==2)
 	{
+		function1 func1;
+		function2 func2;
+
+		std::vector<double> rezultat1;
+		std::vector<double> rezultat2;
+
+		/*
+		//Gradient descent
+		std::cout<<"Gradient descent function 1:"<<std::endl;
+		gradientDescent(func1, tocka, rezultat1,preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		func1.restartCount();
 		
+		std::cout<<"Gradient descent function 2:"<<std::endl;
+		gradientDescent(func2, tocka, rezultat2,preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
+		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		func2.restartCount();
+		*/
+		
+		/*
+		//NewtonRaphson
+		std::cout<<"Newton-Raphson function 1:"<<std::endl;
+		NewtonRaphson(func1, tocka, rezultat1,preciznost[0],preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		func1.restartCount();
+		*/
+		std::cout<<"Newton-Raphson function 2:"<<std::endl;
+		NewtonRaphson(func2, tocka, rezultat2,preciznost[0],preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
+		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		func2.restartCount();
 	}
 	if(zadatak==3)
 	{
