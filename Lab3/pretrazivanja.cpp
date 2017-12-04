@@ -954,7 +954,7 @@ class function6: public AbstractFunction
 			restartCounting();
 		}
 };
-
+/*
 //transformed function class
 class transformed: public AbstractFunction
 {
@@ -964,7 +964,7 @@ class transformed: public AbstractFunction
 		std::vector<AbstractFunction*> explicitFunc;
 		AbstractFunction& Class;
 	public:
-		transformed(AbstractFunction& Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc):
+		transformed(AbstractFunction& Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc)
 		{
 			this->Class=Class;
 			this->implicitFunc=implicitFunc;
@@ -973,7 +973,7 @@ class transformed: public AbstractFunction
 		double function(std::vector<double> lista, double r)
 		{
 			increase();
-			output = this->Class->function(lista);
+			double output = this->Class.function(lista);
 			for(int i=0;i<this->implicitFunc.size();i++)
 			{
 				if(this->implicitFunc[i]->function(lista)<=0)
@@ -996,8 +996,8 @@ class transformed: public AbstractFunction
 		{
 			restartCounting();
 		}
-}
-
+};
+*/
 //function for subtracting vectors
 void subtractSame(std::vector<double>& a,std::vector<double> b)
 {
@@ -1106,8 +1106,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, 
 	//for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" "<<std::endl;
 	std::vector<double> vl(tocka.size(),0.0);
 	std::vector<double> vr(tocka.size(),0.0);
-	lambdaL = lambda0 - h;
-	lambdaR = lambda0 + h;
+	double lambdaL = lambda0 - h;
+	double lambdaR = lambda0 + h;
 	for(int i=0;i<tocka.size();i++) vl[i] = multiToOne[i]*lambdaL; 
 	for(int i=0;i<tocka.size();i++) vr[i] = multiToOne[i]*lambdaR; 
 	std::vector<double> m = tocka;
@@ -1177,20 +1177,20 @@ ulazne velicine:
 */
 
 //ZLATNI REZ ZA VISE DIMENZIJA
-double Zlatni_rezMulti(double h, std::vector<double> t,double e, AbstractFunction& Class, std::vector<double> multiToOne)
+double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFunction& Class, std::vector<double> multiToOne)
 {	
 	double lambda0 = tocka[0]/multiToOne[0];
 	double a,b;
 	//izracunaj prvo unimodalni interval
-	unimodalniMulti(h,t,a,b,Class,multiToOne);
+	unimodalniMulti(h,tocka,a,b,Class,multiToOne);
 	//std::cout<<a<<" "<<b<<std::endl;
 	
 	double k = 0.5*(sqrt(5)-1);
-	std::vector<double> vc(t.size(),0.0);
+	std::vector<double> vc(tocka.size(),0.0);
 	double c = b - k * (b - a);
 	//vc[dim]=c;
 	for (int i=0;i<tocka.size();i++) vc[i] = multiToOne[i]*c;
-	std::vector<double> vd(t.size(),0.0);
+	std::vector<double> vd(tocka.size(),0.0);
 	double d = a + k * (b - a);
 	//vd[dim]=d;
 	for (int i=0;i<tocka.size();i++) vd[i] = multiToOne[i]*d;
@@ -1230,46 +1230,56 @@ double derive(AbstractFunction& Class, std::vector<double> x0, double delta = 1.
 	
 	double y1 = Class.function(x1);
 	double y2 = Class.function(x2);
-	return (y2 - y1) / (x2 - x1);
+	return (y2 - y1) / (2*delta);
 }
 
 //function to numerically partially derive function
-double derivePartially(AbstractFunction& Class, std::vector<double> x0, double delta = 1.0e-6, int coord)
+double derivePartially(AbstractFunction& Class, std::vector<double> x0, int coord, double delta = 1.0e-6)
 {
 	std::vector<double> x1; //= x0 - delta;
 	std::vector<double> x2; //= x0 + delta;
 
-	for(int i=0;i<x0.size();i++){
-	if (i==coord)
-		{
-		x1[i]=x0[i] - delta;
-		}
-	else
-		{
-		x1[i]=0;
-		}
-	}	
-	for(int i=0;i<x0.size();i++){
-	if (i==coord)
-		{
-		x2[i]=x0[i] + delta;
-		}
-	else
-		{
-		x2[i]=0;
-		}
+	//for(int i=0;i<x0.size();i++) std::cout<<x0[i]<<" ";
+	//std::cout<<std::endl;
+	std::cout<<"Coord: "<<coord<<std::endl;
+	std::cout<<"Delta: "<<delta<<std::endl;
+	for(int i=0;i<x0.size();i++)
+	{
+		//std::cout<<i<<" "<<x0[i]<<std::endl;
+		if (i==coord)
+			{
+				x1.push_back(x0[i] - delta);
+			}
+		else
+			{
+				x1.push_back(x0[i]);
+			}
+		//std::cout<<i<<" "<<x1[i]<<std::endl;
 	}
-	
+	for(int i=0;i<x0.size();i++)
+	{
+		if (i==coord)
+			{
+				x2.push_back(x0[i] + delta);
+			}
+		else
+			{
+				x2.push_back(x0[i]);
+			}
+	}
+	for(int i=0;i<x0.size();i++) std::cout<<x1[i]<<" "<<x2[i]<<std::endl;
 	double y1 = Class.function(x1);
 	double y2 = Class.function(x2);
+	std::cout<<y1<<" "<<y2<<std::endl;
+	std::cout<<(y2 - y1) / (2*delta)<<std::endl;
 	return (y2 - y1) / (2*delta);
 }
 
 //calculate second order partial derivations using derivePartially for first order
-double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, double delta = 1.0e-6, int firstDer, int secondDer)
+double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, int firstDer, int secondDer,double delta = 1.0e-6)
 {
-	std::vector<double> x1; //= x0 - delta;
-	std::vector<double> x2; //= x0 + delta;
+	std::vector<double> x1(x0); //= x0 - delta;
+	std::vector<double> x2(x0); //= x0 + delta;
 
 	for(int i=0;i<x0.size();i++){
 	if (i==secondDer)
@@ -1278,7 +1288,7 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, doub
 		}
 	else
 		{
-		x1[i]=0;
+		x1[i]=x0[i];
 		}
 	}	
 	for(int i=0;i<x0.size();i++){
@@ -1288,12 +1298,12 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, doub
 		}
 	else
 		{
-		x2[i]=0;
+		x2[i]=x0[i];
 		}
 	}
 	
-	double y1 = derivePartially(Class,x1,delta,firstDer);
-	double y2 = derivePartially(Class,x2,delta,firstDer);
+	double y1 = derivePartially(Class,x1,firstDer,delta);
+	double y2 = derivePartially(Class,x2,firstDer,delta);
 	return (y2 - y1) / (2*delta);	
 
 }
@@ -1302,39 +1312,54 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, doub
 //GRADIENT DESCENT METHOD
 void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6, int mode=1)
 {
-	std::vector<double> partialDerivations,x_old,x_new;
+	std::vector<double> partialDerivations(x0.size(),0.0),x_new(x0),x_old(x0);
 	double lambda;
-	sumDerivations = 0;
-	x_old = x0;
+	double sumDerivations = 0;
 	int iter=0;
 	do {
 		for (int i=0;i<x0.size();i++)
 		{
-			partialDerivations[i]=derivePartially(Class, x_old, delta, i);
-			sumDerivations+=partialDerivations[i];
+			//std::cout<<i<<std::endl;
+			partialDerivations[i]=derivePartially(Class, x_old, i,delta);
+			sumDerivations+=partialDerivations[i]*partialDerivations[i];
 		}
-
-		//normalize vectors
-		for (int i=0;i<x0.size();i++)
-		{
-			partialDerivations[i]/=sumDerivations;
-		}
+				
 		if(mode==1)
 		{
+			sumDerivations=sqrt(sumDerivations);
+			//std::cout<<sumDerivations<<std::endl;
+			//normalize vectors
+			for (int i=0;i<x0.size();i++)
+			{
+				partialDerivations[i]=partialDerivations[i]/sumDerivations;
+			}
+			std::cout<<"Partial normalized: ";
+			for (int i=0;i<x0.size();i++) std::cout<<partialDerivations[i]<<" ";
 			lambda = Zlatni_rezMulti(1,x_old,delta,Class,partialDerivations);
+			std::cout<<"Lambda: ";
+			for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
 			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]+lambda*partialDerivations[i];
-		}
+			}
 		else
 		{
-			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]+partialDerivations[i];
+			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]-partialDerivations[i];
 		}
-		
+		std::cout<<"NEW X: ";
+		for(int i=0;i<x0.size();i++) std::cout<< x_new[i]<<" ";
 		if(Class.function(x_new)>Class.function(x_old))
 		{
 			iter++;
 			if(iter >= 100)
 			{
 				std::cout<<"It is divergating"<<std::endl;
+				return;
+			}
+		}
+		for(int i=0;i<x0.size();i++)
+		{
+			if(partialDerivations[i]<delta)
+			{
+				result=x_new;
 				return;
 			}
 		}
@@ -1347,7 +1372,7 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 	}
 	while(true);
 }
-
+/*
 //NEWTON-RAPHSON METHOD
 void newtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
@@ -1657,9 +1682,9 @@ void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 	while(true);
 	for(int i=0;i<xc.size();i++) result[i]=xc[i];
 }
-
+*/
 // ---------------------------------------------------------------------- LABOS 2 NELDER MEAD
-
+/*
 //izracunaj ulazni skup tocki simpleksa
 std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 {
@@ -1683,21 +1708,7 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 		addSame(array[i],x0);
 	}
 	array[array.size()-1]=x0;
-	
-	/*
-	std::cout<<"Veličina polja: "<<array.size()<<std::endl;
-	for(int i=0;i<array.size();i++)
-	{
-		std::cout<<i<<" ";
-		temp2 = array[i];
-		for(int j=0;j<temp2.size();j++)
-		{
-			//std::cout<<j<<" ";
-			std::cout<<temp2[j]<<" ";
-		}
-		std::cout<<std::endl;
-	}
-	*/
+
 	return array;
 }
 
@@ -1798,20 +1809,10 @@ void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
 		}
 	}
 }
-
+*/
+/*
 bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
 {
-	/*
-	for(int i=0;i<array.size()-1;i++)
-	{
-		for(int j=0;j<array.size();j++)
-		{
-			exitVector[i]+=pow((array[j][i]-xc[i]),2);
-		}
-		exitVector[i]=sqrt(exitVector[i]/array.size());
-	}
-	return;
-	*/
 	double fxc = getValue(xc,Class,lookUpTable);
 	double sum=0;
 	double temp;
@@ -1825,11 +1826,12 @@ bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<d
 	if(sum<eps) return true;
 	else return false;
 }
-
+*/
 /*
 Nelder-Mead simpleks algoritam
 Ulazne velicine: X0,razmak, alfa, beta, gama, epsilon,funkcija
 */
+/*
 std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, double epsilon, AbstractFunction& Class)
 {
 	std::vector<std::vector<double>> array;
@@ -1841,24 +1843,7 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 	
 	//Izracunaj pocetne tocke simpleksa
 	array=tockeSimpleksa(x0,razmak);
-	
-	/*
-	std::cout<<"Velicina polja: "<<array.size()<<std::endl;
-	std::vector<double> temp2;
-	for(int i=0;i<array.size();i++)
-	{
-		std::cout<<i<<" ";
-		temp2 = array[i];
-		for(int j=0;j<temp2.size();j++)
-		{
-			//std::cout<<j<<" ";
-			std::cout<<temp2[j]<<" ";
-		}
-		std::cout<<std::endl;
-	}
-	*/	
-	
-	
+		
 	do
 	{
 		h = getMaximumIndex(array,Class,lookUpTable);
@@ -1933,8 +1918,8 @@ void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vect
 	for(int i=0;i<x0.size();i++) result[i]=temp[i];
 	return;
 }
-
-void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance)
+*/
+void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode)
 {
 	std::ifstream myfile;
 	std::string line;
@@ -1970,6 +1955,10 @@ void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& m
 			{
 				distance=atof(container[2].c_str());		
 			}
+			if (container[0] == "Mode:")
+			{
+				mode=atof(container[1].c_str());		
+			}
 			//std::cout<<container[2]<<std::endl;
 			//std::for_each (container.begin(), container.end(), myfunction);
 			
@@ -1982,73 +1971,15 @@ int main(int argc, char* argv[]){
 	std::vector<double> tocka,minimumFunkcije,preciznost,pomaciFunkcije;
 	double leftPoint,rightPoint,distance;
 	int zadatak;
+	int mode;
 	//std::cout<<argc<<std::endl;
 	if(argc<3)
 	{
-		std::cout<<"Nisi zadao ulazni txt file!!\nPrekidam program."<<std::endl;
+		std::cout<<"Nisi zadao ulazni txt file ili zadatak koji se treba vrtiti\nPrekidam program."<<std::endl;
 		std::exit(0);
 	}
 	zadatak=atof(argv[2]);
-	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance);
-	
-	//for(int i=0;i<tocka.size();i++) std::cout<<preciznost[i]<<" ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<tocka[i]<<" ";
-	//for(int i=0;i<minimumFunkcije.size();i++) std::cout<<minimumFunkcije[i]<<" ";
-	//std::cout<<leftPoint<<" "<<rightPoint<<std::endl;
-	//std::cout<<func3(tocka)<<std::endl;
-	
-	/*
-	function1 func1;
-	double ide = func1.function(1,2);
-	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
-	ide = func1.function(1,3);
-	std::cout<<ide<<" "<<func1.getNumbers()<<std::endl;
-	func1.restartCount();
-	std::cout<<func1.getNumbers()<<std::endl;
-
-	function2 func2;
-	ide = func2.function(1,2);
-	std::cout<<ide<<" "<<func2.getNumbers()<<std::endl;
-	ide = func2.function(1,3);
-	std::cout<<ide<<" "<<func2.getNumbers()<<std::endl;
-	func2.restartCount();
-	std::cout<<func2.getNumbers()<<std::endl;
-
-	std::vector<double>v;
-	v.push_back(2);
-	v.push_back(2);
-
-	function3 func3;
-	ide = func3.function(v);
-	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
-	//v.push_back(3);
-	ide = func3.function(v);
-	std::cout<<ide<<" "<<func3.getNumbers()<<std::endl;
-	func3.restartCount();
-	std::cout<<func3.getNumbers()<<std::endl;
-
-	function4 func4;
-	ide = func4.function(v);
-	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
-	ide = func4.function(v);
-	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
-	std::cout<<func4.getNumbers()<<std::endl;
-	ide = func4.function(2,2);
-	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
-	ide = func4.function(2,2);
-	std::cout<<ide<<" "<<func4.getNumbers()<<std::endl;
-	func4.restartCount();
-	std::cout<<func4.getNumbers()<<std::endl;
-
-	function6 func6;
-	ide = func6.function(v);
-	std::cout<<ide<<" "<<func6.getNumbers()<<std::endl;
-	v.push_back(3);
-	ide = func6.function(v);
-	std::cout<<ide<<" "<<func6.getNumbers()<<std::endl;
-	func6.restartCount();
-	std::cout<<func6.getNumbers()<<std::endl;
-	*/
+	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance,mode);
 	
 	double alfa=1;
 	double beta=0.5;
@@ -2056,256 +1987,32 @@ int main(int argc, char* argv[]){
 	
 	if(zadatak==1)
 	{
-		double i,j,h=1;
-		function3 func3(minimumFunkcije);
-		std::vector<double> temp_result;
-		std::cout<<"Zadatak 1"<<std::endl;
-		//Zlatni rez
-		std::cout<<"Minimum funkcije je: "<<Zlatni_rezMulti(true,h,tocka,preciznost,func3,0)<<std::endl;
-		std::cout<<"Broj poziva funkcije u Zlatnom rezu je: "<<func3.getNumbers()<<std::endl;
-		//resetiraj brojac	
+		function3 func3;
+		std::vector<double> rezultat;
+		std::cout<<func3.function(tocka)<<std::endl;
+		gradientDescent(func3, tocka, rezultat,preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat.size();k++) std::cout<<std::setw(5)<<rezultat[k]<<" ";
+		std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
 		func3.restartCount();
-		//Koordinatne osi	
-		temp_result=KoordiantneOsi(tocka,preciznost,func3);
-		std::cout<<"Minimum funkcije je: ";
-		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-		std::cout<<std::endl;
-		std::cout<<"Broj poziva funkcije u Koordinanim osima je: "<<func3.getNumbers()<<std::endl;
-		//resetiraj brojac	
-		func3.restartCount();
-	
 		
-		//Nelder Mead
-		std::cout<<"Nelder-Mead: "<<std::endl;	
-		temp_result=NelderMead(tocka,distance,alfa,beta,gamma,preciznost[0],func3);
-		std::cout<<"Minimum funkcije je: ";
-		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-		std::cout<<std::endl;
-		std::cout<<"Broj poziva funkcije u Nelder-Meadu je: "<<func3.getNumbers()<<std::endl;
-		//resetiraj brojac
-		func3.restartCount();
-	
-	
-		//Hook Jeeves
-		std::cout<<"Hook-Jeeves: "<<std::endl;	
-		temp_result=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
-		std::cout<<"Minimum funkcije je: ";
-		for(int i=0;i<temp_result.size();i++) std::cout<<temp_result[i]<<" ";
-		std::cout<<std::endl;
-		std::cout<<"Broj poziva funkcije u Hook-Jeevesu je: "<<func3.getNumbers()<<std::endl;
-		//resetiraj brojac
-		func3.restartCount();
+		
 	}
 	if(zadatak==2)
 	{
-		std::vector<std::vector<double>> rezultati;
-		std::vector<int> brojPoziva;
 		
-		function1 func1;
-		function2 func2;
-		function3 func3(minimumFunkcije);
-		function4 func4;
-		std::vector<double> tocka1,tocka2,tocka4,temp,tempRes;
-		tocka1.push_back(-1.9);
-		tocka1.push_back(2);
-		tocka2.push_back(0.1);
-		tocka2.push_back(0.3);
-		tocka4.push_back(5.1);
-		tocka4.push_back(1.1);
-	
-		//funkcija 1
-		//Koordinatne osi
-		tempRes=KoordiantneOsi(tocka1,preciznost,func1);
-		brojPoziva.push_back(func1.getNumbers());
-		
-		std::cout<<"Koordinatne osi - 1"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
-		func1.restartCount();
-	
-		//Nelder-Mead
-		tempRes=NelderMead(tocka1,distance,alfa,beta,gamma,preciznost[0],func1);
-		brojPoziva.push_back(func1.getNumbers());
-		std::cout<<"Nelder-Mead - 1"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
-		func1.restartCount();
-
-		//Hook-Jeeves
-		tempRes=HookeJeeves(tocka1,preciznost,pomaciFunkcije,func1);
-		brojPoziva.push_back(func1.getNumbers());
-		std::cout<<"Hook-Jeeves - 1"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
-		func1.restartCount();
-
-		//funkcija 2
-		//Koordinatne osi
-		tempRes=KoordiantneOsi(tocka2,preciznost,func2);
-		brojPoziva.push_back(func2.getNumbers());
-		std::cout<<"Koordinatne osi - 2"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
-		func2.restartCount();
-
-		//Nelder-Mead
-		tempRes=NelderMead(tocka2,distance,alfa,beta,gamma,preciznost[0],func2);
-		brojPoziva.push_back(func2.getNumbers());
-		std::cout<<"Nelder-Mead - 2"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
-		func2.restartCount();
-
-		//Hook-Jeeves
-		tempRes=HookeJeeves(tocka2,preciznost,pomaciFunkcije,func2);
-		brojPoziva.push_back(func2.getNumbers());
-		std::cout<<"Hook-Jeeves - 2"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
-		func2.restartCount();
-	
-		//funkcija 3
-		//Koordinatne osi
-		tempRes=KoordiantneOsi(tocka,preciznost,func3);
-		brojPoziva.push_back(func3.getNumbers());
-		std::cout<<"Koordinatne osi - 3"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
-		func3.restartCount();
-
-		//Nelder-Mead
-		tempRes=NelderMead(tocka,distance,alfa,beta,gamma,preciznost[0],func3);
-		brojPoziva.push_back(func3.getNumbers());
-		std::cout<<"Nelder-Mead - 3"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
-		func3.restartCount();
-
-		//Hook-Jeeves
-		tempRes=HookeJeeves(tocka,preciznost,pomaciFunkcije,func3);
-		brojPoziva.push_back(func3.getNumbers());
-		std::cout<<"Hook-Jeeves - 3"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
-		func3.restartCount();
-
-		//funkcija 4
-		//Koordinatne osi
-		tempRes=KoordiantneOsi(tocka4,preciznost,func4);
-		brojPoziva.push_back(func4.getNumbers());
-		std::cout<<"Koordinatne osi - 4"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func4.getNumbers()<<std::endl;
-		func4.restartCount();
-	
-		//Nelder-Mead
-		tempRes=NelderMead(tocka4,distance,alfa,beta,gamma,preciznost[0],func4);
-		brojPoziva.push_back(func4.getNumbers());
-		std::cout<<"Nelder-Mead - 4"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func4.getNumbers()<<std::endl;
-		func4.restartCount();
-
-		//Hook-Jeeves
-		tempRes=HookeJeeves(tocka4,preciznost,pomaciFunkcije,func4);
-		brojPoziva.push_back(func4.getNumbers());
-		std::cout<<"Hook-Jeeves - 4"<<std::endl;
-		std::cout<<"Minimum: ";
-		for(int k=0;k<tempRes.size();k++) std::cout<<std::setw(5)<<tempRes[k]<<" ";
-		std::cout<<"Broj poziva: "<<func4.getNumbers()<<std::endl;
-		func4.restartCount();
 	}
 	if(zadatak==3)
 	{
-		function4 func4;
-		std::vector<double> tocka4,nelderMead,hookJeeves;
-		std::vector<int> brojPoziva;
-		tocka4.push_back(5);
-		tocka4.push_back(5);
 		
-		//Nelder-Mead
-		nelderMead=NelderMead(tocka4,distance,alfa,beta,gamma,preciznost[0],func4);
-		brojPoziva.push_back(func4.getNumbers());
-		func4.restartCount();
-
-		//Hook-Jeeves
-		hookJeeves=HookeJeeves(tocka4,preciznost,pomaciFunkcije,func4);
-		brojPoziva.push_back(func4.getNumbers());
-		func4.restartCount();
-		
-		std::cout<<"Tablica rezultata"<<std::endl;
-		std::cout<<"Minimum: "<<std::setw(30)<<"Broj poziva"<<std::endl;
-		std::cout<<"Nelder-Mead"<<std::endl;
-		for(int i=0;i<nelderMead.size();i++)std::cout<< nelderMead[i]<<" ";
-		std::cout<<" "<<std::setw(20);
-		std::cout<<brojPoziva[0];
-		std::cout<<std::endl;
-		std::cout<<"Hook-Jeeves"<<std::endl;
-		for(int i=0;i<hookJeeves.size();i++)std::cout<< hookJeeves[i]<<" ";
-		std::cout<<" "<<std::setw(20);
-		std::cout<<brojPoziva[1];
-		std::cout<<std::endl;
 		
 	}
 	if(zadatak==4)
 	{
-		function1 func1;
-		std::vector<double> tocka1,temp;
-		std::vector<std::vector<double>> rezultati;
-		std::vector<int> brojPoziva;
-		tocka1.push_back(0.5);
-		tocka1.push_back(0.5);
-		for(int t=0;t<20;t++)
-		{
-			rezultati.push_back(NelderMead(tocka1,t,alfa,beta,gamma,preciznost[0],func1));
-			brojPoziva.push_back(func1.getNumbers());
-			func1.restartCount();
-		}
-		std::cout<<"Tablica rezultata"<<std::endl;
-		std::cout<<"Nelder-Mead"<<std::endl;
-		std::cout<<"Udaljnost točaka: "<<std::setw(10)<<"Broj poziva"<<std::setw(15)<<"Minimum"<<std::endl;
-		for(int t=0;t<20;t++)
-		{
-			std::cout<<t+1<<std::setw(20);
-			std::cout<<brojPoziva[t]<<std::setw(20);
-			temp=rezultati[t];
-			for(int i=0;i<temp.size();i++) std::cout<<temp[i]<<" ";
-			std::cout<<std::endl; 			
-		}
+		
 	}
 	if(zadatak==5)
 	{
-		srand (time(NULL));
-		function6 func6;
-		std::vector<double> tocka6,temp;
-		std::cout<<"Hook-Jeeves"<<std::endl;
-		std::cout<<"Početne točake: "<<std::setw(15)<<"Broj poziva"<<std::setw(15)<<"Minimum"<<std::endl;
-		for(int j=0;j<5;j++)
-		{
-			tocka6.clear();
-			tocka6.push_back(rand()%101-50); //raspon od -50 do 50
-			tocka6.push_back(rand()%101-50); //raspon od -50 do 50
-			//temp = HookeJeeves(tocka6,preciznost,pomaciFunkcije,func6);
-			temp = NelderMead(tocka6,10,alfa,beta,gamma,preciznost[0],func6);
-			for(int i=0;i<tocka6.size();i++) std::cout<<tocka6[i]<<" ";
-			std::cout<<" "<<std::setw(20);
-			std::cout<<func6.getNumbers()<<std::setw(20);		
-			for(int i=0;i<temp.size();i++) std::cout<<temp[i]<<" ";
-			std::cout<<std::endl;
-			func6.restartCount();
-			
-		}
 		
 	}
 	return 0;

@@ -1,0 +1,7 @@
+Preciznost: 0.000001 0.000001 
+Početna točka: 0 0 
+Minimum funkcije: 3 3 
+Pomaci funkcije: 5 5
+Razmak točaka: -7
+Početni interval: -2 5
+Mode: 1
