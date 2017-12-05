@@ -5,3 +5,4 @@ Pomaci funkcije: 5 5
 Razmak točaka: -7
 Početni interval: -2 5
 Mode: 1
+Alfa : 1.3

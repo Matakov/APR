@@ -962,9 +962,9 @@ class transformed: public AbstractFunction
 		std::vector<AbstractFunction*> container;
 		std::vector<AbstractFunction*> implicitFunc;
 		std::vector<AbstractFunction*> explicitFunc;
-		AbstractFunction& Class;
+		AbstractFunction* Class;
 	public:
-		transformed(AbstractFunction& Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc)
+		transformed(AbstractFunction* Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc)
 		{
 			this->Class=Class;
 			this->implicitFunc=implicitFunc;
@@ -1487,16 +1487,6 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 	return;
 }
 
-/*
-//function for summation of vectors
-void addSame(std::vector<double>& a,std::vector<double> b)
-{
-	for(int i=0;i<a.size();i++)
-	{
-		a[i]+=b[i];	
-	}
-}
-
 //calculate and return centroid of all points
 void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c)
 {
@@ -1628,9 +1618,9 @@ bool checkImplicit(std::vector<AbstractFunction*> implicitList,std::vector<doubl
 }
 
 //izracunaj ulazni skup tocki simpleksa
-std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vector<double> explicitConditions,std::vector<AbstractFunction&> implicitList)
+std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList)
 {
-	AbstractFunction temp;
+	AbstractFunction* temp;
 	double r;
 	std::vector<double> tempX(x0.size(),explicitConditions[0]);
 	std::vector<std::vector<double>> array;
@@ -1640,10 +1630,12 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vect
 		if(x0[i]<explicitConditions[0]) x0[i]=explicitConditions[0];
 		if(x0[i]>explicitConditions[1]) x0[i]=explicitConditions[1];
 	}
+	std::cout<<"First vector";
+	for(int i=0;i<x0.size();i++) std::cout<<x0[i]<<" ";
 	//check implicit conditions
 	for(int i=0;i<implicitList.size();i++)
 	{
-		if(implicitList[i].function(x0)<=0)
+		if(implicitList[i]->function(x0)<=0)
 		{
 		//NOT GOOD
 		}
@@ -1651,7 +1643,7 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vect
 	std::vector<double> xc(x0);
 	for(int i=0;i<2*x0.size();i++)
 	{
-		tempX.clear(0);
+		tempX.clear();
 		tempX.assign(x0.size(),explicitConditions[0]);
 		for(int j=0;j<x0.size();j++)
 		{
@@ -1680,18 +1672,22 @@ bool checkStopingCriteria(std::vector<double> xc, std::vector<double> xh, double
 	return false;
 }
 
-void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,double alfa, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,double alfa, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
 	std::vector<std::vector<double>> array;
 	std::map<std::vector<double>, double> lookUpTable;
-	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xc_old;
+	std::vector<double> xc(x0.size(),0.0),xr(x0.size(),0.0),xc_old(x0.size(),0.0),xh(x0.size(),0.0);
 	int iter=0;
 	int h,h2;
+	int z=0;
+	std::cout<<"Populating start array\n";
 	//Calculate starting simplex
 	array=tockeSimpleksa(x0, explicitConditions, implicitList);
 	xc_old = x0;
 	do
 	{
+		z++;
+		std::cout<<"Iteracija: "<<z<<std::endl;
 		getMaximumIndex(array,Class,lookUpTable,h,h2);	
 		getCentroid(array,xc,h);
 		
@@ -1733,7 +1729,7 @@ void box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 	while(true);
 	for(int i=0;i<xc.size();i++) result[i]=xc[i];
 }
-*/
+
 // ---------------------------------------------------------------------- LABOS 2 NELDER MEAD
 /*
 //izracunaj ulazni skup tocki simpleksa
@@ -1970,7 +1966,7 @@ void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vect
 	return;
 }
 */
-void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode)
+void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode, double&alfa)
 {
 	std::ifstream myfile;
 	std::string line;
@@ -2010,6 +2006,10 @@ void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& m
 			{
 				mode=atof(container[1].c_str());		
 			}
+			if (container[0] == "Alfa:")
+			{
+				mode=atof(container[1].c_str());		
+			}
 			//std::cout<<container[2]<<std::endl;
 			//std::for_each (container.begin(), container.end(), myfunction);
 			
@@ -2020,7 +2020,7 @@ int main(int argc, char* argv[]){
 	std::ifstream myfile;
 	std::string line;
 	std::vector<double> tocka,minimumFunkcije,preciznost,pomaciFunkcije;
-	double leftPoint,rightPoint,distance;
+	double leftPoint,rightPoint,distance,alfa;
 	int zadatak;
 	int mode;
 	//std::cout<<argc<<std::endl;
@@ -2030,9 +2030,9 @@ int main(int argc, char* argv[]){
 		std::exit(0);
 	}
 	zadatak=atof(argv[2]);
-	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance,mode);
+	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance,mode,alfa);
 	
-	double alfa=1;
+	//double alfa=1;
 	double beta=0.5;
 	double gamma=2;	
 	
@@ -2092,8 +2092,36 @@ int main(int argc, char* argv[]){
 	}
 	if(zadatak==3)
 	{
+		function1 func1;
+		function2 func2;
+
+		std::vector<double> rezultat1;
+		std::vector<double> rezultat2;
+
+		function5 impl1;
+		function6 impl2;
+		std::vector<AbstractFunction*> implicitCondition;
+		implicitCondition.push_back(&impl1);	
+		implicitCondition.push_back(&impl2);
 		
+		std::vector<double> explicitCondition;
+		explicitCondition.push_back(-100);
+		explicitCondition.push_back(100);
+		std::cout<<"Doing box algorithm\n";
 		
+		std::cout<<"Box function 1:"<<std::endl;
+		Box(func1,tocka,rezultat1,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		func1.restartCount();
+		
+		std::cout<<"Box function 2:"<<std::endl;
+		Box(func2,tocka,rezultat2,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
+		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		func2.restartCount();		
 	}
 	if(zadatak==4)
 	{
