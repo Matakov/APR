@@ -872,7 +872,7 @@ double getValue(std::vector<double> input, AbstractFunction& Class,std::map<std:
 //return max index and max2 index
 void getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable, int& h, int& h2)
 {
-	lookUpTable.clear();
+	//lookUpTable.clear();
 	h=0;
 	double left,right;
 	for(int i=0;i<array.size();i++)
@@ -891,7 +891,7 @@ void getMaximumIndex(std::vector<std::vector<double>> array, AbstractFunction& C
 	for(int i=0;i<array.size();i++)
 	{
 		left = getValue(array[i],Class,lookUpTable);
-		if(left==max)  h = i;
+		//if(left==max)  h = i;
 		if(left==max2) h2 = i;
 	}
 	return;
@@ -926,6 +926,7 @@ void startSimpleks(std::vector<double> x0,std::vector<double> explicitConditions
 	double r;
 	double temp;
 	std::vector<double> tempX(x0.size(),explicitConditions[0]);
+	std::vector<double> xc(x0);
 	//std::cout<<"Function has been entered!"<<std::endl;
 	//check explicit conditions
 	//std::cout<<"Start vector size: "<<x0.size()<<std::endl;
@@ -960,7 +961,6 @@ void startSimpleks(std::vector<double> x0,std::vector<double> explicitConditions
 			continue;
 		}
 	}
-	std::vector<double> xc(x0);
 	for(int i=0;i<2*x0.size();i++)
 	{
 		tempX.clear();
@@ -991,12 +991,15 @@ void startSimpleks(std::vector<double> x0,std::vector<double> explicitConditions
 
 		}
 		while(!checkImplicit(implicitList,tempX));
+		//printVector(tempX);
 		for(int j=0;j<x0.size();j++)
 		{
-			tempX[j] = 1/2 * (tempX[j] + xc[j]);
+			tempX[j] = 0.5 * (tempX[j] + xc[j]);
 		}
+		//printVector(tempX);
 		array.push_back(tempX);
 		getCentroid(array,xc);
+		//printVector(xc);
 	}
 	std::cout<<"Simplex size is: "<<array.size()<<std::endl;
 	return;
@@ -1008,8 +1011,16 @@ bool checkStopingCriteria(std::vector<double> xc, std::vector<double> xh, double
 	{
 		sum+=(abs(xh[i]-xc[i]))*(abs(xh[i]-xc[i]));
 	}
-	if(sum<eps) return true;
+	if(sqrt(sum)<eps) return true;
 	return false;
+}
+
+void printArray(std::vector<std::vector<double>> array)
+{
+	for(int i=0;i<array.size();i++)
+	{
+		printVector(array[i]);
+	}
 }
 
 void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,double alfa, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
@@ -1020,9 +1031,14 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 	int iter=0;
 	int h,h2;
 	int z=0;
-	std::cout<<"Populating start array\n";
+	//std::cout<<"Populating start array\n";
+	std::cout<<"Alfa is: "<<alfa<<std::endl;
 	//Calculate starting simplex
 	startSimpleks(x0, explicitConditions, implicitList,array);
+	for(int i=0;i<array.size();i++)
+	{
+		printVector(array[i]);
+	}
 	xc_old = x0;
 	do
 	{
@@ -1030,33 +1046,38 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 		std::cout<<"Iteracija: "<<z<<std::endl;
 		getMaximumIndex(array,Class,lookUpTable,h,h2);	
 		getCentroid(array,xc,h);
-		std::cout<<"Checkpoint 1\n";
+		//std::cout<<"Checkpoint 1\n";
 		xh = array[h];
 		refleksija(xc,xh,alfa,xr);
+		//std::cout<<"Center: ";
+		//printVector(xc);
+		//std::cout<<"Reflex: ";
+		//printVector(xr);
 		//explicit conditions
 		for(int i=0;i<xc.size();i++)
 		{
 			if(xr[i]<explicitConditions[0]) xr[i]=explicitConditions[0];
 			if(xr[i]>explicitConditions[1]) xr[i]=explicitConditions[1];
 		}
-		std::cout<<"Checkpoint 2\n";
+		//std::cout<<"Checkpoint 2\n";
 		while(!checkImplicit(implicitList,xr))
 		{	
+			std::cout<<"Doing implicit"<<std::endl;
 			for(int j=0;j<xr.size();j++)
 			{
-				xr[j] = 1/2 * (xr[j] + xc[j]);
+				xr[j] = 0.5 * (xr[j] + xc[j]);
 			}
 		}
-		std::cout<<"Checkpoint 3\n";
+		//std::cout<<"Checkpoint 3\n";
 		if(Class.function(xr)>Class.function(array[h2]))
 		{
 			for(int j=0;j<xr.size();j++)
 			{
-				xr[j] = 1/2 * (xr[j] + xc[j]);
+				xr[j] = 0.5 * (xr[j] + xc[j]);
 			}
 		}
 		array[h] = xr;
-		std::cout<<"Checkpoint 4\n";
+		//std::cout<<"Checkpoint 4\n";
 		if(getValue(xc,Class,lookUpTable)>getValue(xc_old,Class,lookUpTable))
 		{
 			iter++;
@@ -1066,10 +1087,16 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 				return;
 			}
 		}
-		std::cout<<"Checkpoint 5\n";
+		//std::cout<<"Checkpoint 5\n";
 		xc_old=xc;
-		if(!checkStopingCriteria(xc,array[h],eps)) break;
-		if(iter>=1) break;
+		if(checkStopingCriteria(xc,xr,eps)) 
+		{
+			std::cout<<"Why me?\n";
+			result=xr;
+			break;
+		}
+		printArray(array);
+		//if(z>=4) break;
 	}
 	while(true);
 	for(int i=0;i<xc.size();i++) result[i]=xc[i];
@@ -1311,7 +1338,7 @@ void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vect
 	return;
 }
 */
-void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode, double&alfa)
+void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode, double& alfa)
 {
 	std::ifstream myfile;
 	std::string line;
@@ -1353,7 +1380,7 @@ void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& m
 			}
 			if (container[0] == "Alfa:")
 			{
-				mode=atof(container[1].c_str());		
+				alfa=atof(container[1].c_str());		
 			}
 			//std::cout<<container[2]<<std::endl;
 			//std::for_each (container.begin(), container.end(), myfunction);
@@ -1377,6 +1404,7 @@ int main(int argc, char* argv[]){
 	zadatak=atof(argv[2]);
 	openFile(argv[1],tocka,minimumFunkcije,preciznost,pomaciFunkcije,leftPoint,rightPoint,distance,mode,alfa);
 	
+	//std::cout<<"Alfa is: "<<alfa;
 	//double alfa=1;
 	double beta=0.5;
 	double gamma=2;	
