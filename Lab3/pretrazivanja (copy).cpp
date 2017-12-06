@@ -323,7 +323,7 @@ void unimodalni(double h, double tocka, double& l, double &r, AbstractFunction& 
 }
 
 //UNIMODALNI ZA VISE DIMENZIJA
-void unimodalniMulti(double h, std::vector<double> tocka, std::vector<double>& l, std::vector<double>& r, AbstractFunction& Class, std::vector<double> multiToOne)
+void unimodalniMulti(double h, std::vector<double> tocka, double& l, double &r, AbstractFunction& Class, std::vector<double> multiToOne)
 {
 	double lambda0 = 0;
 	//std::cout<<"Ulazni multi-vektor: ";
@@ -335,15 +335,14 @@ void unimodalniMulti(double h, std::vector<double> tocka, std::vector<double>& l
 	for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*lambdaL; 
 	for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*lambdaR; 
 	std::vector<double> m = tocka;
-	std::cout<<"multi-vektor vl: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
-	std::cout<<"multi-vektor vr: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
-	std::cout<<"multi-vektor m: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor vl: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor vr: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor m: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
 	double fl, fm, fr;
 	int step = 1;
-	double move = 0;
 
 	fm = Class.function(tocka);
 	fl = Class.function(vl);
@@ -353,8 +352,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, std::vector<double>& l
 	//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 	if(fm < fr && fm < fl)
 	{
-		l = vl;
-		r = vr;	
+		l = vl[0]/multiToOne[0];
+		r = vr[0]/multiToOne[0];	
 		return;
 	}
 	else if(fm > fr)
@@ -364,14 +363,11 @@ void unimodalniMulti(double h, std::vector<double> tocka, std::vector<double>& l
 			m = vr;
 			fm = fr;
 			//vr[dim] = tocka[dim] + h * (step *= 2);
-			move =  h * (step *= 2);
-			for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*(lambda0 + move);
+			for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*(lambda0 + h * (step *= 2));
 			fr = Class.function(vr);
-			std::cout<<"multi-vektor vr: ";
-			for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
 		} while(fm > fr);
-		l = vl;
-		r = vr;
+		l = vl[0]/multiToOne[0];
+		r = vr[0]/multiToOne[0];
 	}
 	else
 	{
@@ -380,20 +376,16 @@ void unimodalniMulti(double h, std::vector<double> tocka, std::vector<double>& l
 			m = vl;
 			fm = fl;
 			//vl[dim] = tocka[dim] - h * (step *= 2);
-			move =  h * (step *= 2);
-			for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*(lambda0 - move);
+			for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*(lambda0 - h * (step *= 2));
 			fl = Class.function(vl);
-			std::cout<<"multi-vektor vl: ";
-			for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
 			//std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
 			//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 		} while(fm > fl);
-		l = vl;
-		r = vr;
+		l = vl[0]/multiToOne[0];
+		r = vr[0]/multiToOne[0];
 	}
 }
 
-//TREBA RIJESITI UNIMODLANI I ZLATNI REZ!!!!
 
 /*
 Algoritam zlatnog reza
@@ -407,73 +399,49 @@ ulazne velicine:
 
 - point: da li je dan unimodalni ili pocetna tocka
 */
-void getC(const std::vector<double>& b,const std::vector<double>& a,double k,std::vector<double>& c)
-{
-	for(int i=0;i<b.size();i++) c[i]=b[i]-k*(b[i]-a[i]);
-}
-
-void getD(const std::vector<double>& b,const std::vector<double>& a,double k,std::vector<double>& d)
-{
-	for(int i=0;i<b.size();i++) d[i]=a[i]+k*(b[i]-a[i]);
-}
-
-double dist(const std::vector<double>& b,const std::vector<double>& a)
-{
-	double sum=0;
-	for(int i=0;i<b.size();i++) sum+=(b[i]-a[i])*(b[i]-a[i]);
-	return sqrt(sum);
-}
 
 //ZLATNI REZ ZA VISE DIMENZIJA
-std::vector<double> Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFunction& Class, std::vector<double> multiToOne)
+double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFunction& Class, std::vector<double> multiToOne)
 {	
 	double lambda0 = 0;
 	//std::vector<double> a,b;
-	std::vector<double> a(tocka),b(tocka);
+	double a,b;
 	//izracunaj prvo unimodalni interval
 	unimodalniMulti(h,tocka,a,b,Class,multiToOne);
-	std::cout<<"Unimodalni interval: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<a[i]<<" ";
-	std::cout<<":";
-	for(int i=0;i<tocka.size();i++) std::cout<<b[i]<<" ";
 	//std::cout<<a<<" "<<b<<std::endl;
 	
 	double k = 0.5*(sqrt(5)-1);
 	std::vector<double> vc(tocka.size(),0.0);
-	std::vector<double> c(tocka);
-	getC(b,a,k,c);
+	double c = b - k * (b - a);
 	//vc[dim]=c;
-	for (int i=0;i<tocka.size();i++) vc[i] = tocka[i]+multiToOne[i]*c[i];
+	for (int i=0;i<tocka.size();i++) vc[i] = tocka[i]+multiToOne[i]*c;
 	std::vector<double> vd(tocka.size(),0.0);
-	std::vector<double> d(tocka);
-	getD(b,a,k,c);
+	double d = a + k * (b - a);
 	//vd[dim]=d;
-	for (int i=0;i<tocka.size();i++) vd[i] = tocka[i]+multiToOne[i]*d[i];
+	for (int i=0;i<tocka.size();i++) vd[i] = tocka[i]+multiToOne[i]*d;
 	double fc = Class.function(vc);
 	double fd = Class.function(vd);
-	while(dist(b,a) > e)
+	while((b - a) > e)
 	{
 		if(fc < fd) {
-			b = vd;
+			b = vd[0]/multiToOne[0];
 			vd = vc;
 			//vc[dim] = b - k * (b - a);
-			for (int i=0;i<tocka.size();i++) vc[i] = tocka[i]+multiToOne[i]*(b[i] - k * (b[i] - a[i]));
+			for (int i=0;i<tocka.size();i++) vc[i] = tocka[i]+multiToOne[i]*(b - k * (b - a));
 			fd = fc;
 			fc = Class.function(vc);
 		}
 		else
 		{
-			a = vc;
+			a = vc[0]/multiToOne[0];
 			vc = vd;
 			//vd[dim] = a + k * (b - a);
-			for (int i=0;i<tocka.size();i++) vd[i] = tocka[i]+multiToOne[i]*(a[i] + k * (b[i] - a[i]));
+			for (int i=0;i<tocka.size();i++) vd[i] = tocka[i]+multiToOne[i]*(a + k * (b - a));
 			fc = fd;
 			fd = Class.function(vd);
 		}
 	}
-	std::vector<double> result(tocka);
-	for(int i=0;i<tocka.size();i++) result[i]=(a[i]+b[i])/2;
-	return result; // ili nove vrijednosti a i b
+	return (a + b)/2; // ili nove vrijednosti a i b
 }
 
 //function to numerically derive function
@@ -577,7 +545,7 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, int 
 void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6, int mode=1)
 {
 	std::vector<double> partialDerivations(x0.size(),0.0),x_new(x0),x_old(x0);
-	std::vector<double> lambda;
+	double lambda;
 	double sumDerivations = 0;
 	double sumGrad=0;
 	int iter=0;
@@ -605,8 +573,8 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 			std::cout<<std::endl;
 			lambda = Zlatni_rezMulti(1,x_old,delta,Class,partialDerivations);
 			std::cout<<"Lambda: ";
-			for (int i=0;i<x0.size();i++) std::cout<<lambda[i]<<" ";
-			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]-lambda[i]*partialDerivations[i];
+			for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
+			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]-lambda*partialDerivations[i];
 		}
 		else
 		{
@@ -644,13 +612,13 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 //NEWTON-RAPHSON METHOD
 void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
-	std::vector<double> partialDerivations(x0.size(),0.0),x_old(x0),x(x0),dx(x0),temp_res(x0),dx_n(x0),lambda;
+	std::vector<double> partialDerivations(x0.size(),0.0),x_old(x0),x(x0),dx(x0),temp_res(x0),dx_n(x0);
 	std::vector<std::vector<double>> hessianMatrix,temp;
 	for(int i=0;i<x0.size();i++) hessianMatrix.push_back(partialDerivations);
 	double sumDerivations=0;
 	double sumDx = 0;	
 	bool cond=false;
-	double norm;
+	double norm,lambda;
 	for(int i=0;i<x0.size();i++) x[i]=x0[i];
 	int iter=0;
 	do
@@ -709,7 +677,7 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 			lambda = Zlatni_rezMulti(1,x,delta,Class,dx_n);
 			//std::cout<<"Lambda: ";
 			//for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
-			for(int i=0;i<x0.size();i++) x[i]=x[i]-lambda[i]*dx[i];
+			for(int i=0;i<x0.size();i++) x[i]=x[i]-lambda*dx[i];
 		}
 		else
 		{
