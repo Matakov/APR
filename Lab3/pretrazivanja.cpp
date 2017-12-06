@@ -178,7 +178,7 @@ class function6: public AbstractFunction
 			restartCounting();
 		}
 };
-/*
+
 //transformed function class
 class transformed: public AbstractFunction
 {
@@ -188,6 +188,11 @@ class transformed: public AbstractFunction
 		std::vector<AbstractFunction*> explicitFunc;
 		AbstractFunction* Class;
 	public:
+		transformed(AbstractFunction* Class, std::vector<AbstractFunction*> implicitFunc)
+		{
+			this->Class=Class;
+			this->implicitFunc=implicitFunc;
+		}
 		transformed(AbstractFunction* Class, std::vector<AbstractFunction*> implicitFunc, std::vector<AbstractFunction*> explicitFunc)
 		{
 			this->Class=Class;
@@ -197,7 +202,7 @@ class transformed: public AbstractFunction
 		double function(std::vector<double> lista, double r)
 		{
 			increase();
-			double output = this->Class.function(lista);
+			double output = this->Class->function(lista);
 			for(int i=0;i<this->implicitFunc.size();i++)
 			{
 				if(this->implicitFunc[i]->function(lista)<=0)
@@ -209,9 +214,12 @@ class transformed: public AbstractFunction
 					output += r*log(this->implicitFunc[i]->function(lista));
 				}
 			}
-			for(int i=0;i<this->explicitFunc.size();i++)
+			if(this->explicitFunc.size()>0)
 			{
-				output += 1/r*pow(this->explicitFunc[i]->function(lista),2);
+				for(int i=0;i<this->explicitFunc.size();i++)
+				{
+					output += 1/r*pow(this->explicitFunc[i]->function(lista),2);
+				}
 			}
 			//output += 
 			return output;
@@ -221,7 +229,7 @@ class transformed: public AbstractFunction
 			restartCounting();
 		}
 };
-*/
+
 //function for subtracting vectors
 void subtractSame(std::vector<double>& a,std::vector<double> b)
 {
@@ -1091,8 +1099,8 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 		xc_old=xc;
 		if(checkStopingCriteria(xc,xr,eps)) 
 		{
-			std::cout<<"Why me?\n";
-			result=xr;
+			//std::cout<<"Why me?\n";
+			result=xc;
 			break;
 		}
 		printArray(array);
@@ -1327,8 +1335,8 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 
 // ---------------------------------------------------------------------------------
 
-
-
+*/
+/*
 void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,std::vector<AbstractFunction*> explicitList,double alfa,double beta, double gamma,double pomak, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
 
@@ -1500,12 +1508,12 @@ int main(int argc, char* argv[]){
 		explicitCondition.push_back(100);
 		std::cout<<"Doing box algorithm\n";
 		
-		//std::cout<<"Box function 1:"<<std::endl;
-		//Box(func1,tocka,rezultat1,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
-		//std::cout<<"Minimum: ";
-		//for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
-		//std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
-		//func1.restartCount();
+		std::cout<<"Box function 1:"<<std::endl;
+		Box(func1,tocka,rezultat1,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		func1.restartCount();
 		
 		std::cout<<"Box function 2:"<<std::endl;
 		Box(func2,tocka,rezultat2,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
@@ -1516,6 +1524,25 @@ int main(int argc, char* argv[]){
 	}
 	if(zadatak==4)
 	{
+		function1 func1;
+		function2 func2;
+
+		std::vector<double> rezultat1;
+		std::vector<double> rezultat2;
+
+		function5 impl1;
+		function6 impl2;
+		std::vector<AbstractFunction*> implicitCondition;
+		implicitCondition.push_back(&impl1);	
+		implicitCondition.push_back(&impl2);
+		
+		std::vector<double> explicitCondition;
+		explicitCondition.push_back(-100);
+		explicitCondition.push_back(100);
+		
+		transformed Tfunc(&func1,implicitCondition);
+		std::cout<<Tfunc.function(tocka,1);
+
 		
 	}
 	if(zadatak==5)
