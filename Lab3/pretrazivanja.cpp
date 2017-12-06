@@ -179,6 +179,50 @@ class function6: public AbstractFunction
 		}
 };
 
+class function7: public AbstractFunction 
+{
+	public:
+		function7():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{
+			increase();
+			return 3-lista[0]-lista[1];
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+class function8: public AbstractFunction 
+{
+	public:
+		function8():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{
+			increase();
+			return 3+1.5*lista[0]-lista[1];
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
+
+class function9: public AbstractFunction 
+{
+	public:
+		function9():AbstractFunction(){}
+		double function(std::vector<double> lista)
+		{
+			increase();
+			return lista[1]-1;
+		}
+		void restartCount()
+		{
+			restartCounting();
+		}
+};
 //transformed function class
 class transformed: public AbstractFunction
 {
@@ -1111,7 +1155,7 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 }
 
 // ---------------------------------------------------------------------- LABOS 2 NELDER MEAD
-/*
+
 //izracunaj ulazni skup tocki simpleksa
 std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 {
@@ -1137,32 +1181,6 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,double t)
 	array[array.size()-1]=x0;
 
 	return array;
-}
-
-//izracunaj i vrati centroid skupa vrijednosti
-void getCentroid(std::vector<std::vector<double>> array,std::vector<double>& c, double h)
-{
-	//std::cout<<"Racunanje centroida"<<std::endl;
-	std::vector<double> temp;
-	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
-	//std::cout<<std::endl;
-	for(int j=0;j<c.size();j++) c[j]=0;
-	for(int i=0;i<array.size();i++)
-	{
-		if(i!=h)
-		{
-			temp=array[i];
-			addSame(c,temp);
-		}
-	}
-	//std::cout<<"Array size: "<<array.size()<<std::endl;
-	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
-	//std::cout<<std::endl;
-	for(int j=0;j<c.size();j++) c[j]/=(array.size()-1);
-	
-	//for(int j=0;j<c.size();j++) std::cout<<c[j]<<" ";
-	//std::cout<<std::endl;
-	return;
 }
 
 //vrati index najvece ulazne vrijednosti
@@ -1236,8 +1254,8 @@ void pomakiPremaL(std::vector<std::vector<double>>& array,int l)
 		}
 	}
 }
-*/
-/*
+
+
 bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<double> xc,double eps,AbstractFunction& Class,std::map<std::vector<double>, double>& lookUpTable)
 {
 	double fxc = getValue(xc,Class,lookUpTable);
@@ -1253,12 +1271,12 @@ bool kriterijZaustavljanja(std::vector<std::vector<double>> array, std::vector<d
 	if(sum<eps) return true;
 	else return false;
 }
-*/
+
 /*
 Nelder-Mead simpleks algoritam
 Ulazne velicine: X0,razmak, alfa, beta, gama, epsilon,funkcija
 */
-/*
+
 std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa, double beta, double gamma, double epsilon, AbstractFunction& Class)
 {
 	std::vector<std::vector<double>> array;
@@ -1335,17 +1353,26 @@ std::vector<double> NelderMead(std::vector<double> x0,double razmak, double alfa
 
 // ---------------------------------------------------------------------------------
 
-*/
-/*
-void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,std::vector<AbstractFunction*> explicitList,double alfa,double beta, double gamma,double pomak, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+//transformed without explicit
+void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<AbstractFunction*> implicitList,double pomak,double alfa,double beta, double gamma,double eps = 1.0e-6)
 {
 
-	transformed theFunction(Class,implicitList,explicitList);
+	transformed theFunction(&Class,implicitList);
+	std::vector<double> temp = NelderMead(x0,pomak,alfa,beta,gamma,eps,theFunction);
+	result=temp;
+	return;
+}
+
+//transformed with explicit
+void transformationNM(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,std::vector<AbstractFunction*> implicitList,std::vector<AbstractFunction*> explicitList,double pomak,double alfa,double beta, double gamma,double eps = 1.0e-6)
+{
+
+	transformed theFunction(&Class,implicitList,explicitList);
 	std::vector<double> temp = NelderMead(x0,pomak,alfa,beta,gamma,eps,theFunction);
 	for(int i=0;i<x0.size();i++) result[i]=temp[i];
 	return;
 }
-*/
+
 void openFile(std::string name,std::vector<double>& tocka,std::vector<double>& minimumFunkcije,std::vector<double>& preciznost, std::vector<double>& pomaciFunkcije,double& leftPoint,double& rightPoint,double& distance, int& mode, double& alfa)
 {
 	std::ifstream myfile;
@@ -1536,17 +1563,47 @@ int main(int argc, char* argv[]){
 		implicitCondition.push_back(&impl1);	
 		implicitCondition.push_back(&impl2);
 		
-		std::vector<double> explicitCondition;
-		explicitCondition.push_back(-100);
-		explicitCondition.push_back(100);
-		
-		transformed Tfunc(&func1,implicitCondition);
-		std::cout<<Tfunc.function(tocka,1);
+		//transformed Tfunc(&func2,implicitCondition);
+		//std::cout<<Tfunc.function(tocka,1);
+		std::cout<<"transformation function 1:"<<std::endl;
+		transformationNM(func1,tocka,rezultat1,implicitCondition,1,alfa,beta,gamma,preciznost[0]);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		func1.restartCount();
 
-		
+
+		std::cout<<"transformation function 2:"<<std::endl;
+		transformationNM(func2,tocka,rezultat2,implicitCondition,1,alfa,beta,gamma,preciznost[0]);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
+		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		func2.restartCount();	
+
 	}
 	if(zadatak==5)
 	{
+		function4 func4;
+
+		function7 func7;
+		function8 func8;
+		function9 func9;
+
+		std::vector<double> rezultat4;
+		
+		std::vector<AbstractFunction*> implicitCondition;
+		implicitCondition.push_back(&func7);
+		implicitCondition.push_back(&func8);
+
+		std::vector<AbstractFunction*> explicitCondition;
+		explicitCondition.push_back(&func9);
+
+		std::cout<<"transformation function 4:"<<std::endl;
+		transformationNM(func4,tocka,rezultat4,implicitCondition,explicitCondition,1,alfa,beta,gamma,preciznost[0]);
+		std::cout<<"Minimum: ";
+		for(int k=0;k<rezultat4.size();k++) std::cout<<std::setw(5)<<rezultat4[k]<<" ";
+		std::cout<<"Broj poziva: "<<func4.getNumbers()<<std::endl;
+		func4.restartCount();	
 		
 	}
 	return 0;
