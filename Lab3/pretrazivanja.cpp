@@ -335,12 +335,12 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 	for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*lambdaL; 
 	for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*lambdaR; 
 	std::vector<double> m = tocka;
-	std::cout<<"multi-vektor vl: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
-	std::cout<<"multi-vektor vr: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
-	std::cout<<"multi-vektor m: ";
-	for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor vl: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor vr: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+	//std::cout<<"multi-vektor m: ";
+	//for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
 	double fl, fm, fr;
 	int step = 1;
 	double move = 0;
@@ -367,8 +367,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 			lambdaR +=  h * (step *= 2);
 			for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*lambdaR;
 			fr = Class.function(vr);
-			std::cout<<"multi-vektor vr: ";
-			for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+			//std::cout<<"multi-vektor vr: ";
+			//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
 		} while(fm > fr);
 		l = lambdaL;
 		r = lambdaR;
@@ -383,8 +383,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 			lambdaL -=  h * (step *= 2);
 			for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*lambdaL;
 			fl = Class.function(vl);
-			std::cout<<"multi-vektor vl: ";
-			for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+			//std::cout<<"multi-vektor vl: ";
+			//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
 			//std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
 			//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 		} while(fm > fl);
@@ -434,11 +434,11 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 	double k = 0.5*(sqrt(5)-1);
 	//izracunaj prvo unimodalni interval
 	unimodalniMulti(h,tocka,lambdaL,lambdaR,Class,multiToOne);
-	std::cout<<"Unimodalni interval: ";
+	//std::cout<<"Unimodalni interval: ";
 	//for(int i=0;i<tocka.size();i++) std::cout<<a<<" ";
 	//std::cout<<":";
 	//for(int i=0;i<tocka.size();i++) std::cout<<b<<" ";
-	std::cout<<lambdaL<<" : "<<lambdaR<<std::endl;
+	//std::cout<<lambdaL<<" : "<<lambdaR<<std::endl;
 	
 	lambdaC=lambdaR - k* (lambdaR-lambdaL);
 	lambdaD=lambdaL + k* (lambdaR-lambdaL);
@@ -463,7 +463,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 			//vc[dim] = b - k * (b - a);
 			lambdaC=lambdaR - k* (lambdaR-lambdaL);
 			for (int i=0;i<tocka.size();i++) c[i] = tocka[i]+lambdaC*multiToOne[i];
-			std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
+			//std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 			fd = fc;
 			fc = Class.function(c);
 		}
@@ -476,7 +476,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 			//vd[dim] = a + k * (b - a);
 			lambdaD=lambdaL + k* (lambdaR-lambdaL);
 			for (int i=0;i<tocka.size();i++) d[i] = tocka[i]+lambdaD*multiToOne[i];
-			std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
+			//std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 			fc = fd;
 			fd = Class.function(d);
 		}
@@ -485,7 +485,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 	//for(int i=0;i<tocka.size();i++) result[i]=tocka[i]*(lambdaR+lambdaL)/2;
 	//std::cout<<"Minimum:";
 	//for(int i=0;i<tocka.size();i++) std::cout<<result[i]<<" ";
-	std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
+	//std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 	return (lambdaR+lambdaL)/2; // ili nove vrijednosti a i b
 }
 
@@ -587,8 +587,9 @@ double secondOrderPartials(AbstractFunction& Class, std::vector<double> x0, int 
 
 
 //GRADIENT DESCENT METHOD
-void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6, int mode=1)
+void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,int& brSGD, double delta = 1.0e-6, int mode=1)
 {
+	brSGD=0;
 	std::vector<double> partialDerivations(x0.size(),0.0),x_new(x0),x_old(x0);
 	double lambda;
 	double sumDerivations = 0;
@@ -603,6 +604,7 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 			partialDerivations[i]=derivePartially(Class, x_old, i,delta);
 			sumDerivations+=partialDerivations[i]*partialDerivations[i];
 		}
+		brSGD++;
 				
 		if(mode==1)
 		{
@@ -613,11 +615,11 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 			{
 				partialDerivations[i]=partialDerivations[i]/sumDerivations;
 			}
-			std::cout<<"Partial normalized: ";
-			for (int i=0;i<x0.size();i++) std::cout<<partialDerivations[i]<<" ";
-			std::cout<<std::endl;
+			//std::cout<<"Partial normalized: ";
+			//for (int i=0;i<x0.size();i++) std::cout<<partialDerivations[i]<<" ";
+			//std::cout<<std::endl;
 			lambda = Zlatni_rezMulti(1,x_old,delta,Class,partialDerivations);
-			std::cout<<"Lambda: "<<lambda;
+			//std::cout<<"Lambda: "<<lambda;
 			//for (int i=0;i<x0.size();i++) std::cout<<lambda[i]<<" ";
 			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]+lambda*partialDerivations[i];
 		}
@@ -625,8 +627,8 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 		{
 			for(int i=0;i<x0.size();i++) x_new[i]=x_old[i]-partialDerivations[i];
 		}
-		std::cout<<"NEW X: ";
-		for(int i=0;i<x0.size();i++) std::cout<< x_new[i]<<" ";
+		//std::cout<<"NEW X: ";
+		//for(int i=0;i<x0.size();i++) std::cout<< x_new[i]<<" ";
 		if(Class.function(x_new)>Class.function(x_old))
 		{
 			iter++;
@@ -655,8 +657,10 @@ void gradientDescent(AbstractFunction& Class, std::vector<double> x0, std::vecto
 }
 
 //NEWTON-RAPHSON METHOD
-void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
+void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& result,int& brHessian,int& bgSGD, double delta = 1.0e-6,double eps = 1.0e-6, int mode=1)
 {
+	brHessian=0;
+	bgSGD=0;
 	std::vector<double> partialDerivations(x0.size(),0.0),x_old(x0),x(x0),dx(x0),temp_res(x0),dx_n(x0);
 	std::vector<std::vector<double>> hessianMatrix,temp;
 	for(int i=0;i<x0.size();i++) hessianMatrix.push_back(partialDerivations);
@@ -665,8 +669,8 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 	bool cond=false;
 	double norm,lambda;
 	for(int i=0;i<x0.size();i++) x[i]=x0[i];
-	std::cout<<"X: "<<std::endl;
-	for(int i=0;i<x0.size();i++) std::cout<<x[i]<<" ";
+	//std::cout<<"X: "<<std::endl;
+	//for(int i=0;i<x0.size();i++) std::cout<<x[i]<<" ";
 	int iter=0;
 	do
 	{
@@ -692,33 +696,33 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 				hessianMatrix[i][j]=secondOrderPartials(Class,x,i,j,delta);
 			}
 		}
-
-		
+		brHessian++;
+		bgSGD++;
 		//resolve J*dx = -G;
 		//transform vector of vectors into a matrix
 		Matrica J(hessianMatrix);
-		std::cout<<"Hessian matrix:"<<std::endl;
-		J.printMatrix();
+		//std::cout<<"Hessian matrix:"<<std::endl;
+		//J.printMatrix();
 		
 		for(int i=0;i<partialDerivations.size();i++) partialDerivations[i] = -partialDerivations[i];
 		temp.clear();
 		temp.push_back(partialDerivations);
 		Matrica G(temp);
 		Matrica GT=G.transpose();
-		std::cout<<"G matrix:"<<std::endl;
-		GT.printMatrix();
+		//std::cout<<"G matrix:"<<std::endl;
+		//GT.printMatrix();
 		//Decompose to L and U
 		Matrica _4P=J.LUPdekompozicija();
 		
 		temp_res.clear();
 		J.supstitucijaUnaprijed(_4P*GT,temp_res);
-		std::cout<<"temp_res matrix:"<<std::endl;
-		for(int i=0;i<dx.size();i++) std::cout<<temp_res[i]<<" ";
-		std::cout<<std::endl;
+		//std::cout<<"temp_res matrix:"<<std::endl;
+		//for(int i=0;i<dx.size();i++) std::cout<<temp_res[i]<<" ";
+		//std::cout<<std::endl;
 		J.supstitucijaUnazad(temp_res,dx);
-		std::cout<<"dx matrix:"<<std::endl;
-		for(int i=0;i<dx.size();i++) std::cout<<dx[i]<<" ";
-		std::cout<<std::endl;
+		//std::cout<<"dx matrix:"<<std::endl;
+		//for(int i=0;i<dx.size();i++) std::cout<<dx[i]<<" ";
+		//std::cout<<std::endl;
 		x_old=x;
 		//x -= dx
 		if(mode==1)
@@ -728,8 +732,8 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 			{
 				dx_n[i]=dx[i]/sqrt(sumDx);
 			}
-			std::cout<<"dx_n matrix:"<<std::endl;
-			for(int i=0;i<dx_n.size();i++) std::cout<<dx_n[i]<<" ";
+			//std::cout<<"dx_n matrix:"<<std::endl;
+			//for(int i=0;i<dx_n.size();i++) std::cout<<dx_n[i]<<" ";
 				
 			for(int i=0;i<x.size();i++)
 			{
@@ -739,11 +743,11 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 			if(norm<eps) break;
 		
 			lambda = Zlatni_rezMulti(1,x,delta,Class,dx_n);
-			std::cout<<"Lambda: "<<lambda<<std::endl;
+			//std::cout<<"Lambda: "<<lambda<<std::endl;
 			//for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
-			std::cout<<"X: "<<std::endl;
-			for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
-			std::cout<<std::endl;
+			//std::cout<<"X: "<<std::endl;
+			//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
+			//std::cout<<std::endl;
 			for(int i=0;i<x.size();i++) x[i]=x[i]+lambda*dx_n[i];
 			//std::cout<<"NEW X:"<<std::endl;
 			//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
@@ -1329,60 +1333,71 @@ int main(int argc, char* argv[]){
 	{
 		function3 func3;
 		std::vector<double> rezultat;
+		int brCall;
 		//std::cout<<func3.function(tocka)<<std::endl;
-		gradientDescent(func3, tocka, rezultat,preciznost[0],mode);
+		std::cout<<"Gradient descent function 3:"<<std::endl;	
+		gradientDescent(func3, tocka, rezultat,brCall,preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat.size();k++) std::cout<<std::setw(5)<<rezultat[k]<<" ";
-		std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
-		func3.restartCount();
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije: "<<func3.getNumbers()<<std::endl;
+		std::cout<<"Broj poziva SGD: "<<brCall<<std::endl;
 		
-		//std::cout<<"Newton-Raphson function 2:"<<std::endl;
-		//NewtonRaphson(func3, tocka, rezultat,preciznost[0],preciznost[0],mode);
-		//std::cout<<"Minimum: ";
-		//for(int k=0;k<rezultat.size();k++) std::cout<<std::setw(5)<<rezultat[k]<<" ";
-		//std::cout<<"Broj poziva: "<<func3.getNumbers()<<std::endl;
-		//func3.restartCount();
+		func3.restartCount();
 		
 	}
 	if(zadatak==2)
 	{
 		function1 func1;
 		function2 func2;
-
+		int brCall1SGD,brCall2SGD;
+		int brCall1H,brCall2H;
+	
 		std::vector<double> rezultat1;
 		std::vector<double> rezultat2;
 
-		/*
+		
 		//Gradient descent
 		std::cout<<"Gradient descent function 1:"<<std::endl;
-		gradientDescent(func1, tocka, rezultat1,preciznost[0],mode);
+		gradientDescent(func1, tocka, rezultat1,brCall1SGD,preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije: "<<func1.getNumbers()<<std::endl;
+		std::cout<<"Broj poziva SGD: "<<brCall1SGD<<std::endl;
 		func1.restartCount();
 		
 		std::cout<<"Gradient descent function 2:"<<std::endl;
-		gradientDescent(func2, tocka, rezultat2,preciznost[0],mode);
+		gradientDescent(func2, tocka, rezultat2,brCall2SGD,preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
-		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije: "<<func2.getNumbers()<<std::endl;
+		std::cout<<"Broj poziva SGD: "<<brCall2SGD<<std::endl;
 		func2.restartCount();
 		
-		
+		rezultat1.clear();
+		rezultat2.clear();
 		
 		//NewtonRaphson
 		std::cout<<"Newton-Raphson function 1:"<<std::endl;
-		NewtonRaphson(func1, tocka, rezultat1,preciznost[0],preciznost[0],mode);
+		NewtonRaphson(func1, tocka, rezultat1,brCall1H,brCall1SGD,preciznost[0],preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije: "<<func1.getNumbers()<<std::endl;
+		std::cout<<"Broj poziva SGD: "<<brCall1SGD<<std::endl;
+		std::cout<<"Broj poziva Hessian: "<<brCall1H<<std::endl;
 		func1.restartCount();
-		*/
+		
 		std::cout<<"Newton-Raphson function 2:"<<std::endl;
-		NewtonRaphson(func2, tocka, rezultat2,preciznost[0],preciznost[0],mode);
+		NewtonRaphson(func2, tocka, rezultat2,brCall2H,brCall2SGD,preciznost[0],preciznost[0],mode);
 		std::cout<<"Minimum: ";
 		for(int k=0;k<rezultat2.size();k++) std::cout<<std::setw(5)<<rezultat2[k]<<" ";
-		std::cout<<"Broj poziva: "<<func2.getNumbers()<<std::endl;
+		std::cout<<std::endl;
+		std::cout<<"Broj poziva funkcije: "<<func2.getNumbers()<<std::endl;
+		std::cout<<"Broj poziva SGD: "<<brCall2SGD<<std::endl;
+		std::cout<<"Broj poziva Hessian: "<<brCall2H<<std::endl;
 		func2.restartCount();
 		
 	}
