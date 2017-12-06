@@ -902,7 +902,7 @@ bool checkImplicit(std::vector<AbstractFunction*> implicitList,std::vector<doubl
 {
 	for(int i=0;i<implicitList.size();i++)
 	{
-		if(implicitList[i]->function(x0)<=0)
+		if(implicitList[i]->function(x0)<0)
 		{
 			return false;
 		}
@@ -910,27 +910,54 @@ bool checkImplicit(std::vector<AbstractFunction*> implicitList,std::vector<doubl
 	return true;
 }
 
-//izracunaj ulazni skup tocki simpleksa
-std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList)
+void printVector(std::vector<double> x)
 {
-	AbstractFunction* temp;
+	for(int i=0;i<x.size();i++)
+	{
+		std::cout<<x[i]<<" ";
+	}
+	std::cout<<std::endl;
+}
+
+//izracunaj ulazni skup tocki simpleksa
+void startSimpleks(std::vector<double> x0,std::vector<double> explicitConditions,std::vector<AbstractFunction*> implicitList,std::vector<std::vector<double>>& array)
+{
+	//AbstractFunction* temp;
 	double r;
+	double temp;
 	std::vector<double> tempX(x0.size(),explicitConditions[0]);
-	std::vector<std::vector<double>> array;
+	//std::cout<<"Function has been entered!"<<std::endl;
 	//check explicit conditions
+	//std::cout<<"Start vector size: "<<x0.size()<<std::endl;
 	for(int i=0;i<x0.size();i++)
 	{
-		if(x0[i]<explicitConditions[0]) x0[i]=explicitConditions[0];
-		if(x0[i]>explicitConditions[1]) x0[i]=explicitConditions[1];
+		//std::cout<<i<<std::endl;
+		if(x0[i]<explicitConditions[0])
+		{
+			x0[i]=explicitConditions[0];
+		}
+		if(x0[i]>explicitConditions[1]) 
+		{
+			x0[i]=explicitConditions[1];
+		}
 	}
-	std::cout<<"First vector";
-	for(int i=0;i<x0.size();i++) std::cout<<x0[i]<<" ";
+	//std::cout<<"why does function break here?"<<std::endl;
+	//for(int i=0;i<x0.size();i++) std::cout<<x0[i]<<" ";
 	//check implicit conditions
+	//std::cout<<"Number of implicit conditions: "<<implicitList.size()<<std::endl;
 	for(int i=0;i<implicitList.size();i++)
 	{
-		if(implicitList[i]->function(x0)<=0)
+		temp=implicitList[i]->function(x0);
+		//std::cout<<"Test: "<<temp<<std::endl;
+		if(temp<0)
 		{
-		//NOT GOOD
+			//NOT GOOD
+			std::cout<<"Starting point does not satisfy implicit conditions."<<std::endl;
+			return;
+		}
+		else
+		{
+			continue;
 		}
 	}
 	std::vector<double> xc(x0);
@@ -938,30 +965,50 @@ std::vector<std::vector<double>> tockeSimpleksa(std::vector<double> x0,std::vect
 	{
 		tempX.clear();
 		tempX.assign(x0.size(),explicitConditions[0]);
+		/*
 		for(int j=0;j<x0.size();j++)
 		{
 			do
 			{
 				r = ((double) rand() / (RAND_MAX));
+				std::cout<<r<<std::endl;
 				tempX[j] = explicitConditions[0] + r*(explicitConditions[1]-explicitConditions[0]);
+				printVector(tempX);
+				
 			}
 			while(!checkImplicit(implicitList,tempX));
 		}
+		*/
+		do
+		{
+			for(int j=0;j<tempX.size();j++)
+			{
+				r = ((double) rand() / (RAND_MAX));
+				//std::cout<<r<<std::endl;
+				tempX[j] = explicitConditions[0] + r*(explicitConditions[1]-explicitConditions[0]);
+				//printVector(tempX);
+			}
+
+		}
+		while(!checkImplicit(implicitList,tempX));
 		for(int j=0;j<x0.size();j++)
 		{
 			tempX[j] = 1/2 * (tempX[j] + xc[j]);
 		}
-		array[i]=tempX;
+		array.push_back(tempX);
 		getCentroid(array,xc);
 	}
-	return array;
+	std::cout<<"Simplex size is: "<<array.size()<<std::endl;
+	return;
 }
 bool checkStopingCriteria(std::vector<double> xc, std::vector<double> xh, double eps)
 {
+	double sum=0;
 	for(int i=0;i<xc.size();i++)
 	{
-		if(abs(xh[i]-xc[i])<eps) return true;
+		sum+=(abs(xh[i]-xc[i]))*(abs(xh[i]-xc[i]));
 	}
+	if(sum<eps) return true;
 	return false;
 }
 
@@ -975,7 +1022,7 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 	int z=0;
 	std::cout<<"Populating start array\n";
 	//Calculate starting simplex
-	array=tockeSimpleksa(x0, explicitConditions, implicitList);
+	startSimpleks(x0, explicitConditions, implicitList,array);
 	xc_old = x0;
 	do
 	{
@@ -983,7 +1030,7 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 		std::cout<<"Iteracija: "<<z<<std::endl;
 		getMaximumIndex(array,Class,lookUpTable,h,h2);	
 		getCentroid(array,xc,h);
-		
+		std::cout<<"Checkpoint 1\n";
 		xh = array[h];
 		refleksija(xc,xh,alfa,xr);
 		//explicit conditions
@@ -992,6 +1039,7 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 			if(xr[i]<explicitConditions[0]) xr[i]=explicitConditions[0];
 			if(xr[i]>explicitConditions[1]) xr[i]=explicitConditions[1];
 		}
+		std::cout<<"Checkpoint 2\n";
 		while(!checkImplicit(implicitList,xr))
 		{	
 			for(int j=0;j<xr.size();j++)
@@ -999,6 +1047,7 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 				xr[j] = 1/2 * (xr[j] + xc[j]);
 			}
 		}
+		std::cout<<"Checkpoint 3\n";
 		if(Class.function(xr)>Class.function(array[h2]))
 		{
 			for(int j=0;j<xr.size();j++)
@@ -1007,7 +1056,8 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 			}
 		}
 		array[h] = xr;
-		if(getValue(xc_old,Class,lookUpTable)>getValue(xc_old,Class,lookUpTable))
+		std::cout<<"Checkpoint 4\n";
+		if(getValue(xc,Class,lookUpTable)>getValue(xc_old,Class,lookUpTable))
 		{
 			iter++;
 			if(iter>=100)
@@ -1016,8 +1066,10 @@ void Box(AbstractFunction& Class, std::vector<double> x0, std::vector<double>& r
 				return;
 			}
 		}
+		std::cout<<"Checkpoint 5\n";
 		xc_old=xc;
-		if(checkStopingCriteria(xc,array[h],eps)) break;
+		if(!checkStopingCriteria(xc,array[h],eps)) break;
+		if(iter>=1) break;
 	}
 	while(true);
 	for(int i=0;i<xc.size();i++) result[i]=xc[i];
@@ -1420,12 +1472,12 @@ int main(int argc, char* argv[]){
 		explicitCondition.push_back(100);
 		std::cout<<"Doing box algorithm\n";
 		
-		std::cout<<"Box function 1:"<<std::endl;
-		Box(func1,tocka,rezultat1,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
-		std::cout<<"Minimum: ";
-		for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
-		std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
-		func1.restartCount();
+		//std::cout<<"Box function 1:"<<std::endl;
+		//Box(func1,tocka,rezultat1,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
+		//std::cout<<"Minimum: ";
+		//for(int k=0;k<rezultat1.size();k++) std::cout<<std::setw(5)<<rezultat1[k]<<" ";
+		//std::cout<<"Broj poziva: "<<func1.getNumbers()<<std::endl;
+		//func1.restartCount();
 		
 		std::cout<<"Box function 2:"<<std::endl;
 		Box(func2,tocka,rezultat2,explicitCondition,implicitCondition,alfa,preciznost[0],preciznost[0],mode);
