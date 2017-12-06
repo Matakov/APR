@@ -335,12 +335,12 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 	for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*lambdaL; 
 	for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*lambdaR; 
 	std::vector<double> m = tocka;
-	//std::cout<<"multi-vektor vl: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
-	//std::cout<<"multi-vektor vr: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
-	//std::cout<<"multi-vektor m: ";
-	//for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor vl: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor vr: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+	std::cout<<"multi-vektor m: ";
+	for(int i=0;i<tocka.size();i++) std::cout<<m[i]<<" "<<std::endl;
 	double fl, fm, fr;
 	int step = 1;
 	double move = 0;
@@ -367,8 +367,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 			lambdaR +=  h * (step *= 2);
 			for(int i=0;i<tocka.size();i++) vr[i] = tocka[i]+multiToOne[i]*lambdaR;
 			fr = Class.function(vr);
-			//std::cout<<"multi-vektor vr: ";
-			//for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
+			std::cout<<"multi-vektor vr: ";
+			for(int i=0;i<tocka.size();i++) std::cout<<vr[i]<<" "<<std::endl;
 		} while(fm > fr);
 		l = lambdaL;
 		r = lambdaR;
@@ -383,8 +383,8 @@ void unimodalniMulti(double h, std::vector<double> tocka, double& l, double& r, 
 			lambdaL -=  h * (step *= 2);
 			for(int i=0;i<tocka.size();i++) vl[i] = tocka[i]+multiToOne[i]*lambdaL;
 			fl = Class.function(vl);
-			//std::cout<<"multi-vektor vl: ";
-			//for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
+			std::cout<<"multi-vektor vl: ";
+			for(int i=0;i<tocka.size();i++) std::cout<<vl[i]<<" "<<std::endl;
 			//std::cout<<"fl"<<" "<<"fm"<<" "<<"fr"<<std::endl;
 			//std::cout<<fl<<" "<<fm<<" "<<fr<<std::endl;
 		} while(fm > fl);
@@ -431,6 +431,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 	//std::vector<double> a,b;
 	double lambdaL,lambdaR;
 	double lambdaC,lambdaD;
+	double k = 0.5*(sqrt(5)-1);
 	//izracunaj prvo unimodalni interval
 	unimodalniMulti(h,tocka,lambdaL,lambdaR,Class,multiToOne);
 	std::cout<<"Unimodalni interval: ";
@@ -439,18 +440,20 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 	//for(int i=0;i<tocka.size();i++) std::cout<<b<<" ";
 	std::cout<<lambdaL<<" : "<<lambdaR<<std::endl;
 	
-	double k = 0.5*(sqrt(5)-1);
+	lambdaC=lambdaR - k* (lambdaR-lambdaL);
+	lambdaD=lambdaL + k* (lambdaR-lambdaL);
+	
 	std::vector<double> c(tocka);
 	//getC(lambdaR,lambdaL,k,c);
-	for(int i=0;i<tocka.size();i++) c[i]=tocka[i]+multiToOne[i]*(lambdaR - k* (lambdaR-lambdaL));
+	for(int i=0;i<tocka.size();i++) c[i]=tocka[i]+multiToOne[i]*(lambdaC);
 	//vc[dim]=c;
 	std::vector<double> d(tocka);
 	//getD(lambdaR,lambdaL,k,c);
-	for(int i=0;i<tocka.size();i++) c[i]=tocka[i]+multiToOne[i]*(lambdaL + k* (lambdaR-lambdaL));
+	for(int i=0;i<tocka.size();i++) d[i]=tocka[i]+multiToOne[i]*(lambdaD);
 	//vd[dim]=d;
 	double fc = Class.function(c);
 	double fd = Class.function(d);
-	while(lambdaR-lambdaL > e)
+	while((lambdaR-lambdaL) > e)
 	{
 		if(fc < fd) {
 			//b = d;
@@ -460,6 +463,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 			//vc[dim] = b - k * (b - a);
 			lambdaC=lambdaR - k* (lambdaR-lambdaL);
 			for (int i=0;i<tocka.size();i++) c[i] = tocka[i]+lambdaC*multiToOne[i];
+			std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 			fd = fc;
 			fc = Class.function(c);
 		}
@@ -471,7 +475,8 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 			lambdaC=lambdaD;
 			//vd[dim] = a + k * (b - a);
 			lambdaD=lambdaL + k* (lambdaR-lambdaL);
-			for (int i=0;i<tocka.size();i++) d[i] = tocka[i]+lambdaD*multiToOne[i];;
+			for (int i=0;i<tocka.size();i++) d[i] = tocka[i]+lambdaD*multiToOne[i];
+			std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 			fc = fd;
 			fd = Class.function(d);
 		}
@@ -480,6 +485,7 @@ double Zlatni_rezMulti(double h, std::vector<double> tocka,double e, AbstractFun
 	//for(int i=0;i<tocka.size();i++) result[i]=tocka[i]*(lambdaR+lambdaL)/2;
 	//std::cout<<"Minimum:";
 	//for(int i=0;i<tocka.size();i++) std::cout<<result[i]<<" ";
+	std::cout<<"A: "<<lambdaL<<", B: "<<lambdaR<<std::endl;
 	return (lambdaR+lambdaL)/2; // ili nove vrijednosti a i b
 }
 
@@ -659,6 +665,8 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 	bool cond=false;
 	double norm,lambda;
 	for(int i=0;i<x0.size();i++) x[i]=x0[i];
+	std::cout<<"X: "<<std::endl;
+	for(int i=0;i<x0.size();i++) std::cout<<x[i]<<" ";
 	int iter=0;
 	do
 	{
@@ -669,10 +677,10 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 			sumDerivations+=partialDerivations[i];
 		}
 		//normalize vectors
-		for (int i=0;i<x0.size();i++)
-		{
-			partialDerivations[i]/=sumDerivations;
-		}
+		//for (int i=0;i<x0.size();i++)
+		//{
+		//	partialDerivations[i]/=sumDerivations;
+		//}
 		//std::cout<<"Normalized vectors: ";
 		//for(int i=0;i<x0.size();i++) std::cout<<partialDerivations[i]<<" ";
 		//std::cout<<"\n";
@@ -697,35 +705,57 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 		temp.push_back(partialDerivations);
 		Matrica G(temp);
 		Matrica GT=G.transpose();
-		//GT.printMatrix();
+		std::cout<<"G matrix:"<<std::endl;
+		GT.printMatrix();
 		//Decompose to L and U
 		Matrica _4P=J.LUPdekompozicija();
 		
 		temp_res.clear();
 		J.supstitucijaUnaprijed(_4P*GT,temp_res);
+		std::cout<<"temp_res matrix:"<<std::endl;
+		for(int i=0;i<dx.size();i++) std::cout<<temp_res[i]<<" ";
+		std::cout<<std::endl;
 		J.supstitucijaUnazad(temp_res,dx);
+		std::cout<<"dx matrix:"<<std::endl;
+		for(int i=0;i<dx.size();i++) std::cout<<dx[i]<<" ";
+		std::cout<<std::endl;
 		x_old=x;
 		//x -= dx
 		if(mode==1)
 		{
-			for (int i=0;i<x0.size();i++) sumDx+=dx[i];
+			for (int i=0;i<x0.size();i++) sumDx+=dx[i]*dx[i];
 			for (int i=0;i<x0.size();i++)
 			{
-				dx_n[i]=dx[i]/sumDx;
+				dx_n[i]=dx[i]/sqrt(sumDx);
 			}
+			std::cout<<"dx_n matrix:"<<std::endl;
+			for(int i=0;i<dx_n.size();i++) std::cout<<dx_n[i]<<" ";
+				
+			for(int i=0;i<x.size();i++)
+			{
+				norm+=dx_n[i]*dx_n[i];	
+			}
+			norm = sqrt(norm);
+			if(norm<eps) break;
+		
 			lambda = Zlatni_rezMulti(1,x,delta,Class,dx_n);
-			//std::cout<<"Lambda: ";
+			std::cout<<"Lambda: "<<lambda<<std::endl;
 			//for (int i=0;i<x0.size();i++) std::cout<<lambda<<" ";
-			for(int i=0;i<x0.size();i++) x[i]=x[i]-lambda*dx[i];
+			std::cout<<"X: "<<std::endl;
+			for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
+			std::cout<<std::endl;
+			for(int i=0;i<x.size();i++) x[i]=x[i]+lambda*dx_n[i];
+			//std::cout<<"NEW X:"<<std::endl;
+			//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
 		}
 		else
 		{
-			for(int i=0;i<x.size();i++)x[i]-=dx[i];
+			for(int i=0;i<x.size();i++)x[i]+=dx[i];
 		}
 		norm=0;
 		for(int i=0;i<x.size();i++)
 		{
-			norm+=dx[i]*dx[i];	
+			norm+=dx_n[i]*dx_n[i];	
 		}
 		norm = sqrt(norm);
 		if(norm<eps) break;
@@ -739,9 +769,10 @@ void NewtonRaphson(AbstractFunction& Class, std::vector<double> x0, std::vector<
 				return;			
 			}		
 		}
+		if(iter>=1) break;
 	}
 	while(true);
-	for(int i=0;i<x.size();i++) result[i]=x[i];
+	for(int i=0;i<x.size();i++) result.push_back(x[i]);
 	return;
 }
 
