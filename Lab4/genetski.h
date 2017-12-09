@@ -37,3 +37,10 @@ void getFromBinaryString(std::vector<double>& ,std::vector<double> ,double );
 void binarizeArray(std::vector<std::vector<double>>&,double , double ,double );
 void debinarizeArray(std::vector<std::vector<double>>&,double , double ,double );
 
+//check if already in array
+bool checkIfInArray(std::vector<double>, double );
+
+//parent selection
+void nTurnirSelecion(std::vector<std::vector<double>>&, std::vector<std::vector<double>> const &, std::map<std::vector<double>, double>&, double, double );
+
+

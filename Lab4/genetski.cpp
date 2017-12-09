@@ -279,17 +279,81 @@ void createPopulace(std::vector<std::vector<double>>& array,double brPop,double 
 	return;
 }
 
-void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBytes=1)
+bool checkIfInArray(std::vector<double> vec, double x)
+{
+	for(int i=0;i<vec.size();i++)
+	{
+		if(x==vec[i]) return false;
+	}
+	return true;	
+}
+
+void nTurnirSelecion(std::vector<std::vector<double>>&selectedarray,std::vector<std::vector<double>> const &array, std::map<std::vector<double>, double>& valueMap, double n=3, double mode=1)
+{
+	std::vector<double> temp;
+	bool truth = true;
+	double r;
+	if(mode==1)
+	{
+		double leftBorder=0;
+		double sumGodness=0;
+		double iter=0;
+		std::map<std::vector<double>, double>::iterator it;
+		for(it=valueMap.begin();it!=valueMap.end();++it)
+		{
+			sumGodness+=it->second;
+		}
+		do
+		{
+			truth = true;
+			r =(double)(int)(array.size()*((double) rand() / (RAND_MAX)));
+			iter=0;
+			for(it=valueMap.begin();it!=valueMap.end();++it)
+			{
+				iter++;				
+				if((leftBorder<r)&&(r<leftBorder+it->second/sumGodness))
+				{
+					truth = checkIfInArray(temp,iter);
+					if(truth) temp.push_back(iter);	
+				}
+				leftBorder+=it->second/sumGodness;
+			}
+		}
+		while(temp.size()<n);
+	}
+	else
+	{
+		//for(int k=0;k<n;k++)
+		do
+		{
+			r =(double)(int)(array.size()*((double) rand() / (RAND_MAX)));
+			truth = checkIfInArray(temp,r);			
+			if(truth) temp.push_back(r);
+		}
+		while(temp.size()<n);
+	}
+	for(int i=0;i<temp.size();i++)
+	{
+		selectedarray.push_back(array[i]);
+	}
+}
+
+
+void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBytes=1, double n=3, double mode=1)
 {
 	std::vector<std::vector<double>> array;
+	std::vector<std::vector<double>> selectedarray;
 	std::map<std::vector<double>, double> valueMap;
 	int iter=0;
 	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBytes);
 	evaluatePopulace(Class,array,valueMap);
 	do
 	{
+		//treba izbrisati i ponovno izracunati valueMap
+		evaluatePopulace(Class,array,valueMap);
 		iter++;
-		
+		selectedarray.clear();
+		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
 
 
 
@@ -327,6 +391,7 @@ int main(int argc, char* argv[])
 
 	std::vector<std::vector<double>> array;
 	
+	/*
 	createPopulace(array,brPopulacije,borderLeft,borderRight,velicinaVektora,brojBitova);
 	std::cout<<"Decimal numbers: ";	
 	for(int i=0;i<array.size();i++)
@@ -349,5 +414,8 @@ int main(int argc, char* argv[])
 		for(int j=0;j<array3[i].size();j++) std::cout<<array3[i][j]<<" ";
 		std::cout<<std::endl;
 	}
+	*/
+	std::cout<<(double)(int)(16*((double) rand() / (RAND_MAX)))<<std::endl;
+	std::cout<<(double)(int)(16*((double) rand() / (RAND_MAX)))<<std::endl;
 	return 0;
 }
