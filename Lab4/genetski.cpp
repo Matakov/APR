@@ -1,6 +1,16 @@
 #include "genetski.h"
 //https://stackoverflow.com/questions/22746429/c-decimal-to-binary-converting
 //https://www.programiz.com/cpp-programming/examples/binary-decimal-convert
+
+/*
+Ulazni parametri:
+		-referenca na vektor
+		-lijeva granica
+		-desna granica
+		-broj bitova
+Izlazni parametri:
+		-referencirani vektor
+*/
 void TurnToBinary(std::vector<double>& x,double borderLeft, double borderRight,double numBytes)
 {
 	std::vector<double> temp;
@@ -11,19 +21,148 @@ void TurnToBinary(std::vector<double>& x,double borderLeft, double borderRight,d
 	x=temp;
 	return;
 }
-
+/*
+Ulazni parametri:
+		-referenca na vektor
+		-lijeva granica
+		-desna granica
+		-broj bitova
+Izlazni parametri:
+		-referencirani vektor
+*/
 void TurnFromBinary(std::vector<double>& b,double borderLeft, double borderRight,double numBytes)
 {
-	std::vector<double> temp,x;
-	for(int i=0;i<x.size();i++)
+	std::vector<double> temp;
+	for(int i=0;i<b.size();i++)
 	{
-		temp.push_back(borderLeft+b[i]/(pow(2,numBytes)-1)*(borderRight-borderLeft));	
+		temp.push_back(borderLeft+b[i]/(double)(pow(2,numBytes)-1)*(borderRight-borderLeft));	
 	}
 	b=temp;
 	return;
 }
 /*
+Ulazni parametri:
+		-referenca na vektor
+		-ulazni vektor
+		-broj bitova
+Izlazni parametri:
+		-referencirani vektor
+*/
+void getToBinaryString(std::vector<double>& result,std::vector<double> x,double numBytes)
+{
+	result.clear();
+	std::vector<double> temp,temp2;
+	int remainder;//i=1,step=1;
+	//std::cout<<"Numbers are: ";
+	//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
+	//std::cout<<std::endl;
+	for(int i=0;i<x.size();i++)
+	{
+		temp2.clear();
+		while(x[i]!=0)
+		{
+			remainder=(int)x[i]%2;
+			//std::cout << "Number: " << x[i] << "/2, Remainder = " << remainder << ", Quotient = " << (int)x[i]/2 << std::endl;
+			x[i]=(int)x[i]/2;
+			temp2.push_back(remainder);
+		}
+		while(temp2.size()<numBytes)
+		{
+			temp2.push_back(0);
+		}
+		std::reverse(temp2.begin(), temp2.end());
+		for(int k=0;k<temp2.size();k++)
+		{
+			result.push_back(temp2[k]);
+		}
+	}
+
+	return;
+}
+/*
+Ulazni parametri:
+		-referenca na vektor
+		-ulazni vektor
+		-broj bitova
+Izlazni parametri:
+		-referencirani vektor
+*/
+void getFromBinaryString(std::vector<double>& result,std::vector<double> x,double numBytes)
+{
+	int t=x.size()/numBytes;
+	//std::cout<<t<<std::endl;
+	double number;
+	//std::vector<double> temp;
+	for(int i=0;i<t;i++)
+	{
+		number=0;
+		//temp.clear();
+		for(int j=0;j<numBytes;j++) 	//temp[j]=x[t*numBytes+j];
+		{
+			//std::cout<<"N: "<<i<<" "<<j<<" "<<x[i*numBytes+j]<<" ";
+			number+=x[i*numBytes+j]*pow(2,numBytes-(j+1));
+		}
+		//std::cout<<std::endl;
+		result.push_back(number);
+	}
+}
+/*
+Ulazni parametri:
+		-referenca na polje
+		-lijeva granica
+		-desna granica
+		-broj bitova
+Izlazni parametri:
+		-referencirano polje
+*/
+void binarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBytes)
+{
+	std::vector<std::vector<double>> temp(array);
+	for(int i=0;i<temp.size();i++)
+	{
+		TurnToBinary(temp[i],borderLeft, borderRight,numBytes);
+		getToBinaryString(array[i],temp[i],numBytes);
+	}
+	//array=temp;
+}
+/*
+Ulazni parametri:
+		-referenca na polje
+		-lijeva granica
+		-desna granica
+		-broj bitova
+Izlazni parametri:
+		-referencirano polje
+*/
+void debinarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBytes)
+{
+	std::vector<std::vector<double>> temp;
+	std::vector<double> temp_vector;
+	for(int i=0;i<array.size();i++)
+	{
+		temp_vector.clear();
+		//temp[i].clear();
+		getFromBinaryString(temp_vector,array[i],numBytes);
+		//for(int j=0;j<temp_vector.size();j++) std::cout<<temp_vector[j]<<" ";
+		//std::cout<<std::endl;
+		TurnFromBinary(temp_vector,borderLeft, borderRight,numBytes);
+		//TurnToBinary(temp[i],borderLeft, borderRight,numBytes);
+		//getToBinaryString(temp[i],array[i],numBytes);
+		//for(int j=0;j<temp_vector.size();j++) std::cout<<temp_vector[j]<<" ";
+		temp.push_back(temp_vector);
+	}
+	array=temp;
+}
+/*
 DRŽATI U DECIMALNOM FORMATU DO SAMOG KRIŽANJA -> TADA PREBACITI U BINARNI STRING I TO KRIŽATI I MUTIRATI!!!!!!
+*/
+/*
+Ulazni parametri:
+		-referenca na mapu vrijednosti
+		-parametar a
+		-parametar b
+Izlazni parametri:
+		-referencirani vektor
 */
 void windowing(std::map<std::vector<double>, double>& valueMap,double a, double b)
 {
@@ -51,7 +190,12 @@ void windowing(std::map<std::vector<double>, double>& valueMap,double a, double 
 	return;
 }
 
-
+/*
+Ulazni parametri:
+		-referenca na mapu
+Izlazni parametri:
+		-referencirana mapa
+*/
 void translacijaDobrote(std::map<std::vector<double>, double>& valueMap)
 {
 	std::vector<double> values;
@@ -93,7 +237,7 @@ double getValue(std::vector<double> input, AbstractFunction& Class,std::map<std:
 }
 
 //Funkcija za evaluaciju populacije
-void evaluatePopulace(AbstractFunction& Class, std::vector<std::vector<double>>& array, std::map<std::vector<double>, double>& valueMap, double numBytes,double borderLeft, double borderRight)
+void evaluatePopulace(AbstractFunction& Class, std::vector<std::vector<double>>& array, std::map<std::vector<double>, double>& valueMap)
 {
 	std::vector<double> temp;
 	double tempValue;
@@ -107,6 +251,18 @@ void evaluatePopulace(AbstractFunction& Class, std::vector<std::vector<double>>&
 
 
 //Funkcija za kreiranje populacije
+/*
+ulazni parametri:
+		- vecičina populacije
+		- lijeva granica
+		- desna granica
+		- dimenzionalnost podataka
+		- broj bitova
+
+
+Izlazni parametri:
+		- populacija
+*/
 void createPopulace(std::vector<std::vector<double>>& array,double brPop,double borderLeft, double borderRight, double vectorSize, double numBytes)
 {
 	double r=0;
@@ -129,7 +285,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	std::map<std::vector<double>, double> valueMap;
 	int iter=0;
 	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBytes);
-	evaluatePopulace(Class,array,valueMap, numBytes,borderLeft,borderRight);
+	evaluatePopulace(Class,array,valueMap);
 	do
 	{
 		iter++;
@@ -147,7 +303,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 
 int main(int argc, char* argv[])
 {
-	double brPopulacije,preciznost,vjerojatnost,brEval,borderLeft, borderRight, velicinaVektora;
+	double brPopulacije,brojBitova,vjerojatnost,brEval,borderLeft, borderRight, velicinaVektora;
 	int zadatak=1;
 	if(argc<3)
 	{
@@ -155,7 +311,43 @@ int main(int argc, char* argv[])
 		std::exit(0);
 	}
 	zadatak=atof(argv[2]);
-	openFile(argv[1], brPopulacije, preciznost, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora);	
+	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora);	
 
+	std::vector<double> number,x;
+	number.push_back(15);
+	number.push_back(9);
+	//std::vector<double> result;
+	//getToBinaryString(result ,number , 10);
+	//std::cout<<"Binary numbers: ";
+	//for(int i=0;i<result.size();i++) std::cout<<result[i]<<" ";
+	//std::cout<<std::endl;
+	//getFromBinaryString(x,result,10);
+	//std::cout<<"Decimal numbers: ";
+	//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
+
+	std::vector<std::vector<double>> array;
+	
+	createPopulace(array,brPopulacije,borderLeft,borderRight,velicinaVektora,brojBitova);
+	std::cout<<"Decimal numbers: ";	
+	for(int i=0;i<array.size();i++)
+	{
+		for(int j=0;j<array[i].size();j++) std::cout<<array[i][j]<<" ";
+		std::cout<<std::endl;
+	}
+	std::vector<std::vector<double>> array2(array);
+	binarizeArray(array2,borderLeft,borderRight,brojBitova);
+	for(int i=0;i<array2.size();i++)
+	{
+		for(int j=0;j<array2[i].size();j++) std::cout<<array2[i][j]<<" ";
+		std::cout<<std::endl;
+	}
+	std::vector<std::vector<double>> array3(array2);
+	debinarizeArray(array3,borderLeft,borderRight,brojBitova);
+	std::cout<<array3.size()<<std::endl;
+	for(int i=0;i<array3.size();i++)
+	{
+		for(int j=0;j<array3[i].size();j++) std::cout<<array3[i][j]<<" ";
+		std::cout<<std::endl;
+	}
 	return 0;
 }
