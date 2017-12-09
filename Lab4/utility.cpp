@@ -105,7 +105,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return tokens;
 }
 
-void openFile(std::string name,double& brPopulacije, double& preciznost,double& vjerojatnost,double& brEval, double& borderLeft, double& borderRight, double& velicinaVektora)
+void openFile(std::string name,double& brPopulacije, double& preciznost,double& vjerojatnost,double& brEval, double& borderLeft, double& borderRight, double& velicinaVektora, double& typeOfCrossover, double& typeOfMutation)
 {
 	std::ifstream myfile;
 	std::string line;
@@ -139,6 +139,14 @@ void openFile(std::string name,double& brPopulacije, double& preciznost,double& 
 			if (container[0] == "Veličina" && container[1] == "vektora:")
 			{
 				velicinaVektora=atof(container[2].c_str());			
+			}
+			if (container[0] == "Vrsta" && container[1] == "križanja:")
+			{
+				typeOfCrossover=atof(container[2].c_str());			
+			}
+			if (container[0] == "Vrsta" && container[1] == "mutacije:")
+			{
+				typeOfMutation=atof(container[2].c_str());			
 			}
 			
 		}
