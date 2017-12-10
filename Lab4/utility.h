@@ -34,3 +34,36 @@ class AbstractFunction
 std::vector<std::string> split(const std::string& , char );
 
 void openFile(std::string ,double& , double& ,double& ,double& ,double& ,double& ,double&, double& ,double&);
+
+class function1: public AbstractFunction 
+{
+	public:
+		function1();
+		double function(double a, double b);
+		double function(std::vector<double> lista);
+		void restartCount();
+};
+
+class function3: public AbstractFunction 
+{
+	public:
+		function3();
+		double function(std::vector<double> lista);
+		void restartCount();
+};
+
+class function6: public AbstractFunction 
+{
+	public:
+		function6();
+		double function(std::vector<double> lista);
+		void restartCount();
+};
+
+class function7: public AbstractFunction 
+{
+	public:
+		function7();
+		double function(std::vector<double> lista);
+		void restartCount();
+};

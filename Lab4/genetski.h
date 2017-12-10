@@ -58,3 +58,7 @@ void crossover(std::vector<double>& ,std::vector<std::vector<double>>& ,std::map
 
 //mutation operation
 void mutation(std::vector<double>& , double , double , double );
+
+void printPopulace(std::vector<std::vector<double>> );
+
+void findBest(std::vector<double>& ,std::map<std::vector<double>, double>& );
