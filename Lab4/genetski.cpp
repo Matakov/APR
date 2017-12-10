@@ -272,7 +272,7 @@ void evaluatePopulace(AbstractFunction& Class, std::vector<std::vector<double>>&
 //Funkcija za kreiranje populacije
 /*
 ulazni parametri:
-		- vecičina populacije
+		- veličina populacije
 		- lijeva granica
 		- desna granica
 		- dimenzionalnost podataka
@@ -325,6 +325,7 @@ void nTurnirSelecion(std::vector<std::vector<double>>& selectedarray,std::vector
 	bool truth = true;
 	double r;
 	//std::cout<<n<<std::endl;
+	selectedarray.clear();
 	if(mode==1)
 	{
 		double leftBorder=0;
@@ -379,21 +380,11 @@ Ulazno/izlazni parametri:
 		-referenca na populaciju
 		-referenca na mapu vrijednosti polja
 */
-void eliminateWorst(std::vector<std::vector<double>>& selectedarray,std::vector<std::vector<double>>& array,  std::map<std::vector<double>, double>& valueMap)
+void eliminateWorst(std::vector<double>& worst,std::vector<std::vector<double>>& array,  std::map<std::vector<double>, double>& valueMap)
 {
-	double maxIndex=0;
-	double max=0;
-	for(int i=0;i<selectedarray.size();i++)
-	{
-		if(max<valueMap[selectedarray[i]])
-		{
-			maxIndex=i;
-			max=valueMap[selectedarray[i]];
-		}		
-	}
-	valueMap.erase(selectedarray[maxIndex]);
-	array.erase(std::remove(array.begin(), array.end(), selectedarray[maxIndex]), array.end());
-	selectedarray.erase(selectedarray.begin() + maxIndex);	
+	valueMap.erase(worst);
+	array.erase(std::remove(array.begin(), array.end(), worst), array.end());
+	//selectedarray.erase(selectedarray.begin() + maxIndex);	
 	return;
 }
 
@@ -415,21 +406,17 @@ void findBest(std::vector<double>& best,std::map<std::vector<double>, double>& v
 
 
 /*
-Pronadji najbolja 2 u selektiranom polju i vrati ih
+Select parents from a selected set
 */
-//return max index and max2 index
-void getMaximumIndex(std::vector<std::vector<double>> selectedArray,std::map<std::vector<double>, double>& lookUpTable, double& h, double& h2)
+void selectParents(std::vector<std::vector<double>>& selectedArray,std::vector<double>& parent1,std::vector<double>& parent2,std::vector<double>& worst,std::map<std::vector<double>, double>& valueMap)
 {
-	//lookUpTable.clear();
-	h=0;
-	h2=0;
-	double left;
 	std::vector<double> values;
-	
-	//for(std::map<std::vector<double>,double>::iterator it = lookUpTable.begin(); it != lookUpTable.end(); ++it) {
-	//	values.push_back(it->second);
-	//}
-	for(std::map<std::vector<double>,double>::iterator it = lookUpTable.begin(); it != lookUpTable.end(); ++it)
+	double best,best2,outcast;
+	parent1.clear();
+	parent2.clear();
+	worst.clear();
+
+	for(std::map<std::vector<double>,double>::iterator it = valueMap.begin(); it != valueMap.end(); ++it)
 	{
 		for(int i=0;i<selectedArray.size();i++)
 		{
@@ -437,20 +424,20 @@ void getMaximumIndex(std::vector<std::vector<double>> selectedArray,std::map<std
 		}
 	}
 	std::sort(values.begin(),values.end());
-	//std::cout<<"Sorted values: ";
-	//for(int i=0;i<values.size();i++) std::cout<<values[i]<<" ";
-	//std::cout<<std::endl;
-	double max = values[0];
-	double max2 = values[1];
-	for(int i=0;i<selectedArray.size();i++)
+	best=values[0];
+	best2=values[1];
+	outcast=values[values.size()-1];
+	
+	for(std::map<std::vector<double>,double>::iterator it = valueMap.begin(); it != valueMap.end(); ++it)
 	{
-		//left = getValue(array[i],Class,lookUpTable);
-		left = lookUpTable[selectedArray[i]];
-		if(left==max)  h = i;
-		if(left==max2) h2 = i;
+		if(it->second==best) parent1=it->first;
+		if(it->second==best2) parent2=it->first;
+		if(it->second==outcast) worst=it->first;
 	}
+
 	return;
 }
+
 
 //Funkcija koja uz ulazni parametar od bitnovne vrijenosti generira nasumični vektor
 std::vector<double> generateR(double numBytes)
@@ -466,7 +453,7 @@ std::vector<double> generateR(double numBytes)
 	return temp;
 }
 
-void printChild(std::vector<double> vector)
+void printVector(std::vector<double> vector)
 {
 	for(int i=0;i<vector.size();i++) std::cout<<vector[i]<<" ";
 	std::cout<<std::endl;
@@ -482,37 +469,37 @@ Ulazni parametri:
 		-da li je aritmetički ili binarno
 		-granice vrijednosti
 */
-void crossover(std::vector<double>& child,std::vector<std::vector<double>>& selectedarray,std::map<std::vector<double>, double>& valueMap, double typeOfCrossover, double numBytes, double borderLeft, double borderRight)
+void crossover(std::vector<double>& child,std::vector<double>& parent1,std::vector<double>& parent2, double typeOfCrossover, double numBytes, double borderLeft, double borderRight)
 {
 	child.clear();
 	double r;
-	double best1,best2;
 	int num;
 	std::vector<double> R;
 	if(numBytes>1) //Binarni prikaz
 	{
 		//Binarize array
-		getMaximumIndex(selectedarray,valueMap,best1,best2);
-		binarizeArray(selectedarray,borderLeft,borderRight,numBytes);
+		//binarizeArray(selectedarray,borderLeft,borderRight,numBytes);
+		binarizeVector(parent1, borderLeft, borderRight, numBytes);	
+		binarizeVector(parent2, borderLeft, borderRight, numBytes);
 		//std::cout<<best1<<" "<<best2<<std::endl;
 		//printPopulace(selectedarray);
 		//one point crossover
 		if(typeOfCrossover==1)
 		{
-			r =(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-			num = selectedarray[0].size()/numBytes;
+			num = parent1.size()/numBytes;
 			//std::cout<<num<<std::endl;
 			for(int i=0;i<num;i++)
 			{
+				r =(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
 				for(int j=0;j<numBytes;j++)
 				{
 					if(j<r)
 					{
-						child.push_back(selectedarray[best1][i*numBytes+j]);
+						child.push_back(parent1[i*numBytes+j]);
 					}
 					else
 					{
-						child.push_back(selectedarray[best2][i*numBytes+j]);					
+						child.push_back(parent2[i*numBytes+j]);					
 					}
 				}
 			}
@@ -522,43 +509,42 @@ void crossover(std::vector<double>& child,std::vector<std::vector<double>>& sele
 		if(typeOfCrossover==2)
 		{
 			r =(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-			for(int i=0;i<(selectedarray[0].size()/numBytes);i++)
+			for(int i=0;i<(parent1.size()/numBytes);i++)
 			{
 				R = generateR(numBytes);
 				for(int j=0;j<numBytes;j++)
 				{
 
-					child.push_back(selectedarray[best1][i*numBytes+j]*selectedarray[best2][i*numBytes+j]+R[j]*((1-selectedarray[best1][i*numBytes+j])*selectedarray[best2][i*numBytes+j]+selectedarray[best1][i*numBytes+j]*(1-selectedarray[best2][i*numBytes+j])));
+					child.push_back(parent1[i*numBytes+j]*parent2[i*numBytes+j]+R[j]*((1-parent1[i*numBytes+j])*parent2[i*numBytes+j]+parent1[i*numBytes+j]*(1-parent2[i*numBytes+j])));
 
 				}
 			}
 			//array.push_back(child);
 		}
 		//std::cout<<"Child: ";
-		//printChild(child);
+		//printVector(child);
 		//debinarize array
 		debinarizeVector(child,borderLeft,borderRight,numBytes);
-		debinarizeArray(selectedarray,borderLeft,borderRight,numBytes);
+		//debinarizeArray(selectedarray,borderLeft,borderRight,numBytes);
 		//std::cout<<"Child: ";
-		//printChild(child);
+		//printVector(child);
 		
 	}
 	else	//Aritmeticki prikaz
 	{
-		getMaximumIndex(selectedarray,valueMap,best1,best2);
 		//one point crossover
 		if(typeOfCrossover==1)
 		{
-			r =(double)(int)(selectedarray[0].size()*((double) rand() / (RAND_MAX)));
-			for(int j=0;j<selectedarray[0].size();j++)
+			r =(double)(int)(parent1.size()*((double) rand() / (RAND_MAX)));
+			for(int j=0;j<parent1.size();j++)
 			{
 				if(j<r)
 				{
-					child.push_back(selectedarray[best1][j]);
+					child.push_back(parent1[j]);
 				}
 				else
 				{
-					child.push_back(selectedarray[best2][j]);
+					child.push_back(parent2[j]);
 				}
 			}
 			//array.push_back(child);
@@ -567,9 +553,9 @@ void crossover(std::vector<double>& child,std::vector<std::vector<double>>& sele
 		if(typeOfCrossover==2)
 		{
 			r =(double) rand() / (RAND_MAX);
-			for(int j=0;j<selectedarray[0].size();j++)
+			for(int j=0;j<parent1.size();j++)
 			{
-				child.push_back(r*selectedarray[best1][j]+(1-r)*selectedarray[best2][j]);
+				child.push_back(r*parent1[j]+(1-r)*parent2[j]);
 
 			}
 			//array.push_back(child);
@@ -589,8 +575,11 @@ Ulazni parametri:
 void mutation(std::vector<double>& child, double probability, double typeOfMutation, double numBytes, double borderLeft, double borderRight)
 {
 	double temp,l,r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
+	double mute=(double) rand() / (RAND_MAX);
+	if(mute>=probability) return;
 	if(numBytes>1) //Binarna mutacija
 	{
+		typeOfMutation=(double)(int)(4*((double) rand() / (RAND_MAX)))+1;
 		binarizeVector(child, borderLeft, borderRight, numBytes);
 		if(typeOfMutation==1) //Bit Flip Mutation
 		{
@@ -673,6 +662,7 @@ void mutation(std::vector<double>& child, double probability, double typeOfMutat
 	}
 	else //Mutacija sa pomičnim korakom
 	{
+		typeOfMutation=(double)(int)(3*((double) rand() / (RAND_MAX)))+1;
 		if(typeOfMutation==1) //Uniform mutation
 		{
 			for(int i=0;i<child.size();i++)
@@ -680,7 +670,7 @@ void mutation(std::vector<double>& child, double probability, double typeOfMutat
 				child[i]=((borderRight-borderLeft)*((double) rand() / (RAND_MAX)));
 			}			
 		}
-		if(typeOfMutation==3) //Gaussian mutation
+		if(typeOfMutation==2) //Gaussian mutation
 		{
 			for(int i=0;i<child.size();i++)
 			{
@@ -719,61 +709,105 @@ void printPopulace(std::vector<std::vector<double>> array)
 	}
 	
 }
+
+void removeDuplicates(std::vector<std::vector<double>>& array)
+{
+	std::vector<std::vector<double>>::iterator it;
+	it = std::unique (array.begin(), array.end());
+	array.resize( std::distance(array.begin(),it));
+	return;
+}
+
 void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBytes=1, double n=3, double mode=1,double typeOfCrossover=1, double typeOfMutation=1, double probability=0.2)
 {
 	std::cout<<brEval<<std::endl;
 	std::vector<std::vector<double>> array;
 	std::vector<std::vector<double>> selectedarray;
-	std::vector<double> child,unit;
+	std::vector<double> child,unit,temp,parent1,parent2,worst;
 	std::map<std::vector<double>, double> valueMap;
 	int iter=0;
-	double best,best2;
+	double best,best2,ran,r;
 	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBytes);
 	evaluatePopulace(Class,array,valueMap);
 	do
 	{
-		valueMap.clear();
+		//valueMap.clear();
 		//treba izbrisati i ponovno izracunati valueMap
 		evaluatePopulace(Class,array,valueMap);
-		//std::cout<<"Population:"<<std::endl;
-		//printPopulace(array);
+		std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;		
+		std::cout<<"Population:"<<std::endl;
+		printPopulace(array);
 		iter++;
 		selectedarray.clear();
-		child.clear();
 		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
-		//std::cout<<"Selected chromosomes from population:"<<std::endl;
-		//printPopulace(selectedarray);
-		eliminateWorst(selectedarray,array,valueMap);
+		std::cout<<"Selected chromosomes from population:"<<std::endl;
+		printPopulace(selectedarray);
+		selectParents(selectedarray,parent1,parent2,worst,valueMap);
+		eliminateWorst(worst,array,valueMap);
 		//std::cout<<"Population without worst selected:"<<std::endl;
 		//printPopulace(array);
-		//crossoverNMutation(selectedarray,array,valueMap,typeOfCrossover, numBytes, probability, borderLeft, borderRight);
-		crossover(child,selectedarray,valueMap, typeOfCrossover, numBytes, borderLeft, borderRight);
-		mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);
-		array.push_back(child);
-		valueMap.clear();
-		evaluatePopulace(Class,array,valueMap);
+		std::cout<<"Worst: "<<std::endl;
+		printVector(worst);
+		std::cout<<"Parents: "<<std::endl;
+		printVector(parent1);
+		printVector(parent2);
+		crossover(child, parent1, parent2, typeOfCrossover, numBytes, borderLeft, borderRight);
+		std::cout<<"Child: "<<std::endl;
+		printVector(child);
+		mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);		
+		//Remove Duplicates
+		removeDuplicates(array);
+		if(array.size()<3) break;
+		if(valueMap.find(child)!=valueMap.end()) valueMap[child]=Class.function(child);
+		array.push_back(child);			
+		while(array.size()<brPop)
+		{
+			//child.clear();
+			ran=(double) rand() / (RAND_MAX);
+			if(ran<0.5)
+			{
+				nTurnirSelecion(selectedarray,array,valueMap,n,mode);
+				selectParents(selectedarray,parent1,parent2,worst,valueMap);
+				crossover(child, parent1, parent2, typeOfCrossover, numBytes, borderLeft, borderRight);
+				mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);
+				array.push_back(child);
+			}
+			else
+			{
+				temp.clear();
+				for(int j=0;j<vectorSize;j++)
+				{
+					r = ((double) rand() / (RAND_MAX));
+					temp.push_back(borderLeft+r*(borderRight-borderLeft));
+				}
+				array.push_back(temp);
+			}
+		}
+		//valueMap.clear();
+		//evaluatePopulace(Class,array,valueMap);
 		//std::cout<<"Population with child:"<<std::endl;
 		//printPopulace(array);
 		//Treba implementirati elitizam
 		if(iter%10==0)
 		{
+			unit.clear();
 			std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
 			findBest(unit,valueMap);
 			std::cout<<"Best unit: ";
-			printChild(unit);
+			printVector(unit);
 			std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
 		}
-		else
-		{
-			std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;
-		}
+		//else
+		//{
+		//	std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;
+		//}
 		if(Class.function(child)<1e-6) break;
 		if(iter>=brEval) break;
 	}
 	while(true);
 	//petlja moze stati kada funkcija cilja padne ispod 1e-6
-	getMaximumIndex(array, valueMap,best,best2);
-	result=array[best];
+	findBest(unit,valueMap);
+	std::cout<<valueMap[unit]<<std::endl;
 	return;
 }
 
@@ -790,6 +824,9 @@ int main(int argc, char* argv[])
 	zadatak=atof(argv[2]);
 	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora, vrstaKrizanja, vrstaMutacija);	
 
+	 /* initialize random seed: */
+  	srand (time(NULL));
+	
 	std::vector<double> number,x;
 	number.push_back(15);
 	number.push_back(9);

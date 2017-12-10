@@ -44,8 +44,11 @@ void debinarizeVector(std::vector<double>& ,double , double ,double );
 //check if already in array
 bool checkIfInArray(std::vector<double>, double );
 
-//parent selection
+//selection
 void nTurnirSelecion(std::vector<std::vector<double>>&, std::vector<std::vector<double>> const &, std::map<std::vector<double>, double>&, double, double );
+
+//parent selection
+void selectParents(std::vector<std::vector<double>>& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::map<std::vector<double>, double>& );
 
 //removing the worst unit in a populace
 void eliminateWorst(std::vector<std::vector<double>>& ,std::vector<std::vector<double>>& ,  std::map<std::vector<double>, double>& );
@@ -54,7 +57,8 @@ void eliminateWorst(std::vector<std::vector<double>>& ,std::vector<std::vector<d
 std::vector<double> generateR(double );
 
 //crossover operation
-void crossover(std::vector<double>& ,std::vector<std::vector<double>>& ,std::map<std::vector<double>, double>& , double , double , double , double );
+//void crossover(std::vector<double>& ,std::vector<std::vector<double>>& ,std::map<std::vector<double>, double>& , double , double , double , double );
+void crossover(std::vector<double>& ,std::vector<double>& ,std::vector<double>& , double , double , double , double );
 
 //mutation operation
 void mutation(std::vector<double>& , double , double , double );
