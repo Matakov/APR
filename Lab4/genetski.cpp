@@ -484,6 +484,7 @@ void crossover(std::vector<double>& child,std::vector<double>& parent1,std::vect
 		//std::cout<<best1<<" "<<best2<<std::endl;
 		//printPopulace(selectedarray);
 		//one point crossover
+		if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
 		if(typeOfCrossover==1)
 		{
 			num = parent1.size()/numBytes;
@@ -533,6 +534,7 @@ void crossover(std::vector<double>& child,std::vector<double>& parent1,std::vect
 	else	//Aritmeticki prikaz
 	{
 		//one point crossover
+		if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
 		if(typeOfCrossover==1)
 		{
 			r =(double)(int)(parent1.size()*((double) rand() / (RAND_MAX)));
@@ -579,7 +581,7 @@ void mutation(std::vector<double>& child, double probability, double typeOfMutat
 	if(mute>=probability) return;
 	if(numBytes>1) //Binarna mutacija
 	{
-		typeOfMutation=(double)(int)(4*((double) rand() / (RAND_MAX)))+1;
+		if(typeOfMutation==0) typeOfMutation=(double)(int)(4*((double) rand() / (RAND_MAX)))+1;
 		binarizeVector(child, borderLeft, borderRight, numBytes);
 		if(typeOfMutation==1) //Bit Flip Mutation
 		{
@@ -662,7 +664,7 @@ void mutation(std::vector<double>& child, double probability, double typeOfMutat
 	}
 	else //Mutacija sa pomičnim korakom
 	{
-		typeOfMutation=(double)(int)(3*((double) rand() / (RAND_MAX)))+1;
+		if(typeOfMutation==0) typeOfMutation=(double)(int)(3*((double) rand() / (RAND_MAX)))+1;
 		if(typeOfMutation==1) //Uniform mutation
 		{
 			for(int i=0;i<child.size();i++)
@@ -713,6 +715,7 @@ void printPopulace(std::vector<std::vector<double>> array)
 void removeDuplicates(std::vector<std::vector<double>>& array)
 {
 	std::vector<std::vector<double>>::iterator it;
+	std::sort (array.begin(), array.end());
 	it = std::unique (array.begin(), array.end());
 	array.resize( std::distance(array.begin(),it));
 	return;
@@ -734,26 +737,26 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		//valueMap.clear();
 		//treba izbrisati i ponovno izracunati valueMap
 		evaluatePopulace(Class,array,valueMap);
-		std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;		
-		std::cout<<"Population:"<<std::endl;
-		printPopulace(array);
+		//std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;		
+		//std::cout<<"Population:"<<std::endl;
+		//printPopulace(array);
 		iter++;
 		selectedarray.clear();
 		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
-		std::cout<<"Selected chromosomes from population:"<<std::endl;
-		printPopulace(selectedarray);
+		//std::cout<<"Selected chromosomes from population:"<<std::endl;
+		//printPopulace(selectedarray);
 		selectParents(selectedarray,parent1,parent2,worst,valueMap);
 		eliminateWorst(worst,array,valueMap);
 		//std::cout<<"Population without worst selected:"<<std::endl;
 		//printPopulace(array);
-		std::cout<<"Worst: "<<std::endl;
-		printVector(worst);
-		std::cout<<"Parents: "<<std::endl;
-		printVector(parent1);
-		printVector(parent2);
+		//std::cout<<"Worst: "<<std::endl;
+		//printVector(worst);
+		//std::cout<<"Parents: "<<std::endl;
+		//printVector(parent1);
+		//printVector(parent2);
 		crossover(child, parent1, parent2, typeOfCrossover, numBytes, borderLeft, borderRight);
-		std::cout<<"Child: "<<std::endl;
-		printVector(child);
+		//std::cout<<"Child: "<<std::endl;
+		//printVector(child);
 		mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);		
 		//Remove Duplicates
 		removeDuplicates(array);
@@ -788,7 +791,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		//std::cout<<"Population with child:"<<std::endl;
 		//printPopulace(array);
 		//Treba implementirati elitizam
-		if(iter%10==0)
+		if(iter%100==0)
 		{
 			unit.clear();
 			std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
@@ -830,6 +833,9 @@ int main(int argc, char* argv[])
 	std::vector<double> number,x;
 	number.push_back(15);
 	number.push_back(9);
+	x.push_back(1);
+	x.push_back(9);
+	
 	//std::vector<double> result;
 	//getToBinaryString(result ,number , 10);
 	//std::cout<<"Binary numbers: ";
@@ -839,8 +845,20 @@ int main(int argc, char* argv[])
 	//std::cout<<"Decimal numbers: ";
 	//for(int i=0;i<x.size();i++) std::cout<<x[i]<<" ";
 
+	/*
 	std::vector<std::vector<double>> array;
-	
+	array.push_back(x);
+	array.push_back(x);
+	array.push_back(number);
+	array.push_back(number);
+	array.push_back(x);
+	array.push_back(number);
+	array.push_back(x);
+	printPopulace(array);
+	removeDuplicates(array);
+	std::cout<<"Removed duplicates: "<<std::endl;
+	printPopulace(array);
+	*/	
 	/*
 	createPopulace(array,brPopulacije,borderLeft,borderRight,velicinaVektora,brojBitova);
 	std::cout<<"Decimal numbers: ";	
@@ -872,5 +890,6 @@ int main(int argc, char* argv[])
 	function3 func3;
 
 	geneticAlgorithm(func3,result,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+	
 	return 0;
 }
