@@ -326,7 +326,7 @@ void nTurnirSelecion(std::vector<std::vector<double>>& selectedarray,std::vector
 	double r;
 	//std::cout<<n<<std::endl;
 	selectedarray.clear();
-	if(mode==1)
+	if(mode==1) //N tournament with roulette wheel
 	{
 		double leftBorder=0;
 		double sumGodness=0;
@@ -356,7 +356,7 @@ void nTurnirSelecion(std::vector<std::vector<double>>& selectedarray,std::vector
 		}
 		while(temp.size()<n);
 	}
-	else
+	else	// select random N for tournament
 	{
 		//for(int k=0;k<n;k++)
 		do
