@@ -1,6 +1,6 @@
 Veličina populacije: 10
 Broj bitova: 1
-Vjerojatnost mutacije: 0.6
+Vjerojatnost mutacije: 0.8
 Broj evaluacija: 10000
 Početni interval: -105 150
 Veličina vektora: 3

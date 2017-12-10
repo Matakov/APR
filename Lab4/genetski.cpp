@@ -821,7 +821,8 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	while(true);
 	//petlja moze stati kada funkcija cilja padne ispod 1e-6
 	findBest(unit,valueMap);
-	std::cout<<valueMap[unit]<<std::endl;
+	result=unit;
+	//std::cout<<valueMap[unit]<<std::endl;
 	return;
 }
 
@@ -937,9 +938,9 @@ int main(int argc, char* argv[])
 		{
 			geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
-			std::cout<<"Funkcija 6 dimenzija: "<<dim[i]<<"rezultat: ";
+			std::cout<<"Funkcija 6 dimenzija: "<<dim[i]<<" rezultat: ";
 			printVector(result6);
-			std::cout<<"Funkcija 7 dimenzija: "<<dim[i]<<"rezultat: ";
+			std::cout<<"Funkcija 7 dimenzija: "<<dim[i]<<" rezultat: ";
 			printVector(result7);
 			result6.clear();
 			result7.clear();
@@ -1023,6 +1024,37 @@ int main(int argc, char* argv[])
 		}
 		medianPop=CalcMHWScore(paramPop);
 		medianMul=CalcMHWScore(paramMut);
+	}
+	if(zadatak==5)
+	{
+		function7 func7;
+		std::vector<double> result7;
+		std::vector<double> turnirrulet;
+		std::vector<double> turnir;
+		std::vector<double> rulet;
+		double medianturnirruletp,medianrulet,medianturnir;
+
+		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je turnir i rulet
+		{
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,i,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			turnirrulet.push_back(func7.function(result7));
+			result7.clear();	
+		}
+		medianturnirruletp=CalcMHWScore(turnirrulet);
+		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je rulet
+		{
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,2,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			rulet.push_back(func7.function(result7));
+			result7.clear();	
+		}
+		medianrulet=CalcMHWScore(rulet);
+		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je rulet
+		{
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,i,2,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			turnir.push_back(func7.function(result7));
+			result7.clear();	
+		}
+		medianturnir=CalcMHWScore(turnir);
 	}
 	return 0;
 }
