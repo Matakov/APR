@@ -745,8 +745,19 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
 		//std::cout<<"Selected chromosomes from population:"<<std::endl;
 		//printPopulace(selectedarray);
-		selectParents(selectedarray,parent1,parent2,worst,valueMap);
-		eliminateWorst(worst,array,valueMap);
+		if(selectedarray.size()==2)
+		{
+			parent1=selectedarray[0];
+			parent2=selectedarray[1];
+			ran=(double) rand() / (RAND_MAX);
+			if(ran<0.5) eliminateWorst(parent1,array,valueMap);
+			else eliminateWorst(parent2,array,valueMap);
+		}
+		else
+		{
+			selectParents(selectedarray,parent1,parent2,worst,valueMap);
+			eliminateWorst(worst,array,valueMap);
+		}
 		//std::cout<<"Population without worst selected:"<<std::endl;
 		//printPopulace(array);
 		//std::cout<<"Worst: "<<std::endl;
