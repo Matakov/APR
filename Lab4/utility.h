@@ -67,3 +67,5 @@ class function7: public AbstractFunction
 		double function(std::vector<double> lista);
 		void restartCount();
 };
+
+double CalcMHWScore(std::vector<double> );

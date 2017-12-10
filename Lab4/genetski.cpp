@@ -830,11 +830,11 @@ int main(int argc, char* argv[])
 	 /* initialize random seed: */
   	srand (time(NULL));
 	
-	std::vector<double> number,x;
-	number.push_back(15);
-	number.push_back(9);
-	x.push_back(1);
-	x.push_back(9);
+	//std::vector<double> number,x;
+	//number.push_back(15);
+	//number.push_back(9);
+	//x.push_back(1);
+	//x.push_back(9);
 	
 	//std::vector<double> result;
 	//getToBinaryString(result ,number , 10);
@@ -886,10 +886,132 @@ int main(int argc, char* argv[])
 	//std::cout<<(double)(int)(16*((double) rand() / (RAND_MAX)))<<std::endl;
 	//std::cout<<(double)(int)(16*((double) rand() / (RAND_MAX)))<<std::endl;
 
-	std::vector<double> result;
-	function3 func3;
+	//std::vector<double> result;
+	//function3 func3;
 
-	geneticAlgorithm(func3,result,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+	//geneticAlgorithm(func3,result,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+	if(zadatak==1)
+	{
+		function3 func3;
+		function6 func6;
+		function7 func7;
+
+		std::vector<double> result3;
+		std::vector<double> result6;
+		std::vector<double> result7;
+
+		geneticAlgorithm(func3,result3,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,5,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+
+		geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
+		
+		geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+	}
+
+	if(zadatak==2)
+	{
+		function6 func6;
+		function7 func7;
 	
+		std::vector<double> dim;
+	
+		dim.push_back(1);
+		dim.push_back(3);
+		dim.push_back(6);
+		dim.push_back(10);
+
+		std::vector<double> result6;
+		std::vector<double> result7;
+
+		for(int i=0;i<dim.size();i++)
+		{
+			geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			std::cout<<"Funkcija 6 dimenzija: "<<dim[i]<<"rezultat: ";
+			printVector(result6);
+			std::cout<<"Funkcija 7 dimenzija: "<<dim[i]<<"rezultat: ";
+			printVector(result7);
+			result6.clear();
+			result7.clear();
+		}
+	}
+	if(zadatak==3)
+	{
+		function6 func6;
+		function7 func7;
+		double n = ceil((log(1+(borderRight-borderLeft)*pow(10,4)))/(log(2)));
+		std::vector<double> dim;
+		double median63,median66,median73,median76;
+		double brpog63=0,brpog66=0,brpog73=0,brpog76=0;
+	
+		dim.push_back(3);
+		dim.push_back(6);
+
+		std::vector<double> result6;
+		std::vector<double> result7;
+		std::vector<double> func6result3;
+		std::vector<double> func7result3;		
+		std::vector<double> func6result6;
+		std::vector<double> func7result6;
+		
+		for(int j=0;j<10;j++)
+		{
+			for(int i=0;i<dim.size();i++)
+			{
+				geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
+				geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+				if(i==0)
+				{
+					func6result3.push_back(func6.function(result6));
+					func7result3.push_back(func7.function(result7));
+				}
+				else
+				{
+					func6result6.push_back(func6.function(result6));
+					func7result6.push_back(func7.function(result7));
+				}
+				result6.clear();
+				result7.clear();
+			}
+		}
+
+		median63 = CalcMHWScore(func6result3);
+		median66 = CalcMHWScore(func6result6);
+		median73 = CalcMHWScore(func7result3);
+		median76 = CalcMHWScore(func7result6);
+		for(int j=0;j<10;j++)
+		{
+			if(func6result3[j]<1e-6) brpog63++;
+			if(func6result6[j]<1e-6) brpog66++;
+			if(func6result3[j]<1e-6) brpog73++;
+			if(func7result6[j]<1e-6) brpog76++;
+		}
+		std::cout<<"Broj pogodaka za funkciju 6, dimenzija 3: "<<brpog63<<" Median: "<<median63<<std::endl;
+		std::cout<<"Broj pogodaka za funkciju 6, dimenzija 6: "<<brpog66<<" Median: "<<median66<<std::endl;
+		std::cout<<"Broj pogodaka za funkciju 7, dimenzija 3: "<<brpog73<<" Median: "<<median73<<std::endl;
+		std::cout<<"Broj pogodaka za funkciju 7, dimenzija 6: "<<brpog76<<" Median: "<<median76<<std::endl;
+	}	
+	if(zadatak==4)
+	{
+		function6 func6;
+		std::vector<double> result6;
+		std::vector<double> paramPop;
+		std::vector<double> paramMut;
+		double medianPop,medianMul;
+
+		for(int i=10;i<200;i+=20)
+		{
+			geneticAlgorithm(func6,result6,i,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			paramPop.push_back(func6.function(result6));
+			result6.clear();	
+		}
+		for(double i=0.1;i<=1;i+=0.1)
+		{
+			geneticAlgorithm(func6,result6,brPopulacije,i,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			paramMut.push_back(func6.function(result6));
+			result6.clear();	
+		}
+		medianPop=CalcMHWScore(paramPop);
+		medianMul=CalcMHWScore(paramMut);
+	}
 	return 0;
 }

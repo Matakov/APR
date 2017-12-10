@@ -191,6 +191,25 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return tokens;
 }
 
+double CalcMHWScore(std::vector<double> scores)
+{
+	double median;
+	int size = scores.size();
+
+	std::sort(scores.begin(), scores.end());
+
+	if (size  % 2 == 0)
+	{
+		median = (scores[size / 2 - 1] + scores[size / 2]) / 2;
+	}
+	else 
+	{
+		median = scores[size / 2];
+	}
+
+	return median;
+}
+
 void openFile(std::string name,double& brPopulacije, double& preciznost,double& vjerojatnost,double& brEval, double& borderLeft, double& borderRight, double& velicinaVektora, double& typeOfCrossover, double& typeOfMutation)
 {
 	std::ifstream myfile;
