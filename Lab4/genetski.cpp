@@ -699,6 +699,7 @@ void mutationArithmetic(std::vector<double>& child, double probability, double t
 			child[i]=r;
 		}			
 	}
+	/*
 	if(typeOfMutation==3) //Boundary mutation
 	{
 		for(int i=0;i<child.size();i++)
@@ -714,6 +715,7 @@ void mutationArithmetic(std::vector<double>& child, double probability, double t
 			}
 		}			
 	}
+	*/
 	return;
 }
 
@@ -751,6 +753,18 @@ void printPopulace(std::vector<std::vector<double>> array)
 	
 }
 
+void printPopulaceFitness(std::map<std::vector<double>, double>& valueMap)
+{
+	std::map<std::vector<double>, double>::iterator it;
+	for(it=valueMap.begin();it!=valueMap.end();++it)
+	{
+		for(int j=0;j<it->first.size();j++) std::cout<<it->first[j]<<" ";
+		std::cout<<" : "<<it->second;
+		std::cout<<std::endl;
+	}
+	
+}
+
 void removeDuplicates(std::vector<std::vector<double>>& array)
 {
 	std::vector<std::vector<double>>::iterator it;
@@ -773,13 +787,15 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	evaluatePopulace(Class,array,valueMap);
 	do
 	{
+		iter++;
 		//valueMap.clear();
 		//treba izbrisati i ponovno izracunati valueMap
 		evaluatePopulace(Class,array,valueMap);
 		//std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;		
 		//std::cout<<"Population:"<<std::endl;
 		//printPopulace(array);
-		iter++;
+		//printPopulaceFitness(valueMap);
+		
 		selectedarray.clear();
 		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
 		//std::cout<<"Selected chromosomes from population:"<<std::endl;
@@ -837,19 +853,19 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 			}
 		}
 		//valueMap.clear();
-		//evaluatePopulace(Class,array,valueMap);
+		evaluatePopulace(Class,array,valueMap);
 		//std::cout<<"Population with child:"<<std::endl;
 		//printPopulace(array);
 		//Treba implementirati elitizam
-		//if(iter%100==0)
-		//{
-		//	unit.clear();
-		//	std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
-		//	findBest(unit,valueMap);
-		//	std::cout<<"Best unit: ";
-		//	printVector(unit);
-		//	std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
-		//}
+		if(iter%100==0)
+		{
+			unit.clear();
+			std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
+			findBest(unit,valueMap);
+			std::cout<<"Best unit: ";
+			printVector(unit);
+			std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
+		}
 		//else
 		//{
 		//	std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;
@@ -868,7 +884,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 
 int main(int argc, char* argv[])
 {
-	double brPopulacije,brojBitova,vjerojatnost,brEval,borderLeft, borderRight, velicinaVektora, vrstaMutacija, vrstaKrizanja;
+	double brPopulacije,brojBitova,vjerojatnost,brEval,borderLeft, borderRight, velicinaVektora, vrstaMutacija, vrstaKrizanja,velicinaTurnira;
 	int zadatak=1;
 	if(argc<3)
 	{
@@ -876,7 +892,7 @@ int main(int argc, char* argv[])
 		std::exit(0);
 	}
 	zadatak=atof(argv[2]);
-	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora, vrstaKrizanja, vrstaMutacija);	
+	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora, vrstaKrizanja, vrstaMutacija,velicinaTurnira);	
 
 	//int *array;
 	//array=(int *) malloc(1*sizeof(int));
@@ -944,6 +960,14 @@ int main(int argc, char* argv[])
 	//function3 func3;
 
 	//geneticAlgorithm(func3,result,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+	if(zadatak==0)
+	{
+		function1 func6;
+		std::vector<double> result6;
+		geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);		
+
+
+	}
 	if(zadatak==1)
 	{
 		function3 func3;
@@ -954,11 +978,11 @@ int main(int argc, char* argv[])
 		std::vector<double> result6;
 		std::vector<double> result7;
 
-		geneticAlgorithm(func3,result3,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,5,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+		geneticAlgorithm(func3,result3,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,5,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 
-		geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
+		geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
 		
-		geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+		geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,2,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 	}
 
 	if(zadatak==2)
@@ -978,8 +1002,8 @@ int main(int argc, char* argv[])
 
 		for(int i=0;i<dim.size();i++)
 		{
-			geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
-			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 			std::cout<<"Funkcija 6 dimenzija: "<<dim[i]<<" rezultat: ";
 			printVector(result6);
 			std::cout<<"Funkcija 7 dimenzija: "<<dim[i]<<" rezultat: ";
@@ -1011,8 +1035,8 @@ int main(int argc, char* argv[])
 		{
 			for(int i=0;i<dim.size();i++)
 			{
-				geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
-				geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+				geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);	
+				geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 				if(i==0)
 				{
 					func6result3.push_back(func6.function(result6));
@@ -1056,13 +1080,13 @@ int main(int argc, char* argv[])
 
 		for(int i=10;i<200;i+=20)
 		{
-			geneticAlgorithm(func6,result6,i,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			geneticAlgorithm(func6,result6,i,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 			paramPop.push_back(func6.function(result6));
 			result6.clear();	
 		}
 		for(double i=0.1;i<=1;i+=0.1)
 		{
-			geneticAlgorithm(func6,result6,brPopulacije,i,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,3,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
+			geneticAlgorithm(func6,result6,brPopulacije,i,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost);
 			paramMut.push_back(func6.function(result6));
 			result6.clear();	
 		}

@@ -210,7 +210,7 @@ double CalcMHWScore(std::vector<double> scores)
 	return median;
 }
 
-void openFile(std::string name,double& brPopulacije, double& preciznost,double& vjerojatnost,double& brEval, double& borderLeft, double& borderRight, double& velicinaVektora, double& typeOfCrossover, double& typeOfMutation)
+void openFile(std::string name,double& brPopulacije, double& preciznost,double& vjerojatnost,double& brEval, double& borderLeft, double& borderRight, double& velicinaVektora, double& typeOfCrossover, double& typeOfMutation, double& tournamentSize)
 {
 	std::ifstream myfile;
 	std::string line;
@@ -252,6 +252,10 @@ void openFile(std::string name,double& brPopulacije, double& preciznost,double& 
 			if (container[0] == "Vrsta" && container[1] == "mutacije:")
 			{
 				typeOfMutation=atof(container[2].c_str());			
+			}
+			if (container[0] == "Veličina" && container[1] == "turnira:")
+			{
+				tournamentSize=atof(container[2].c_str());			
 			}
 			
 		}

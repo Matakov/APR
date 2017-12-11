@@ -33,7 +33,7 @@ class AbstractFunction
 
 std::vector<std::string> split(const std::string& , char );
 
-void openFile(std::string ,double& , double& ,double& ,double& ,double& ,double& ,double&, double& ,double&);
+void openFile(std::string ,double& , double& ,double& ,double& ,double& ,double& ,double&, double& ,double&, double&);
 
 class function1: public AbstractFunction 
 {

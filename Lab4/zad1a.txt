@@ -1,8 +1,9 @@
-Veličina populacije: 10
-Broj bitova: 1
-Vjerojatnost mutacije: 0.8
+Veličina populacije: 30
+Broj bitova: 10
+Vjerojatnost mutacije: 0.5
 Broj evaluacija: 10000
-Početni interval: -105 150
-Veličina vektora: 3
-Vrsta križanja: 2
-Vrsta mutacije: 2
+Početni interval: -50 150
+Veličina vektora: 2
+Vrsta križanja: 0
+Vrsta mutacije: 0
+Veličina turnira: 6
