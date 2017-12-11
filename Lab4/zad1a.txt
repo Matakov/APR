@@ -1,5 +1,5 @@
-Veličina populacije: 10
-Broj bitova: 10
+Veličina populacije: 20
+Broj bitova: 1
 Vjerojatnost mutacije: 0.5
 Broj evaluacija: 1000 
 Početni interval: -50 150

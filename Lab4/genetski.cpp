@@ -881,6 +881,9 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		*/
 		array.push_back(child);	
 				
+		/*
+		TREBA DRUGACIJE NAPRAVITI OVO!!!!!		
+		*/
 		while(array.size()<brPop)
 		{
 			removeDuplicates(array);
@@ -920,7 +923,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 			std::cout<<"Best unit: ";
 			printVector(unit);
 			std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
-			printPopulaceFitness(valueMap);
+			//printPopulaceFitness(valueMap);
 		}
 		//else
 		//{
@@ -1161,20 +1164,23 @@ int main(int argc, char* argv[])
 
 		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je turnir i rulet
 		{
+			std::cout<<i<<std::endl;
 			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,i,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
 			turnirrulet.push_back(func7.function(result7));
 			result7.clear();	
 		}
 		medianturnirruletp=CalcMHWScore(turnirrulet);
-		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je rulet
+		for(int i=3;i<10;i+=2)	// ovo je rulet
 		{
+			std::cout<<i<<std::endl;
 			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,2,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
 			rulet.push_back(func7.function(result7));
 			result7.clear();	
 		}
 		medianrulet=CalcMHWScore(rulet);
-		for(int i=3;i<10;i+=2)	// parametar 1 određuje da li je turnir ili nije, ovo je rulet
+		for(int i=3;i<10;i+=2)	// ovo je turnir
 		{
+			std::cout<<i<<std::endl;
 			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,i,2,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
 			turnir.push_back(func7.function(result7));
 			result7.clear();	
