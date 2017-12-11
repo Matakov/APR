@@ -257,3 +257,28 @@ void openFile(std::string name,double& brPopulacije, double& preciznost,double& 
 		}
 	}
 }
+
+double mean(std::vector<double> samples)
+{
+    double sum = accumulate(samples.begin(), samples.end(), 0.0);
+    return sum / samples.size();
+}
+
+std::vector<double> quartiles(std::vector<double> samples)
+{
+    // return as vector containing {first quartile, median, third quartile}
+    std::vector<double> answer;
+    size_t size = samples.size();
+    // faster with http://www.cplusplus.com/reference/algorithm/nth_element/ ?
+    std::sort(samples.begin(), samples.end());
+    // First Quartile
+    answer.push_back(samples[size/4]);
+    // Second Quartile = Median
+    if (size % 2 == 0)
+        answer.push_back((samples[size / 2 - 1] + samples[size / 2]) / 2);
+    else
+        answer.push_back(samples[size / 2]);
+    // Third Quartile
+    answer.push_back(samples[size*3/4]);
+    return answer;
+}

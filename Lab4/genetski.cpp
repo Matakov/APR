@@ -723,7 +723,7 @@ void removeDuplicates(std::vector<std::vector<double>>& array)
 
 void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBytes=1, double n=3, double mode=1,double typeOfCrossover=1, double typeOfMutation=1, double probability=0.2)
 {
-	std::cout<<brEval<<std::endl;
+	//std::cout<<brEval<<std::endl;
 	std::vector<std::vector<double>> array;
 	std::vector<std::vector<double>> selectedarray;
 	std::vector<double> child,unit,temp,parent1,parent2,worst;
@@ -802,15 +802,15 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		//std::cout<<"Population with child:"<<std::endl;
 		//printPopulace(array);
 		//Treba implementirati elitizam
-		if(iter%100==0)
-		{
-			unit.clear();
-			std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
-			findBest(unit,valueMap);
-			std::cout<<"Best unit: ";
-			printVector(unit);
-			std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
-		}
+		//if(iter%100==0)
+		//{
+		//	unit.clear();
+		//	std::cout<<"Iteration: "<<iter<<" ";//<<std::endl;
+		//	findBest(unit,valueMap);
+		//	std::cout<<"Best unit: ";
+		//	printVector(unit);
+		//	std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
+		//}
 		//else
 		//{
 		//	std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;
@@ -839,8 +839,11 @@ int main(int argc, char* argv[])
 	zadatak=atof(argv[2]);
 	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora, vrstaKrizanja, vrstaMutacija);	
 
+	//int *array;
+	//array=(int *) malloc(1*sizeof(int));
 	 /* initialize random seed: */
   	srand (time(NULL));
+	//free(array);
 	
 	//std::vector<double> number,x;
 	//number.push_back(15);
@@ -1001,6 +1004,8 @@ int main(int argc, char* argv[])
 		std::cout<<"Broj pogodaka za funkciju 6, dimenzija 6: "<<brpog66<<" Median: "<<median66<<std::endl;
 		std::cout<<"Broj pogodaka za funkciju 7, dimenzija 3: "<<brpog73<<" Median: "<<median73<<std::endl;
 		std::cout<<"Broj pogodaka za funkciju 7, dimenzija 6: "<<brpog76<<" Median: "<<median76<<std::endl;
+		printVector(func6result3);
+		printVector(func7result3);
 	}	
 	if(zadatak==4)
 	{
