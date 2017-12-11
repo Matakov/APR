@@ -73,5 +73,8 @@ void mutationBinary(std::vector<double>& , double , double , double , double , d
 void mutationArithmetic(std::vector<double>& , double , double , double , double , double );
 
 void printPopulace(std::vector<std::vector<double>> );
+void printPopulaceFitness(std::map<std::vector<double>, double>& );
+void printVectorValue(std::vector<double>& , std::map<std::vector<double>, double>& );
+void printSelectedPopulaceFitness(std::vector<std::vector<double>>& , std::map<std::vector<double>, double>& );
 
 void findBest(std::vector<double>& ,std::map<std::vector<double>, double>& );

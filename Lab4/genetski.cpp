@@ -393,10 +393,10 @@ void eliminateWorst(std::vector<double>& worst,std::vector<std::vector<double>>&
 void findBest(std::vector<double>& best,std::map<std::vector<double>, double>& valueMap)
 {
 	std::map<std::vector<double>, double>::iterator it;
-	double bestValue=std::numeric_limits<int>::max();
+	double bestValue=std::numeric_limits<int>::min();
 	for(it=valueMap.begin();it!=valueMap.end();++it)
 	{
-		if(it->second<bestValue) bestValue=it->second;
+		if(it->second>bestValue) bestValue=it->second;
 	}
 	for(it=valueMap.begin();it!=valueMap.end();++it)
 	{
@@ -777,6 +777,20 @@ void removeDuplicates(std::vector<std::vector<double>>& array)
 	array.resize( std::distance(array.begin(),it));
 	return;
 }
+
+void printVectorValue(std::vector<double>& worst, std::map<std::vector<double>, double>& valueMap)
+{
+	for(int j=0;j<worst.size();j++) std::cout<<worst[j]<<" ";
+	std::cout<<": "<<valueMap[worst]<<std::endl;
+	return;
+}
+
+void printSelectedPopulaceFitness(std::vector<std::vector<double>>& array, std::map<std::vector<double>, double>& valueMap)
+{
+	for(int i=0;i<array.size();i++) printVectorValue(array[i],valueMap);
+	return;
+}
+
 ///////////////////////////////////////////
 /*
 NIJE DOBRO MORAM OBRNUTI REZULTAT POPULACIJE TE MORAM POMAKNUTI DA SE NADJE NAJBOLJI!!!!!
@@ -794,6 +808,8 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	int iter=0;
 	double best,best2,ran,r,tempValue;
 	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBites);
+	std::cout<<"Population:"<<std::endl;
+	printPopulace(array);
 	//evaluatePopulace(Class,array,valueMap,problem);
 	//translacijaDobrote(valueMap);
 	do
@@ -804,15 +820,22 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		//valueMap.clear();
 		//treba izbrisati i ponovno izracunati valueMap
 		//evaluatePopulace(Class,array,valueMap,problem);
+		
 		//std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;		
-		std::cout<<"Population:"<<std::endl;
+		//std::cout<<"Population:"<<std::endl;
 		//printPopulace(array);
-		printPopulaceFitness(valueMap);
+		//printPopulaceFitness(valueMap);
+		
 		
 		selectedarray.clear();
 		nTurnirSelecion(selectedarray,array,valueMap,n,mode);
+
+		//////////
 		//std::cout<<"Selected chromosomes from population:"<<std::endl;
 		//printPopulace(selectedarray);
+		//printSelectedPopulaceFitness(selectedarray,valueMap);		
+		//////////
+
 		if(selectedarray.size()==2)
 		{
 			parent1=selectedarray[0];
@@ -826,16 +849,25 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 			selectParents(selectedarray,parent1,parent2,worst,valueMap);
 			eliminateWorst(worst,array,valueMap);
 		}
+
+		//////////
 		//std::cout<<"Population without worst selected:"<<std::endl;
 		//printPopulace(array);
 		//std::cout<<"Worst: "<<std::endl;
 		//printVector(worst);
+		//printVectorValue(worst,valueMap); //Value ce uvijek biti 0 jer ga se brise!!!	
 		//std::cout<<"Parents: "<<std::endl;
 		//printVector(parent1);
 		//printVector(parent2);
+		//printVectorValue(parent1,valueMap);
+		//printVectorValue(parent2,valueMap);
+		//////////
+		
 		crossover(child, parent1, parent2, typeOfCrossover, numBites, borderLeft, borderRight);
+
 		//std::cout<<"Child: "<<std::endl;
 		//printVector(child);
+
 		mutation(child, probability, typeOfMutation, numBites, borderLeft, borderRight);		
 		//Remove Duplicates
 		removeDuplicates(array);
@@ -848,7 +880,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		}
 		*/
 		array.push_back(child);	
-		/*		
+				
 		while(array.size()<brPop)
 		{
 			removeDuplicates(array);
@@ -873,7 +905,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 				array.push_back(temp);
 			}
 		}
-		*/
+		
 		//valueMap.clear();
 		//evaluatePopulace(Class,array,valueMap,problem);
 		//translacijaDobrote(valueMap);
@@ -888,11 +920,13 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 			std::cout<<"Best unit: ";
 			printVector(unit);
 			std::cout<<"Best value: "<<valueMap[unit]<<std::endl;
+			printPopulaceFitness(valueMap);
 		}
 		//else
 		//{
 		//	std::cout<<"Iteration: "<<iter<<" Population size: "<<array.size()<<std::endl;
 		//}
+		valueMap.clear();
 		if(Class.function(child)<1e-6) break;
 		if(iter>=brEval) break;
 	}
