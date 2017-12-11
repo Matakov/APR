@@ -821,7 +821,8 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	while(true);
 	//petlja moze stati kada funkcija cilja padne ispod 1e-6
 	findBest(unit,valueMap);
-	std::cout<<valueMap[unit]<<std::endl;
+	result=unit;
+	//std::cout<<valueMap[unit]<<std::endl;
 	return;
 }
 
@@ -838,11 +839,11 @@ int main(int argc, char* argv[])
 	zadatak=atof(argv[2]);
 	openFile(argv[1], brPopulacije, brojBitova, vjerojatnost, brEval, borderLeft, borderRight, velicinaVektora, vrstaKrizanja, vrstaMutacija);	
 
-	int *array;
-	array=new int[size];
+	//int *array;
+	//array=(int *) malloc(1*sizeof(int));
 	 /* initialize random seed: */
-  	srand (array);
-	delete [] array;
+  	srand (time(NULL));
+	//free(array);
 	
 	//std::vector<double> number,x;
 	//number.push_back(15);
