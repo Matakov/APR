@@ -59,9 +59,18 @@ std::vector<double> generateR(double );
 //crossover operation
 //void crossover(std::vector<double>& ,std::vector<std::vector<double>>& ,std::map<std::vector<double>, double>& , double , double , double , double );
 void crossover(std::vector<double>& ,std::vector<double>& ,std::vector<double>& , double , double , double , double );
+//crossover binary
+void crossoverBinary(std::vector<double>& ,std::vector<double>& ,std::vector<double>& , double , double , double , double );
+//crossover arithmetic
+void crossoverArithmetic(std::vector<double>& ,std::vector<double>& ,std::vector<double>& , double , double , double , double );
+
 
 //mutation operation
 void mutation(std::vector<double>& , double , double , double );
+//mutation binary
+void mutationBinary(std::vector<double>& , double , double , double , double , double );
+//mutation arithmetic
+void mutationArithmetic(std::vector<double>& , double , double , double , double , double );
 
 void printPopulace(std::vector<std::vector<double>> );
 

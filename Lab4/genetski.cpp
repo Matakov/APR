@@ -11,12 +11,12 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirani vektor
 */
-void TurnToBinary(std::vector<double>& x,double borderLeft, double borderRight,double numBytes)
+void TurnToBinary(std::vector<double>& x,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<double> temp;
 	for(int i=0;i<x.size();i++)
 	{
-		temp.push_back((pow(2,numBytes)-1)*(x[i]-borderLeft)/(borderRight-borderLeft));	
+		temp.push_back((pow(2,numBites)-1)*(x[i]-borderLeft)/(borderRight-borderLeft));	
 	}
 	x=temp;
 	return;
@@ -30,12 +30,12 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirani vektor
 */
-void TurnFromBinary(std::vector<double>& b,double borderLeft, double borderRight,double numBytes)
+void TurnFromBinary(std::vector<double>& b,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<double> temp;
 	for(int i=0;i<b.size();i++)
 	{
-		temp.push_back(borderLeft+b[i]/(double)(pow(2,numBytes)-1)*(borderRight-borderLeft));	
+		temp.push_back(borderLeft+b[i]/(double)(pow(2,numBites)-1)*(borderRight-borderLeft));	
 	}
 	b=temp;
 	return;
@@ -48,7 +48,7 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirani vektor
 */
-void getToBinaryString(std::vector<double>& result,std::vector<double> x,double numBytes)
+void getToBinaryString(std::vector<double>& result,std::vector<double> x,double numBites)
 {
 	result.clear();
 	std::vector<double> temp,temp2;
@@ -66,7 +66,7 @@ void getToBinaryString(std::vector<double>& result,std::vector<double> x,double 
 			x[i]=(int)x[i]/2;
 			temp2.push_back(remainder);
 		}
-		while(temp2.size()<numBytes)
+		while(temp2.size()<numBites)
 		{
 			temp2.push_back(0);
 		}
@@ -87,9 +87,9 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirani vektor
 */
-void getFromBinaryString(std::vector<double>& result,std::vector<double> x,double numBytes)
+void getFromBinaryString(std::vector<double>& result,std::vector<double> x,double numBites)
 {
-	int t=x.size()/numBytes;
+	int t=x.size()/numBites;
 	//std::cout<<t<<std::endl;
 	double number;
 	//std::vector<double> temp;
@@ -97,10 +97,10 @@ void getFromBinaryString(std::vector<double>& result,std::vector<double> x,doubl
 	{
 		number=0;
 		//temp.clear();
-		for(int j=0;j<numBytes;j++) 	//temp[j]=x[t*numBytes+j];
+		for(int j=0;j<numBites;j++) 	//temp[j]=x[t*numBites+j];
 		{
-			//std::cout<<"N: "<<i<<" "<<j<<" "<<x[i*numBytes+j]<<" ";
-			number+=x[i*numBytes+j]*pow(2,numBytes-(j+1));
+			//std::cout<<"N: "<<i<<" "<<j<<" "<<x[i*numBites+j]<<" ";
+			number+=x[i*numBites+j]*pow(2,numBites-(j+1));
 		}
 		//std::cout<<std::endl;
 		result.push_back(number);
@@ -115,22 +115,22 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirano polje
 */
-void binarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBytes)
+void binarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<std::vector<double>> temp(array);
 	for(int i=0;i<temp.size();i++)
 	{
-		TurnToBinary(temp[i],borderLeft, borderRight,numBytes);
-		getToBinaryString(array[i],temp[i],numBytes);
+		TurnToBinary(temp[i],borderLeft, borderRight,numBites);
+		getToBinaryString(array[i],temp[i],numBites);
 	}
 	//array=temp;
 }
 
-void binarizeVector(std::vector<double>& vector,double borderLeft, double borderRight,double numBytes)
+void binarizeVector(std::vector<double>& vector,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<double> temp(vector);
-	TurnToBinary(temp,borderLeft, borderRight,numBytes);
-	getToBinaryString(vector,temp,numBytes);
+	TurnToBinary(temp,borderLeft, borderRight,numBites);
+	getToBinaryString(vector,temp,numBites);
 }
 
 /*
@@ -142,7 +142,7 @@ Ulazni parametri:
 Izlazni parametri:
 		-referencirano polje
 */
-void debinarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBytes)
+void debinarizeArray(std::vector<std::vector<double>>&array,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<std::vector<double>> temp;
 	std::vector<double> temp_vector;
@@ -150,25 +150,25 @@ void debinarizeArray(std::vector<std::vector<double>>&array,double borderLeft, d
 	{
 		temp_vector.clear();
 		//temp[i].clear();
-		getFromBinaryString(temp_vector,array[i],numBytes);
+		getFromBinaryString(temp_vector,array[i],numBites);
 		//for(int j=0;j<temp_vector.size();j++) std::cout<<temp_vector[j]<<" ";
 		//std::cout<<std::endl;
-		TurnFromBinary(temp_vector,borderLeft, borderRight,numBytes);
-		//TurnToBinary(temp[i],borderLeft, borderRight,numBytes);
-		//getToBinaryString(temp[i],array[i],numBytes);
+		TurnFromBinary(temp_vector,borderLeft, borderRight,numBites);
+		//TurnToBinary(temp[i],borderLeft, borderRight,numBites);
+		//getToBinaryString(temp[i],array[i],numBites);
 		//for(int j=0;j<temp_vector.size();j++) std::cout<<temp_vector[j]<<" ";
 		temp.push_back(temp_vector);
 	}
 	array=temp;
 }
 
-void debinarizeVector(std::vector<double>& vector,double borderLeft, double borderRight,double numBytes)
+void debinarizeVector(std::vector<double>& vector,double borderLeft, double borderRight,double numBites)
 {
 	std::vector<double> temp;
-	getFromBinaryString(temp,vector,numBytes);
-	TurnFromBinary(temp,borderLeft, borderRight,numBytes);
-	//TurnToBinary(temp,borderLeft, borderRight,numBytes);
-	//getToBinaryString(vector,temp,numBytes);
+	getFromBinaryString(temp,vector,numBites);
+	TurnFromBinary(temp,borderLeft, borderRight,numBites);
+	//TurnToBinary(temp,borderLeft, borderRight,numBites);
+	//getToBinaryString(vector,temp,numBites);
 	
 	vector=temp;
 }
@@ -282,7 +282,7 @@ ulazni parametri:
 Izlazni parametri:
 		- populacija
 */
-void createPopulace(std::vector<std::vector<double>>& array,double brPop,double borderLeft, double borderRight, double vectorSize, double numBytes)
+void createPopulace(std::vector<std::vector<double>>& array,double brPop,double borderLeft, double borderRight, double vectorSize, double numBites)
 {
 	double r=0;
 	std::vector<double> temp(vectorSize,0.0);
@@ -440,11 +440,11 @@ void selectParents(std::vector<std::vector<double>>& selectedArray,std::vector<d
 
 
 //Funkcija koja uz ulazni parametar od bitnovne vrijenosti generira nasumični vektor
-std::vector<double> generateR(double numBytes)
+std::vector<double> generateR(double numBites)
 {
 	std::vector<double> temp;	
 	double r=(double) rand() / (RAND_MAX);
-	for(int i=0;i<numBytes;i++)
+	for(int i=0;i<numBites;i++)
 	{
 		r=(double) rand() / (RAND_MAX);
 		if(r<0.5) temp.push_back(0);
@@ -459,6 +459,98 @@ void printVector(std::vector<double> vector)
 	std::cout<<std::endl;
 }
 
+
+/*
+Crossover of binary functions
+
+*/
+void crossoverBinary(std::vector<double>& child,std::vector<double>& parent1,std::vector<double>& parent2, double typeOfCrossover, double numBites, double borderLeft, double borderRight)
+{
+	binarizeVector(parent1, borderLeft, borderRight, numBites);	
+	binarizeVector(parent2, borderLeft, borderRight, numBites);
+	std::vector<double> R;
+	double r;
+	int num;
+	if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
+	if(typeOfCrossover==1)
+	{
+		num = parent1.size()/numBites;
+		//std::cout<<num<<std::endl;
+		for(int i=0;i<num;i++)
+		{
+			r =(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			for(int j=0;j<numBites;j++)
+			{
+				if(j<r)
+				{
+					child.push_back(parent1[i*numBites+j]);
+				}
+				else
+				{
+					child.push_back(parent2[i*numBites+j]);					
+				}
+			}
+		}
+		//array.push_back(child);
+	}
+	//uniform crossover
+	if(typeOfCrossover==2)
+	{
+		r =(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+		for(int i=0;i<(parent1.size()/numBites);i++)
+		{
+			R = generateR(numBites);
+			for(int j=0;j<numBites;j++)
+			{
+				child.push_back(parent1[i*numBites+j]*parent2[i*numBites+j]+R[j]*((1-parent1[i*numBites+j])*parent2[i*numBites+j]+parent1[i*numBites+j]*(1-parent2[i*numBites+j])));
+			}
+		}
+		//array.push_back(child);
+	}
+	//std::cout<<"Child: ";
+	//printVector(child);
+	//debinarize array
+	debinarizeVector(child,borderLeft,borderRight,numBites);
+	//debinarizeArray(selectedarray,borderLeft,borderRight,numBites);
+	//std::cout<<"Child: ";
+	//printVector(child);
+	return;
+}
+
+void crossoverArithmetic(std::vector<double>& child,std::vector<double>& parent1,std::vector<double>& parent2, double typeOfCrossover, double numBites, double borderLeft, double borderRight)
+{
+	double r;
+	if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
+	if(typeOfCrossover==1) //one point crossover
+	{
+		r =(double)(int)(parent1.size()*((double) rand() / (RAND_MAX)));
+		for(int j=0;j<parent1.size();j++)
+		{
+			if(j<r)
+			{
+				child.push_back(parent1[j]);
+			}
+			else
+			{
+				child.push_back(parent2[j]);
+			}
+		}
+		//array.push_back(child);
+	}
+	if(typeOfCrossover==2) //Arithmetic Recombination
+	{
+		r =(double) rand() / (RAND_MAX);
+		for(int j=0;j<parent1.size();j++)
+		{
+			child.push_back(r*parent1[j]+(1-r)*parent2[j]);
+		}
+		//array.push_back(child);
+	}
+	return;
+}
+
+
+
 /*
 Funkcija koja radi križanje i mutaciju jedinki
 Ulazni parametri:
@@ -469,102 +561,162 @@ Ulazni parametri:
 		-da li je aritmetički ili binarno
 		-granice vrijednosti
 */
-void crossover(std::vector<double>& child,std::vector<double>& parent1,std::vector<double>& parent2, double typeOfCrossover, double numBytes, double borderLeft, double borderRight)
+void crossover(std::vector<double>& child,std::vector<double>& parent1,std::vector<double>& parent2, double typeOfCrossover, double numBites, double borderLeft, double borderRight)
 {
 	child.clear();
-	double r;
-	int num;
-	std::vector<double> R;
-	if(numBytes>1) //Binarni prikaz
+	if(numBites>1) //Binarni prikaz
 	{
 		//Binarize array
-		//binarizeArray(selectedarray,borderLeft,borderRight,numBytes);
-		binarizeVector(parent1, borderLeft, borderRight, numBytes);	
-		binarizeVector(parent2, borderLeft, borderRight, numBytes);
+		//binarizeArray(selectedarray,borderLeft,borderRight,numBites);
+		crossoverBinary(child,parent1,parent2,typeOfCrossover,numBites,borderLeft,borderRight);
 		//std::cout<<best1<<" "<<best2<<std::endl;
 		//printPopulace(selectedarray);
 		//one point crossover
-		if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
-		if(typeOfCrossover==1)
-		{
-			num = parent1.size()/numBytes;
-			//std::cout<<num<<std::endl;
-			for(int i=0;i<num;i++)
-			{
-				r =(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				for(int j=0;j<numBytes;j++)
-				{
-					if(j<r)
-					{
-						child.push_back(parent1[i*numBytes+j]);
-					}
-					else
-					{
-						child.push_back(parent2[i*numBytes+j]);					
-					}
-				}
-			}
-			//array.push_back(child);
-		}
-		//uniform crossover
-		if(typeOfCrossover==2)
-		{
-			r =(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-			for(int i=0;i<(parent1.size()/numBytes);i++)
-			{
-				R = generateR(numBytes);
-				for(int j=0;j<numBytes;j++)
-				{
-
-					child.push_back(parent1[i*numBytes+j]*parent2[i*numBytes+j]+R[j]*((1-parent1[i*numBytes+j])*parent2[i*numBytes+j]+parent1[i*numBytes+j]*(1-parent2[i*numBytes+j])));
-
-				}
-			}
-			//array.push_back(child);
-		}
-		//std::cout<<"Child: ";
-		//printVector(child);
-		//debinarize array
-		debinarizeVector(child,borderLeft,borderRight,numBytes);
-		//debinarizeArray(selectedarray,borderLeft,borderRight,numBytes);
-		//std::cout<<"Child: ";
-		//printVector(child);
+		
 		
 	}
 	else	//Aritmeticki prikaz
 	{
-		//one point crossover
-		if(typeOfCrossover==0) typeOfCrossover=(double)(int)(2*((double) rand() / (RAND_MAX)))+1;
-		if(typeOfCrossover==1)
-		{
-			r =(double)(int)(parent1.size()*((double) rand() / (RAND_MAX)));
-			for(int j=0;j<parent1.size();j++)
-			{
-				if(j<r)
-				{
-					child.push_back(parent1[j]);
-				}
-				else
-				{
-					child.push_back(parent2[j]);
-				}
-			}
-			//array.push_back(child);
-		}
-		//Arithmetic Recombination
-		if(typeOfCrossover==2)
-		{
-			r =(double) rand() / (RAND_MAX);
-			for(int j=0;j<parent1.size();j++)
-			{
-				child.push_back(r*parent1[j]+(1-r)*parent2[j]);
-
-			}
-			//array.push_back(child);
-		}
+		crossoverArithmetic(child,parent1,parent2,typeOfCrossover,numBites,borderLeft,borderRight);
 	}	
 	return;
 }
+
+
+/*
+Mutation of a binary child
+*/
+void mutationBinary(std::vector<double>& child, double probability, double typeOfMutation, double numBites, double borderLeft, double borderRight)
+{
+	double temp,l,r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+	if(typeOfMutation==0) typeOfMutation=(double)(int)(4*((double) rand() / (RAND_MAX)))+1;
+	binarizeVector(child, borderLeft, borderRight, numBites);
+	if(typeOfMutation==1) //Bit Flip Mutation
+	{
+		for(int i=0;i<child.size()/numBites;i++)
+		{
+			r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			child[i*numBites+r]=1-child[i*numBites+r];
+		}
+	}
+	if(typeOfMutation==2) //Swap Mutation
+	{
+		for(int i=0;i<child.size()/numBites;i++)
+		{
+			r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			l=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			if(l>r)
+			{
+				temp=l;
+				l=r;
+				r=temp;
+			}
+			temp = child[i*numBites+l]; 
+			child[i*numBites+l]=child[i*numBites+r];
+			child[i*numBites+r]=child[i*numBites+l];
+		}
+	}
+	if(typeOfMutation==3) //Inversion Mutation
+	{
+		for(int i=0;i<child.size()/numBites;i++)
+		{
+			r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			l=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			if(l>r)
+			{
+				temp=l;
+				l=r;
+				r=temp;
+			}
+			std::reverse(child.begin()+i*numBites+l,child.begin()+i*numBites+r);
+		}
+	}
+	if(typeOfMutation==4) //Random Shiffle
+	{
+		for(int i=0;i<child.size()/numBites;i++)
+		{
+			r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			l=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+			if(l>r)
+			{
+				temp=l;
+				l=r;
+				r=temp;
+			}
+			std::random_shuffle(child.begin()+i*numBites+l,child.begin()+i*numBites+r);
+		}
+	}
+	if(typeOfMutation==5) //Boundary mutation
+	{
+		for(int i=0;i<child.size()/numBites;i++)
+		{
+			r=(double) rand() / (RAND_MAX);
+			if(r<0.5)
+			{
+				for(int j=0;j<numBites;j++)
+				{
+					child[i*numBites+j]=0;
+				}
+			}
+			else
+			{
+				for(int j=0;j<numBites;j++)
+				{
+					child[i*numBites+j]=1;
+				}
+			}
+		}
+		
+	}
+	debinarizeVector(child, borderLeft, borderRight, numBites);	
+	return;
+}
+
+
+/*
+Mutation of arithmetic unit
+*/
+void mutationArithmetic(std::vector<double>& child, double probability, double typeOfMutation, double numBites, double borderLeft, double borderRight)
+{
+	double temp,l,r=(double)(int)(numBites*((double) rand() / (RAND_MAX)));
+	if(typeOfMutation==0) typeOfMutation=(double)(int)(3*((double) rand() / (RAND_MAX)))+1;
+	if(typeOfMutation==1) //Uniform mutation
+	{
+		for(int i=0;i<child.size();i++)
+		{
+			child[i]=((borderRight-borderLeft)*((double) rand() / (RAND_MAX))-borderLeft);
+		}			
+	}
+	if(typeOfMutation==2) //Gaussian mutation
+	{
+		for(int i=0;i<child.size();i++)
+		{
+			std::default_random_engine generator;
+  			std::normal_distribution<double> distribution((borderRight-borderLeft)/2,3);
+			r = distribution(generator);
+			if(r>borderRight) r=borderRight;
+			if(r<borderLeft) r=borderLeft;	
+			child[i]=r;
+		}			
+	}
+	if(typeOfMutation==3) //Boundary mutation
+	{
+		for(int i=0;i<child.size();i++)
+		{
+			r=(double) rand() / (RAND_MAX);
+			if(r<0.5)
+			{
+				child[i]=borderLeft;
+			}
+			else
+			{
+				child[i]=borderRight;
+			}
+		}			
+	}
+	return;
+}
+
 
 /*
 Funkcija koja radi križanje i mutaciju jedinki
@@ -574,131 +726,18 @@ Ulazni parametri:
 		-vrsta križanja
 		-da li je aritmetički ili binarno
 */
-void mutation(std::vector<double>& child, double probability, double typeOfMutation, double numBytes, double borderLeft, double borderRight)
+void mutation(std::vector<double>& child, double probability, double typeOfMutation, double numBites, double borderLeft, double borderRight)
 {
-	double temp,l,r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
 	double mute=(double) rand() / (RAND_MAX);
-	if(mute>=probability) return;
-	if(numBytes>1) //Binarna mutacija
+	if(numBites>1) //Binarna mutacija
 	{
-		if(typeOfMutation==0) typeOfMutation=(double)(int)(4*((double) rand() / (RAND_MAX)))+1;
-		binarizeVector(child, borderLeft, borderRight, numBytes);
-		if(typeOfMutation==1) //Bit Flip Mutation
-		{
-			for(int i=0;i<child.size()/numBytes;i++)
-			{
-				r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				child[i*numBytes+r]=1-child[i*numBytes+r];
-			}
-		}
-		if(typeOfMutation==2) //Swap Mutation
-		{
-			for(int i=0;i<child.size()/numBytes;i++)
-			{
-				r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				l=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				if(l>r)
-				{
-					temp=l;
-					l=r;
-					r=temp;
-				}
-				temp = child[i*numBytes+l]; 
-				child[i*numBytes+l]=child[i*numBytes+r];
-				child[i*numBytes+r]=child[i*numBytes+l];
-			}
-		}
-		if(typeOfMutation==3) //Inversion Mutation
-		{
-			for(int i=0;i<child.size()/numBytes;i++)
-			{
-				r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				l=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				if(l>r)
-				{
-					temp=l;
-					l=r;
-					r=temp;
-				}
-				std::reverse(child.begin()+i*numBytes+l,child.begin()+i*numBytes+r);
-			}
-		}
-		if(typeOfMutation==4) //Random Shiffle
-		{
-			for(int i=0;i<child.size()/numBytes;i++)
-			{
-				r=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				l=(double)(int)(numBytes*((double) rand() / (RAND_MAX)));
-				if(l>r)
-				{
-					temp=l;
-					l=r;
-					r=temp;
-				}
-				std::random_shuffle(child.begin()+i*numBytes+l,child.begin()+i*numBytes+r);
-			}
-		}
-		if(typeOfMutation==5) //Boundary mutation
-		{
-			for(int i=0;i<child.size()/numBytes;i++)
-			{
-				r=(double) rand() / (RAND_MAX);
-				if(r<0.5)
-				{
-					for(int j=0;j<numBytes;j++)
-					{
-						child[i*numBytes+j]=0;
-					}
-				}
-				else
-				{
-					for(int j=0;j<numBytes;j++)
-					{
-						child[i*numBytes+j]=1;
-					}
-				}
-			}
-			
-		}
-		debinarizeVector(child, borderLeft, borderRight, numBytes);
+		//if(mute>=probability) return;
+		if(mute>=(1-pow(1-probability,numBites))) return;
+		mutationBinary(child,probability,typeOfMutation,numBites,borderLeft,borderRight);
 	}
 	else //Mutacija sa pomičnim korakom
 	{
-		if(typeOfMutation==0) typeOfMutation=(double)(int)(3*((double) rand() / (RAND_MAX)))+1;
-		if(typeOfMutation==1) //Uniform mutation
-		{
-			for(int i=0;i<child.size();i++)
-			{
-				child[i]=((borderRight-borderLeft)*((double) rand() / (RAND_MAX)));
-			}			
-		}
-		if(typeOfMutation==2) //Gaussian mutation
-		{
-			for(int i=0;i<child.size();i++)
-			{
-				std::default_random_engine generator;
-  				std::normal_distribution<double> distribution(borderRight-borderLeft,3);
-				r = distribution(generator);
-				if(r>borderRight) r=borderRight;
-				if(r<borderLeft) r=borderLeft;	
-				child[i]=r;
-			}			
-		}
-		if(typeOfMutation==3) //Boundary mutation
-		{
-			for(int i=0;i<child.size();i++)
-			{
-				r=(double) rand() / (RAND_MAX);
-				if(r<0.5)
-				{
-					child[i]=borderLeft;
-				}
-				else
-				{
-					child[i]=borderRight;
-				}
-			}			
-		}
+		mutationArithmetic(child,probability,typeOfMutation,numBites,borderLeft,borderRight);
 	}
 	return;
 }
@@ -721,7 +760,7 @@ void removeDuplicates(std::vector<std::vector<double>>& array)
 	return;
 }
 
-void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBytes=1, double n=3, double mode=1,double typeOfCrossover=1, double typeOfMutation=1, double probability=0.2)
+void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double brPop,double prob, double brEval,double borderLeft, double borderRight, double vectorSize, double numBites=1, double n=3, double mode=1,double typeOfCrossover=1, double typeOfMutation=1, double probability=0.2)
 {
 	//std::cout<<brEval<<std::endl;
 	std::vector<std::vector<double>> array;
@@ -730,7 +769,7 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 	std::map<std::vector<double>, double> valueMap;
 	int iter=0;
 	double best,best2,ran,r;
-	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBytes);
+	createPopulace(array,brPop,borderLeft,borderRight,vectorSize, numBites);
 	evaluatePopulace(Class,array,valueMap);
 	do
 	{
@@ -765,10 +804,10 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 		//std::cout<<"Parents: "<<std::endl;
 		//printVector(parent1);
 		//printVector(parent2);
-		crossover(child, parent1, parent2, typeOfCrossover, numBytes, borderLeft, borderRight);
+		crossover(child, parent1, parent2, typeOfCrossover, numBites, borderLeft, borderRight);
 		//std::cout<<"Child: "<<std::endl;
 		//printVector(child);
-		mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);		
+		mutation(child, probability, typeOfMutation, numBites, borderLeft, borderRight);		
 		//Remove Duplicates
 		removeDuplicates(array);
 		if(array.size()<3) break;
@@ -782,8 +821,8 @@ void geneticAlgorithm(AbstractFunction& Class,std::vector<double>& result,double
 			{
 				nTurnirSelecion(selectedarray,array,valueMap,n,mode);
 				selectParents(selectedarray,parent1,parent2,worst,valueMap);
-				crossover(child, parent1, parent2, typeOfCrossover, numBytes, borderLeft, borderRight);
-				mutation(child, probability, typeOfMutation, numBytes, borderLeft, borderRight);
+				crossover(child, parent1, parent2, typeOfCrossover, numBites, borderLeft, borderRight);
+				mutation(child, probability, typeOfMutation, numBites, borderLeft, borderRight);
 				array.push_back(child);
 			}
 			else
