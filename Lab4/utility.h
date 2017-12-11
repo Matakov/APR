@@ -68,4 +68,9 @@ class function7: public AbstractFunction
 		void restartCount();
 };
 
+//calculate median score
 double CalcMHWScore(std::vector<double> );
+
+//prepare for boxplot
+double mean(std::vector<double> );
+std::vector<double> quartiles(std::vector<double> );
