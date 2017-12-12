@@ -1091,26 +1091,25 @@ int main(int argc, char* argv[])
 		std::vector<double> func6result6;
 		std::vector<double> func7result6;
 		
-		for(int j=0;j<10;j++)
+
+		for(int i=0;i<dim.size();i++)
 		{
-			for(int i=0;i<dim.size();i++)
+			geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);	
+			geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
+			if(i==0)
 			{
-				geneticAlgorithm(func6,result6,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);	
-				geneticAlgorithm(func7,result7,brPopulacije,vjerojatnost,brEval,borderLeft,borderRight,dim[i],n,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
-				if(i==0)
-				{
-					func6result3.push_back(func6.function(result6));
-					func7result3.push_back(func7.function(result7));
-				}
-				else
-				{
-					func6result6.push_back(func6.function(result6));
-					func7result6.push_back(func7.function(result7));
-				}
-				result6.clear();
-				result7.clear();
+				func6result3.push_back(func6.function(result6));
+				func7result3.push_back(func7.function(result7));
 			}
+			else
+			{
+				func6result6.push_back(func6.function(result6));
+				func7result6.push_back(func7.function(result7));
+			}
+			result6.clear();
+			result7.clear();
 		}
+
 
 		median63 = CalcMHWScore(func6result3);
 		median66 = CalcMHWScore(func6result6);
@@ -1132,26 +1131,53 @@ int main(int argc, char* argv[])
 	}	
 	if(zadatak==4)
 	{
-		function6 func6;
+		function7 func6;
 		std::vector<double> result6;
-		std::vector<double> paramPop;
-		std::vector<double> paramMut;
-		double medianPop,medianMul;
-
-		for(int i=10;i<200;i+=20)
+		std::vector<double> temp,medianPop,medianMul;;
+		std::vector<std::vector<double>> paramPop;
+		std::vector<std::vector<double>> paramMut;
+		//double medianPop,medianMul;
+		for(int i=20;i<200;i+=20)
 		{
-			geneticAlgorithm(func6,result6,i,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
-			paramPop.push_back(func6.function(result6));
-			result6.clear();	
+			temp.clear();
+			for(int j=0;j<10;j++)
+			{				
+				geneticAlgorithm(func6,result6,i,vjerojatnost,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
+				temp.push_back(func6.function(result6));
+				result6.clear();	
+			}
+			paramPop.push_back(temp);
 		}
+		std::ofstream myfile;
+  		myfile.open ("example.dat");
+		for(int j=0;j<9;j++)
+		{
+			myfile << j << " ";
+	  		for(int i=0;i<paramPop.size();i++)
+			{
+				myfile << paramPop[i][j] <<" ";
+			}
+			myfile << "\n";
+		}
+  		myfile.close();
+		/*
 		for(double i=0.1;i<=1;i+=0.1)
-		{
-			geneticAlgorithm(func6,result6,brPopulacije,i,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
-			paramMut.push_back(func6.function(result6));
-			result6.clear();	
+		{	
+			temp.clear();
+			for(int j=0;j<10;j++)
+			{
+				geneticAlgorithm(func6,result6,brPopulacije,i,brEval,borderLeft,borderRight,velicinaVektora,brojBitova,velicinaTurnira,1,vrstaKrizanja,vrstaMutacija,vjerojatnost,problem);
+				temp.push_back(func6.function(result6));
+				result6.clear();	
+			}
+			paramMut.push_back(temp);
 		}
-		medianPop=CalcMHWScore(paramPop);
-		medianMul=CalcMHWScore(paramMut);
+		for(int i=0;i<paramPop.size();i++)
+		{
+			medianPop.push_back(CalcMHWScore(paramPop[i]));
+			medianMul.push_back(CalcMHWScore(paramMut[i]));
+		}
+		*/
 	}
 	if(zadatak==5)
 	{
